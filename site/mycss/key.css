@@ -1,0 +1,130 @@
+/*
+
+    The key area is where
+    * the text to be keyed is displayed.
+    * the user mouses over when keying with the mouse key.
+
+*/
+
+#keyTestP,
+#keyPracticeP
+{
+    height: 75px;
+}
+
+#keyTestKey,
+#keyPracticeKey
+{
+    width:inherit;
+    height:200px;
+    border-width:1px;
+    border-style: solid;
+    margin: 10px 20px 10px 0px;
+    padding:10px;
+    overflow-y:auto;
+    overflow-x:hidden;
+}
+
+#keyTestKey.user-keying,
+#keyPracticeKey.user-keying
+{
+    border-color:white;
+}
+
+#keyTestKey.user-not-keying,
+#keyPracticeKey.user-not-keying
+{
+    border-color:black;
+}
+
+#keyTestKey.user-key-over,
+#keyPracticeKey.user-key-over
+{
+    background-color:peachpuff;
+    color: black;
+}
+
+#keyTestKey.user-not-key-over,
+#keyPracticeKey.user-not-key-over
+{
+    background:transparent;
+    color: white;
+}
+
+/*
+
+    The copy area is where
+    * the text to key is displayed,
+    * or the results text is displayed.
+
+*/
+
+#keyTestCopy,
+#keyPracticeCopy
+{
+    width:inherit;
+    height:200px;
+    border-width:1px;
+    border-style: solid;
+    margin: 10px 20px 10px 0px;
+    padding:10px;
+    overflow-y:auto;
+    overflow-x:hidden;
+    border-color:red;
+}
+
+#keyTestCopy > table,
+#keyPracticeCopy > table
+{
+    width: inherit;
+    margin: 20px 20px 20px 0;
+}
+
+#keyTestCopy > table > tbody > tr > th,
+#keyPracticeCopy > table > tbody > tr > th
+{
+    width: 25%;
+    height: 50px;
+    vertical-align: middle;
+    text-align: right;
+    padding-right: 10px;
+}
+
+#keyTestCopy > table > tbody > tr > td,
+#keyPracticeCopy > table > tbody > tr > td
+{
+    background-color: white;
+    width: 75%;
+    height: 50px;
+    vertical-align: middle;
+    text-align: left;
+    padding-left: 10px;
+}
+
+#keyTestCopy > table > tbody > tr > td.ditdah,
+#keyPracticeCopy > table > tbody > tr > td.ditdah
+{
+    font-size:150%;
+    color: black;
+}
+
+#keyTestCopy > table > tbody > tr > td.control,
+#keyPracticeCopy > table > tbody > tr > td.control,
+#keyTestCopy > table > tbody > tr > td.copied,
+#keyPracticeCopy > table > tbody > tr > td.copied
+{
+    font-size:100%;
+    color: black;
+}
+
+#keyTestCopy > table > tbody > tr > td.match,
+#keyPracticeCopy > table > tbody > tr > td.match
+{
+    color:green;
+}
+
+#keyTestCopy > table > tbody > tr > td.mismatch,
+#keyPracticeCopy > table > tbody > tr > td.mismatch
+{
+    color:red;
+}

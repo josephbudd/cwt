@@ -1,0 +1,2 @@
+remove wpm from get text to copy
+have the callers get wmp

@@ -1,0 +1,68 @@
+#copyTestCopy,
+#copyPracticeCopy,
+#copyTestText,
+#copyPracticeText
+{
+    width:inherit;
+    height:200px;
+    border-width:1px;
+    border-style: solid;
+    margin:10px;
+    padding:10px;
+    overflow-y:auto;
+    overflow-x:hidden;
+}
+
+#copyTestCopy,
+#copyPracticeCopy
+{
+    border:red solid 1px;
+    background-color:peachpuff;
+}
+
+#copyTestText,
+#copyPracticeText
+{
+    border-color:blue;
+    margin-right:20px;
+}
+
+#copyTestText > table,
+#copyPracticeText > table
+{
+    margin-top:20px;
+}
+
+#copyTestText > table > tbody > tr > td,
+#copyPracticeText > table > tbody > tr > td
+{
+    text-align:center;
+    vertical-align: middle;
+}
+
+#copyTestText > table > tbody > tr > td.ditdah,
+#copyPracticeText > table > tbody > tr > td.ditdah
+{
+    font-size:200%;
+    margin:0;
+}
+
+#copyTestText > table > tbody > tr > td.keyed,
+#copyPracticeText > table > tbody > tr > td.keyed,
+#copyTestText > table > tbody > tr > td.copied,
+#copyPracticeText > table > tbody > tr > td.copied
+{
+    font-size:100%;
+}
+
+#copyTestText > table > tbody > tr > td.match,
+#copyPracticeText > table > tbody > tr > td.match
+{
+    color:lightcyan;
+}
+
+#copyTestText > table > tbody > tr > td.mismatch,
+#copyPracticeText > table > tbody > tr > td.mismatch
+{
+    color:lightpink;
+}
