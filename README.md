@@ -18,13 +18,14 @@ My key is wired to the contacts of the left button of a cheap usb mouse I ripped
 
 ## Build Requirements
 
-### Alsa
-
-So this uses alsa and requires alsa to build and maybe to run.
+* The mainprocess/goalsa package is written in cgo which requires gcc.
+* The mainprocess/goalsa package is works with the alsa lib and requires libasound2-dev.
 
 ``` bash
 
-sudo apt-get install alsa-base libasound2-dev
+sudo apt install gcc
+sudo apt install libasound2-dev
+go get -u github.com/josephbudd/cwt
 
 ```
 
