@@ -19,7 +19,7 @@ My key is wired to the contacts of the left button of a cheap usb mouse I ripped
 ## Install and Build
 
 * The mainprocess/goalsa package is written in cgo which requires gcc.
-* The mainprocess/goalsa package is works with the alsa lib and requires libasound2-dev.
+* The mainprocess/goalsa package uses the alsa lib and requires libasound2-dev.
 
 ``` bash
 
