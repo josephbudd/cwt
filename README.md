@@ -16,7 +16,7 @@ The app is pretty much done but right now I'm working on the most critical part;
 
 My key is wired to the contacts of the left button of a cheap usb mouse I ripped apart. So I record the times of the mouse up and down events in the renderer and let the main process copy those times into valid morse code and then into text.
 
-## Build Requirements
+## Install and Build
 
 * The mainprocess/goalsa package is written in cgo which requires gcc.
 * The mainprocess/goalsa package is works with the alsa lib and requires libasound2-dev.
