@@ -9,7 +9,7 @@ import (
 	"github.com/josephbudd/cwt/domain/implementations/calling"
 	"github.com/josephbudd/cwt/domain/interfaces/storer"
 	"github.com/josephbudd/cwt/domain/types"
-	"github.com/josephbudd/cwt/mainprocess/services/keyService"
+	"github.com/josephbudd/cwt/mainprocess/services/keyservice"
 )
 
 // newGetTextWPMToKeyCall is the constructor for the GetTextWPMToKey Call.
@@ -53,10 +53,10 @@ func mainProcessReceiveGetTextWPMToKey(params []byte, callBackToRenderer func(pa
 		return
 	}
 	// 2. Get the text to key.
-	text, err := keyService.GetKeyCodes(keyCodeStorer)
+	text, err := keyservice.GetKeyCodes(keyCodeStorer)
 	if err != nil {
 		// Calling back the error.
-		message := fmt.Sprintf("mainProcessGetTextWPMToKey: keyService.GetTextWPMToKey(keyCodeStorer): error is %s\n", err.Error())
+		message := fmt.Sprintf("mainProcessGetTextWPMToKey: keyservice.GetTextWPMToKey(keyCodeStorer): error is %s\n", err.Error())
 		txparams := &types.MainProcessToRendererGetTextWPMToKeyCallParams{
 			State:        rxparams.State,
 			Error:        true,

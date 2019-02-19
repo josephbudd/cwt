@@ -9,7 +9,7 @@ import (
 	"github.com/josephbudd/cwt/domain/data/callids"
 	"github.com/josephbudd/cwt/domain/implementations/calling"
 	"github.com/josephbudd/cwt/domain/types"
-	"github.com/josephbudd/cwt/mainprocess/services/copyService"
+	"github.com/josephbudd/cwt/mainprocess/services/copyservice"
 )
 
 // newKeyCall is the constructor for the Key Call.
@@ -56,7 +56,7 @@ func mainProcessReceiveKey(params []byte, callBackToRenderer func(params []byte)
 		ditdahs = append(ditdahs, strings.Join(ditdahWord, " "))
 	}
 	// 3. Key the morse code.
-	if err := copyService.Key(ditdahs, rxparams.WPM, rxparams.Pause); err != nil {
+	if err := copyservice.Key(ditdahs, rxparams.WPM, rxparams.Pause); err != nil {
 		message := fmt.Sprintf("mainProcessKey:  ditdah.Key(rxparams.Ditdah, rxparams.WPM, rxparams.Delay): error is %s\n", err.Error())
 		log.Println(message)
 		txparams := &types.MainProcessToRendererKeyCallParams{

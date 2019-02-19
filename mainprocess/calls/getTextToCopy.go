@@ -9,7 +9,7 @@ import (
 	"github.com/josephbudd/cwt/domain/implementations/calling"
 	"github.com/josephbudd/cwt/domain/interfaces/storer"
 	"github.com/josephbudd/cwt/domain/types"
-	"github.com/josephbudd/cwt/mainprocess/services/copyService"
+	"github.com/josephbudd/cwt/mainprocess/services/copyservice"
 )
 
 // newGetTextToCopyCall is the constructor for the GetTextToCopy Call.
@@ -51,10 +51,10 @@ func mainProcessReceiveGetTextToCopy(params []byte, callBackToRenderer func(para
 		return
 	}
 	// 2. Get the text and ditdah to copy.
-	solution, err := copyService.GetKeyCodes(keyCodeStorer)
+	solution, err := copyservice.GetKeyCodes(keyCodeStorer)
 	if err != nil {
 		// Calling back the error.
-		message := fmt.Sprintf("mainProcessGetTextToCopy: keyService.GetTextToCopy(keyCodeStorer): error is %s\n", err.Error())
+		message := fmt.Sprintf("mainProcessGetTextToCopy: keyservice.GetTextToCopy(keyCodeStorer): error is %s\n", err.Error())
 		txparams := &types.MainProcessToRendererGetTextToCopyCallParams{
 			Error:        true,
 			ErrorMessage: message,

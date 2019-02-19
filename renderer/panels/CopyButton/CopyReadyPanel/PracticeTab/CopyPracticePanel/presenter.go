@@ -120,7 +120,7 @@ func (panelPresenter *Presenter) keyingFinished() {
 	notJS.Focus(panelPresenter.copyPracticeCopy)
 }
 
-func (panelPresenter *Presenter) showResult(correctCount, incorrectCount, keyedCount uint64, misMatches [][]types.MisMatch) {
+func (panelPresenter *Presenter) showResult(correctCount, incorrectCount, keyedCount uint64, testResults [][]types.TestResult) {
 	div := panelPresenter.copyPracticeText
 	notJS := panelPresenter.notJS
 	// heading
@@ -130,7 +130,7 @@ func (panelPresenter *Presenter) showResult(correctCount, incorrectCount, keyedC
 	notJS.AppendChild(div, h3)
 	// details
 	// put each word in its own table
-	for _, mmWord := range misMatches {
+	for _, mmWord := range testResults {
 		// each word in it's own table
 		table := notJS.CreateElementTABLE()
 		tbody := notJS.CreateElementTBODY()

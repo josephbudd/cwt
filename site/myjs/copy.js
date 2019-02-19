@@ -275,22 +275,22 @@ const CopyControler = {
 
 	// with state
 
-    showResult: function(misMatches, characterCount, correctCount, correctPercent, state) {
+    showResult: function(testResults, characterCount, correctCount, correctPercent, state) {
 		if (state == CopyControler.stateTest) {
 			CopyPresenter.presentTestDitDahResult("You got ".concat(correctCount.toString(), " out of ", characterCount.toString(), " correct. That's ", correctPercent.toString(), "% correct."))
-			if (misMatches.length > 0) {
+			if (testResults.length > 0) {
 				var problems = []
-				for (var i in misMatches) {
-					problems.push("At position ".concat(misMatches[i].position.toString(), " : <b>", misMatches[i].copyChar, "</b> should have been <b>", misMatches[i].solutionChar, "</b>"))
+				for (var i in testResults) {
+					problems.push("At position ".concat(testResults[i].position.toString(), " : <b>", testResults[i].copyChar, "</b> should have been <b>", testResults[i].solutionChar, "</b>"))
 				}
 				CopyPresenter.presentTestDitDahProblems(problems.join("<br/>"))
 			}
 		} else {
 			CopyPresenter.presentPracticeDitDahResult("You got ".concat(correctCount.toString(), " out of ", characterCount.toString(), " correct. That's ", correctPercent.toString(), "% correct."))
-			if (misMatches.length > 0) {
+			if (testResults.length > 0) {
 				var problems = []
-				for (var i in misMatches) {
-					problems.push("At position ".concat(misMatches[i].position.toString(), " : <b>", misMatches[i].copyChar, "</b> should have been <b>", misMatches[i].solutionChar, "</b>"))
+				for (var i in testResults) {
+					problems.push("At position ".concat(testResults[i].position.toString(), " : <b>", testResults[i].copyChar, "</b> should have been <b>", testResults[i].solutionChar, "</b>"))
 				}
 				CopyPresenter.presentPracticeDitDahProblems(problems.join("<br/>"))
 			}
@@ -523,7 +523,7 @@ const CopyLPC = {
             CopyPresenter.error("CheckKeyCodeCopyCB: ".concat(params.message))
             return undefined
         }
-        CopyControler.showResult(params.misMatches, params.characterCount, params.correctCount, params.correctPercent, params.state)
+        CopyControler.showResult(params.testResults, params.characterCount, params.correctCount, params.correctPercent, params.state)
     },
 
 }

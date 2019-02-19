@@ -10,7 +10,7 @@ import (
 	"github.com/josephbudd/cwt/domain/implementations/calling"
 	"github.com/josephbudd/cwt/domain/interfaces/storer"
 	"github.com/josephbudd/cwt/domain/types"
-	"github.com/josephbudd/cwt/mainprocess/services/copyService"
+	"github.com/josephbudd/cwt/mainprocess/services/copyservice"
 )
 
 // newCheckCopyCall is the constructor for the CheckCopy Call.
@@ -84,9 +84,9 @@ func mainProcessReceiveCheckCopy(params []byte, callBackToRenderer func(params [
 		copy = append(copy, copyLine)
 	}
 	// 3. Check the copy.
-	nCorrect, nIncorrect, nKeyed, misMatches, err := copyService.Check(copy, rxparams.Solution, keyCodeStore, rxparams.WPM, rxparams.StoreResults)
+	nCorrect, nIncorrect, nKeyed, testResults, err := copyservice.Check(copy, rxparams.Solution, keyCodeStore, rxparams.WPM, rxparams.StoreResults)
 	if err != nil {
-		message := fmt.Sprintf("mainProcessCheckCopy: copyService.Check(copy, rxparams.Solution, keyCodeStore, rxparams.WPM, rxparams.StoreResults): error is %s\n", err.Error())
+		message := fmt.Sprintf("mainProcessCheckCopy: copyservice.Check(copy, rxparams.Solution, keyCodeStore, rxparams.WPM, rxparams.StoreResults): error is %s\n", err.Error())
 		log.Println(message)
 		txparams := &types.MainProcessToRendererCheckCopyCallParams{
 			Error:        true,
@@ -101,7 +101,7 @@ func mainProcessReceiveCheckCopy(params []byte, callBackToRenderer func(params [
 		IncorrectCount: nIncorrect,
 		CorrectCount:   nCorrect,
 		KeyedCount:     nKeyed,
-		MisMatches:     misMatches,
+		TestResults:    testResults,
 		State:          rxparams.State,
 	}
 	txparamsbb, _ := json.Marshal(txparams)

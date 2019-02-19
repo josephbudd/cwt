@@ -80,9 +80,8 @@ var (
 		Char   string
 		DitDah string
 	}{
-		"Warning":    {Char: "Warning", DitDah: ".-..-"},
-		"Error":      {Char: "Error", DitDah: "........"},
-		"Repetition": {Char: "Repetition", DitDah: ".. .."},
+		"Warning": {Char: "Warning", DitDah: ".-..-"},
+		"Error":   {Char: "Error", DitDah: "........"},
 	}
 )
 

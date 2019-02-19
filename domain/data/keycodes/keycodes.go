@@ -22,6 +22,9 @@ var NotCopiedByUser *types.KeyCodeRecord
 //  or a key that was not copied.
 var NotCopied *types.KeyCodeRecord
 
+// NotInText represents non-existant text that the user keyed.
+var NotInText *types.KeyCodeRecord
+
 const nbsp = " "
 
 func init() {
@@ -51,4 +54,9 @@ func init() {
 		Character: "{ }",
 		DitDah:    "{ }",
 	}
+	NotInText = &types.KeyCodeRecord{
+		Character: "{No Text}",
+		DitDah:    "{No Text}",
+	}
+
 }

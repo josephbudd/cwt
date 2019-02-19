@@ -109,7 +109,7 @@ func (keyWidget *KeyWidget) SetKeyCodesWPM(records [][]*types.KeyCodeRecord, wpm
 }
 
 // ShowResults Processes and displays the checked results of what the user keyed.
-func (keyWidget *KeyWidget) ShowResults(correctCount, incorrectCount, keyedCount uint64, misMatches [][]types.MisMatch) {
+func (keyWidget *KeyWidget) ShowResults(correctCount, incorrectCount, keyedCount uint64, testResults [][]types.TestResult) {
 	copyDiv := keyWidget.copyDiv
 	notJS := keyWidget.notJS
 	// clear the div
@@ -121,7 +121,7 @@ func (keyWidget *KeyWidget) ShowResults(correctCount, incorrectCount, keyedCount
 	notJS.AppendChild(copyDiv, h3)
 	// details
 	// put each word in its own table
-	for _, mmWord := range misMatches {
+	for _, mmWord := range testResults {
 		// results
 		controlChars := make([]string, 0, 20)
 		copiedChars := make([]string, 0, 20)

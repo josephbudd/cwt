@@ -9,17 +9,17 @@ import (
 	"github.com/josephbudd/cwt/domain/implementations/calling"
 	"github.com/josephbudd/cwt/domain/interfaces/storer"
 	"github.com/josephbudd/cwt/domain/types"
-	"github.com/josephbudd/cwt/mainprocess/services/keyService"
+	"github.com/josephbudd/cwt/mainprocess/services/keyservice"
 )
 
 // newCheckKeyCall is the constructor for the CheckKey Call.
 // Param rendererSendPayload: is a kickasm generated renderer func that sends data to the main process.
 // Param keyCodeStorer is the key code storer.
-func newCheckKeyCall(wPMStorer storer.WPMStorer, keyCodeStorer storer.KeyCodeStorer) *calling.MainProcess {
+func newCheckKeyCall(keyCodeStorer storer.KeyCodeStorer) *calling.MainProcess {
 	return calling.NewMainProcess(
 		callids.CheckKeyCallID,
 		func(params []byte, call func([]byte)) {
-			mainProcessReceiveCheckKey(params, call, wPMStorer, keyCodeStorer)
+			mainProcessReceiveCheckKey(params, call, keyCodeStorer)
 		},
 	)
 }
@@ -32,7 +32,7 @@ func newCheckKeyCall(wPMStorer storer.WPMStorer, keyCodeStorer storer.KeyCodeSto
 // 1. Unmarshall the params. Call back any errors.
 // 2. Copy: Convert the miliseconds to key code records.
 // 2.1 Check the copy against the solution.
-func mainProcessReceiveCheckKey(params []byte, callBackToRenderer func(params []byte), wPMStorer storer.WPMStorer, keyCodeStorer storer.KeyCodeStorer) {
+func mainProcessReceiveCheckKey(params []byte, callBackToRenderer func(params []byte), keyCodeStorer storer.KeyCodeStorer) {
 	// 1. Unmarshall the params.
 	rxparams := &types.RendererToMainProcessCheckKeyCallParams{}
 	if err := json.Unmarshal(params, rxparams); err != nil {
@@ -48,9 +48,9 @@ func mainProcessReceiveCheckKey(params []byte, callBackToRenderer func(params []
 		return
 	}
 	// 2. Copy: Convert the miliseconds to key code records.
-	copiedWords, err := keyService.Copy(rxparams.MilliSeconds, rxparams.WPM, wPMStorer, keyCodeStorer)
+	copiedWords, err := keyservice.Copy(rxparams.MilliSeconds, rxparams.WPM, keyCodeStorer)
 	if err != nil {
-		message := fmt.Sprintf("mainProcessReceiveCheckKey: keyService.Copy(rxparams.MilliSeconds, rxparams.WPM, wPMStorer, keyCodeStorer): error is %s\n", err.Error())
+		message := fmt.Sprintf("mainProcessReceiveCheckKey: keyservice.Copy(rxparams.MilliSeconds, rxparams.WPM, keyCodeStorer): error is %s\n", err.Error())
 		log.Println(message)
 		txparams := &types.MainProcessToRendererCheckKeyCallParams{
 			Error:        true,
@@ -62,9 +62,9 @@ func mainProcessReceiveCheckKey(params []byte, callBackToRenderer func(params []
 		return
 	}
 	// 2.1 Check the copy against the solution.
-	nCorrect, nIncorrect, nKeyed, misMatches, err := keyService.Check(copiedWords, rxparams.Solution, keyCodeStorer, rxparams.WPM, rxparams.StoreResults)
+	nCorrect, nIncorrect, nKeyed, testResults, err := keyservice.Check(copiedWords, rxparams.Solution, keyCodeStorer, rxparams.WPM, rxparams.StoreResults)
 	if err != nil {
-		message := fmt.Sprintf("mainProcessReceiveCheckKey: keyService.Check(copiedWords, rxparams.Solution, keyCodeStorer, rxparams.WPM, rxparams.StoreResults): error is %s\n", err.Error())
+		message := fmt.Sprintf("mainProcessReceiveCheckKey: keyservice.Check(copiedWords, rxparams.Solution, keyCodeStorer, rxparams.WPM, rxparams.StoreResults): error is %s\n", err.Error())
 		log.Println(message)
 		txparams := &types.MainProcessToRendererCheckKeyCallParams{
 			Error:        true,
@@ -80,7 +80,7 @@ func mainProcessReceiveCheckKey(params []byte, callBackToRenderer func(params []
 		CorrectCount:   nCorrect,
 		IncorrectCount: nIncorrect,
 		KeyedCount:     nKeyed,
-		MisMatches:     misMatches,
+		TestResults:     testResults,
 		State:          rxparams.State,
 	}
 	txparamsbb, _ := json.Marshal(txparams)

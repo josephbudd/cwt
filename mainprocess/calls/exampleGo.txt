@@ -8,7 +8,7 @@ import (
 	"github.com/myapp/domain/data/callids"
 	"github.com/myapp/domain/implementations/calling"
 	"github.com/myapp/domain/interfaces/storer"
-	"github.com/myapp/mainprocess/services/keyService"
+	"github.com/myapp/mainprocess/services/keyservice"
 )
 
 /* The 6 Step Process.

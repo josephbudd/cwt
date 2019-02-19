@@ -144,7 +144,7 @@ func (panelCaller *Caller) checkKeyCB(params interface{}) {
 				return
 			}
 			// no errors
-			panelCaller.controler.keyWidget.ShowResults(params.CorrectCount, params.IncorrectCount, params.KeyedCount, params.MisMatches)
+			panelCaller.controler.keyWidget.ShowResults(params.CorrectCount, params.IncorrectCount, params.KeyedCount, params.TestResults)
 		}
 	}
 }

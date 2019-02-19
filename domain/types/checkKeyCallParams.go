@@ -16,6 +16,6 @@ type MainProcessToRendererCheckKeyCallParams struct {
 	CorrectCount   uint64
 	IncorrectCount uint64
 	KeyedCount     uint64
-	MisMatches     [][]MisMatch
+	TestResults     [][]TestResult
 	State          uint64
 }

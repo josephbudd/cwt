@@ -128,7 +128,7 @@ func (panelCaller *Caller) checkCopyCB(params interface{}) {
 				return
 			}
 			// no errors
-			panelCaller.presenter.showResult(params.CorrectCount, params.IncorrectCount, params.KeyedCount, params.MisMatches)
+			panelCaller.presenter.showResult(params.CorrectCount, params.IncorrectCount, params.KeyedCount, params.TestResults)
 		}
 	}
 }
