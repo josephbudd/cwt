@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/josephbudd/cwt/domain/data/keycodes"
 	"github.com/josephbudd/cwt/domain/interfaces/storer"
 	"github.com/josephbudd/cwt/domain/types"
 )
@@ -18,7 +19,11 @@ import (
 // Param wPMStorer is the wpm repository.Copy
 // Param keyCodeStorer is the keycode test results repository.
 func Copy(milliSeconds []int64, wpm uint64, keyCodeStorer storer.KeyCodeStorer) (solution [][]*types.KeyCodeRecord, err error) {
-	// get data from the stores.
+	// the pause multiplier adjusts the pause times.
+	pauseMultiplier := 1.0
+	// the key multiplier adjusts the key times.
+	keyMultiplier := 1.5
+	// get data from the store.
 	keyCodeRecords, err := keyCodeStorer.GetKeyCodes()
 	if err != nil {
 		err = errors.New("Copy keyCodeStorer.GetKeyCodes() error is " + err.Error())
@@ -28,16 +33,17 @@ func Copy(milliSeconds []int64, wpm uint64, keyCodeStorer storer.KeyCodeStorer) 
 	elementsPerMinute := (wpm * 50) - 7
 	elementMS := int64(60000 / elementsPerMinute)
 	// allow dits to be a little long
-	ditMS := elementMS + (elementMS / 2)
+	ditMS := int64(keyMultiplier * float64(elementMS))
 	fmt.Printf("ditMS is %d\n", ditMS)
-	//dahMS := 3 * elementMS
+	//dahMS := int64(keyMultiplier * float64(3 * elementMS))
 	// pauses
 	//ditdahPauseMS := elementMS   // between dits and dahs
-	ditdahPauseMS := int64(1.5 * float64(elementMS))
+	ditdahPauseMS := int64(pauseMultiplier * float64(elementMS))
 	fmt.Println("ditdahPauseMS is ", ditdahPauseMS)
-	charPauseMS := int64(4.5 * float64(elementMS)) // 3 * elementMS // between ".-" and "-..."
-	fmt.Println("charPauseMS is ", charPauseMS)
-	//wordPauseMS := 7 * elementMS // between "._ -..." and "_... ._"
+	//charPauseMS := int64(pauseMultiplier * float64(3*elementMS)) // 3 * elementMS // between ".-" and "-..."
+	//fmt.Println("charPauseMS is ", charPauseMS)
+	charPauseMS := int64(pauseMultiplier * float64(4*elementMS)) // between "._ -..." and "_... ._"
+	wordPauseMS := int64(pauseMultiplier * float64(7*elementMS)) // between "._ -..." and "_... ._"
 	// process stack ( pauseTime, keydownTime, ...)
 	solution = make([][]*types.KeyCodeRecord, 0, 100)
 	ditdahCharStack := make([]string, 0, 5)
@@ -49,21 +55,22 @@ func Copy(milliSeconds []int64, wpm uint64, keyCodeStorer storer.KeyCodeStorer) 
 				// pause
 				// if ms <= ditdahPauseMS continue to next dit or dah
 				//if ms > ditdahPauseMS {
-				fmt.Printf("ms is %d, ditdahPauseMS is %d, charPauseMS is %d\n", ms, ditdahPauseMS, charPauseMS)
-				if ms <= ditdahPauseMS {
+				if ms <= charPauseMS { // ditdahPauseMS {
 					// pause between dits and dahs inside a word
-				} else if ms < charPauseMS {
+					fmt.Println("Pause between dits and dahs is ", ms)
+				} else if ms < wordPauseMS { // charPauseMS {
 					// pause between chars, between ".-" and "-..."
 					// or pause between words, between "._ -..." and "_... ._"
 					if len(ditdahs) > 0 {
 						ditdahChar := strings.Join(ditdahs, "")
 						ditdahCharStack = append(ditdahCharStack, ditdahChar)
 						ditdahs = ditdahs[:0]
-						fmt.Println("copied ditdahChar is ", ditdahChar)
+						fmt.Println("Pause between chars is ", ms)
 					}
 				} else {
 					// word pause
 					// pause between words, between "._ -..." and "_... ._"
+					fmt.Println("Pause between words is ", ms)
 					if len(ditdahs) > 0 {
 						ditdahChar := strings.Join(ditdahs, "")
 						ditdahCharStack = append(ditdahCharStack, ditdahChar)
@@ -78,14 +85,17 @@ func Copy(milliSeconds []int64, wpm uint64, keyCodeStorer storer.KeyCodeStorer) 
 						for j, r := range rr {
 							chars[j] = r.Character
 						}
+						fmt.Println("The word is ", strings.Join(chars, ""))
 					}
 				}
 			} else {
 				// key
 				if ms <= ditMS {
 					ditdahs = append(ditdahs, ".")
+					fmt.Println("Keyed a .")
 				} else {
 					ditdahs = append(ditdahs, "-")
+					fmt.Println("Keyed a -")
 				}
 			}
 		}
@@ -117,6 +127,6 @@ func ditDahToRecord(ditdah string, records []*types.KeyCodeRecord) (record *type
 		}
 	}
 	// not found
-	record = nil
+	record = keycodes.UnknownKeyFromUser
 	return
 }

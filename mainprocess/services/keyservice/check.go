@@ -9,7 +9,7 @@ import (
 )
 
 // Check checks the user's keyed against the solutionChars and returns results.
-func Check(keyed [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCodeStorer, wpm uint64, recordResults bool) (nCorrect, nIncorrect, nRead uint64, testResults [][]types.TestResult, err error) {
+func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCodeStorer, wpm uint64, recordResults bool) (nCorrect, nIncorrect, nRead uint64, testResults [][]types.TestResult, err error) {
 	defer func() {
 		if err != nil {
 			return
@@ -18,8 +18,7 @@ func Check(keyed [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, ke
 			err = recordCheckResults(keyCodeStorer, testResults, wpm)
 		}
 	}()
-	// now keyed is a slice of strings and solutionChars is a slice of strings.
-	// the 2 should match is the user copied correctly.
+	// keyed and solution should match if the user copied correctly.
 	testResults = make([][]types.TestResult, 0, 100)
 	lenKeyed := len(keyed)
 	lenSolution := len(solution)

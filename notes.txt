@@ -1,2 +1,20 @@
+ditMS is 369
+ditdahPauseMS is  492
+
+lenKeyed is 0. lenSolution is 5ditMS is 369
+ditdahPauseMS is  492
+Keyed a .
+Pause between words is  2296
+The word is  E
+Keyed a .
+Pause between words is  2200
+The word is  E
+Keyed a .
+Pause between dits and dahs is  319
+Keyed a -
+Pause between dits and dahs is  328
+Keyed a -
+Pause between dits and dahs is  328
+lenKeyed is 3. lenSolution is 5
 remove wpm from get text to copy
 have the callers get wmp

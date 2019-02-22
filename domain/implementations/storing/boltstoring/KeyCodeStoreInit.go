@@ -88,8 +88,11 @@ var (
 // initialize is only useful if you want to add the default records to the db.
 // otherwise you don't need it to do anything.
 func (keyCodedb *KeyCodeBoltDB) initialize() (err error) {
+	var id uint64 = 99
 	for name, cd := range cwLetters {
 		record := types.NewKeyCodeRecord()
+		id++
+		record.ID = id
 		record.Name = name
 		record.Character = cd.Char
 		record.DitDah = cd.DitDah
@@ -100,6 +103,8 @@ func (keyCodedb *KeyCodeBoltDB) initialize() (err error) {
 	}
 	for name, cd := range cwNumbers {
 		record := types.NewKeyCodeRecord()
+		id++
+		record.ID = id
 		record.Name = name
 		record.Character = cd.Char
 		record.DitDah = cd.DitDah
@@ -110,23 +115,27 @@ func (keyCodedb *KeyCodeBoltDB) initialize() (err error) {
 	}
 	for name, cd := range cwPunctuation {
 		record := types.NewKeyCodeRecord()
+		id++
+		record.ID = id
 		record.Name = name
 		record.Character = cd.Char
 		record.DitDah = cd.DitDah
 		record.Type = keyCodeTypes.KeyCodeTypePunctuation
 		if err = keyCodedb.updateKeyCodeBucket(record); err != nil {
-			return err
+			return
 		}
 	}
 	for name, cd := range cwSpecial {
 		record := types.NewKeyCodeRecord()
+		id++
+		record.ID = id
 		record.Name = name
 		record.Character = cd.Char
 		record.DitDah = cd.DitDah
 		record.Type = keyCodeTypes.KeyCodeTypeSpecial
 		if err = keyCodedb.updateKeyCodeBucket(record); err != nil {
-			return err
+			return
 		}
 	}
-	return nil
+	return
 }

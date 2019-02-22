@@ -63,3 +63,16 @@ go build
 ./cwt
 
 ```
+
+### Development issues
+
+The application's key service copies and reports what I key. Keying is like playing a drum.
+
+1. I have to be able to keep a beat in my head that corresponds to the words per minute.
+1. I have to be able to key to the rhythm of the beat in my head.
+
+But I can't do either. I may be adding a new way for me to learn.
+
+### CGO issues
+
+I seem to be having issues with my cgo.

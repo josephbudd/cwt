@@ -6,6 +6,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/josephbudd/cwt/domain/data/keycodes"
+
 	"github.com/boltdb/bolt"
 	"github.com/pkg/errors"
 
@@ -69,15 +71,15 @@ func TestCopy(t *testing.T) {
 	charPauseMS := ditMS * 3
 	wordPauseMS := ditMS * 7
 	// build the milliseconds and the solution
-	milliSeconds := make([]int64, 0, (l*2)+1)
+	milliSeconds := make([]int64, 0, (l*2)+30)
 	milliSeconds = append(milliSeconds, wordPauseMS)
 	// make the words 5 characters long.
 	wordLength := 5
 	wordCount := len(keyCodeRecords) / wordLength
 	lastI := wordCount - 1
+	wordCount++
 	wantSolution := make([][]*types.KeyCodeRecord, wordCount, wordCount)
-	var i int
-	for i = 0; i <= lastI; i++ {
+	for i := 0; i <= lastI; i++ {
 		start := i * wordLength
 		end := start + wordLength
 		wantSolution[i] = keyCodeRecords[start:end]
@@ -104,12 +106,23 @@ func TestCopy(t *testing.T) {
 			}
 		}
 		// still more words
-		if i < lastI {
-			milliSeconds = append(milliSeconds, wordPauseMS)
+		milliSeconds = append(milliSeconds, wordPauseMS)
+	}
+	// final word is an unknown char: 10 dahs
+	for i := 0; i < 10; i++ {
+		milliSeconds = append(milliSeconds, dahMS)
+		if i < 9 {
+			milliSeconds = append(milliSeconds, ddPauseMS)
 		}
 	}
+	// final solution word
+	finalSolutionWord := []*types.KeyCodeRecord{keycodes.UnknownKeyFromUser}
+	//wantSolution = append(wantSolution, finalSolutionWord)
+	wantSolution[wordCount-1] = finalSolutionWord
 	// end with a long pause
-	milliSeconds[len(milliSeconds)-1] = wordPauseMS
+	//milliSeconds[len(milliSeconds)-1] = wordPauseMS
+	milliSeconds = append(milliSeconds, wordPauseMS)
+
 	fmt.Printf("milliSeconds is %#v\n", milliSeconds)
 
 	type args struct {

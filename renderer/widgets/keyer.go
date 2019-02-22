@@ -38,6 +38,7 @@ type KeyWidget struct {
 
 	keyCodes [][]*types.KeyCodeRecord
 	wpm      uint64
+	times    []time.Time
 }
 
 // UserKeyChecker processes keying millisecons.
@@ -75,6 +76,7 @@ func NewKeyWidget(heading js.Value,
 		notJS: notJS,
 
 		userKeyChecker: userKeyChecker,
+		times:          make([]time.Time, 0, 1024),
 		durations:      make([]time.Duration, 0, 1024),
 	}
 
@@ -138,7 +140,6 @@ func (keyWidget *KeyWidget) ShowResults(correctCount, incorrectCount, keyedCount
 	}
 	keyWidget.tools.SizeApp()
 	keyWidget.tools.ElementShow(keyWidget.startButton)
-
 }
 
 func (keyWidget *KeyWidget) addTable(controlWord, ditDahWord, copiedWord string) {
@@ -211,14 +212,27 @@ func (keyWidget *KeyWidget) handleStart(event js.Value) {
 	notJS.SetInnerText(keyWidget.heading, mouseNotOverInstructions)
 	notJS.RemoveChildNodes(keyWidget.copyDiv)
 	keyWidget.keyTime = time.Now()
+	keyWidget.times = make([]time.Time, 1, 200)
+	keyWidget.times[0] = time.Now()
 }
 
 func (keyWidget *KeyWidget) handleStop(event js.Value) {
 	keyWidget.setKeyingStopped()
-	l := len(keyWidget.durations)
-	milliSeconds := make([]int64, l, l)
-	for i, d := range keyWidget.durations {
-		milliSeconds[i] = int64(d) / 1000000
+	// l := len(keyWidget.durations)
+	// milliSeconds := make([]int64, l, l)
+	// for i, d := range keyWidget.durations {
+	// 	milliSeconds[i] = int64(d) / 1000000
+	// }
+	l := len(keyWidget.times) / 2
+	milliSeconds := make([]int64, 0, l)
+	l *= 2
+	for i := 0; i < l; {
+		start := keyWidget.times[i]
+		i++
+		end := keyWidget.times[i]
+		d := end.Sub(start)
+		milliSeconds = append(milliSeconds, int64(d/1000000))
+		i++
 	}
 	keyWidget.userKeyChecker.CheckUserKey(milliSeconds, keyWidget.keyCodes, keyWidget.wpm)
 	keyWidget.tools.ElementHide(keyWidget.stopButton)
@@ -242,16 +256,18 @@ func (keyWidget *KeyWidget) handleMouseLeave(event js.Value) {
 
 func (keyWidget *KeyWidget) handleMouseDown(event js.Value) {
 	if keyWidget.userIsKeying {
-		keyWidget.durations = append(keyWidget.durations, time.Since(keyWidget.keyTime))
-		keyWidget.keyTime = time.Now()
+		keyWidget.times = append(keyWidget.times, time.Now())
+		//keyWidget.durations = append(keyWidget.durations, time.Since(keyWidget.keyTime))
+		//keyWidget.keyTime = time.Now()
 	}
 }
 
 func (keyWidget *KeyWidget) handleMouseUp(event js.Value) {
 	if keyWidget.userIsKeying {
-		since := time.Since(keyWidget.keyTime)
-		keyWidget.durations = append(keyWidget.durations, since)
-		keyWidget.keyTime = time.Now()
+		keyWidget.times = append(keyWidget.times, time.Now())
+		// since := time.Since(keyWidget.keyTime)
+		// keyWidget.durations = append(keyWidget.durations, since)
+		// keyWidget.keyTime = time.Now()
 	}
 }
 
