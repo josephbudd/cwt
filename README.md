@@ -66,13 +66,16 @@ go build
 
 ### Development issues
 
-The application's key service copies and reports what I key. Keying is like playing a drum.
+#### I can't key
 
-1. I have to be able to keep a beat in my head that corresponds to the words per minute.
-1. I have to be able to key to the rhythm of the beat in my head.
+The morse code key is like a musical instrument that plays only one note. Morse code is like a song that has
 
-But I can't do either. I may be adding a new way for me to learn.
+* a never changing beat,
+* notes that must only last 1 or 3 beats,
+* pauses that must only last 1 or 3 beats.
+
+I can't do any of that properly so I added a metronome. I'm hoping it will help me learn to key. Right now the metronome is automatic but I will be making changes with the metronome.
 
 ### CGO issues
 
-I seem to be having issues with my cgo.
+I think I fixed my CGO issue. It was revealed with my metronome. Time will tell.

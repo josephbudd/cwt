@@ -179,8 +179,8 @@ struct goalsa_device_error *newDeviceError() {
 }
 
 const char *GoAlsaDeviceErrorGetErrorString(struct goalsa_device_error *de) {
-    return (*(*de).error).error_string;
-    //return (*de).error->error_string;
+    //return (*(*de).error).error_string;
+    return (*de).error->error_string;
 }
 
 struct goalsa_device_error *GoAlsaOpenPlayer(struct goalsa_device *device) {
@@ -367,10 +367,36 @@ void GoAlsaMakeNote(struct goalsa_device *device, unsigned int n_elements) {
 
 	int rc = snd_pcm_writei((*device).handle, data, n_samples);
 	while (rc < 0) {
-		// if (rc == -EPIPE) then underrun
+		snd_pcm_prepare((*device).handle);
+		if (rc == -EPIPE) { // then underrun
+			rc = snd_pcm_writei((*device).handle, data, n_samples);
+		}
+	}
+}
+
+void GoAlsaTickTock(struct goalsa_device *device) {
+	unsigned int n_samples = (*device).frames_per_period / 10;
+	unsigned int frame_size = (*device).number_channels * goalsa_nbytes_in_format((*device).format);
+	unsigned int mallocSize  = n_samples * frame_size;
+
+	unsigned char *data = (unsigned char *)malloc(mallocSize);
+	// each sample is a frame.
+	for(int i = 0; i < n_samples; i++) {
+        short s1 = (i % 128) * 100 - 10000;
+        short s2 = (i % 256) * 100 - 10000;
+        data[4*i] = (unsigned char)s1;
+        data[4*i+1] = s1 >> 8;
+        data[4*i+2] = (unsigned char)s2;
+        data[4*i+3] = s2 >> 8;
+	}
+
+	int rc = snd_pcm_writei((*device).handle, data, n_samples);
+	while (rc < 0) {
 		// if (rc < 0) some other error.
 		snd_pcm_prepare((*device).handle);
-		rc = snd_pcm_writei((*device).handle, data, n_samples);
+		if (rc == -EPIPE) { // then underrun
+			rc = snd_pcm_writei((*device).handle, data, n_samples);
+		}
 	}
 }
 
@@ -452,8 +478,12 @@ func (player *Player) open() (err error) {
 	defer freeDeviceError(returnStruct)
 	if (*returnStruct.error).error_code < 0 {
 		cmessage := C.GoAlsaDeviceErrorGetErrorString(returnStruct)
-		defer C.free(unsafe.Pointer(cmessage))
+		// following line causes panic
+		//defer C.free(unsafe.Pointer(cmessage))
 		message := C.GoString(cmessage)
+		if len(message) == 0 {
+			message = "no message"
+		}
 		err = errors.New(message)
 		return
 	}
@@ -498,7 +528,7 @@ Explanation:
 func (player *Player) ditDahToFF(ditdah string) (err error) {
 	defer func() {
 		if err != nil {
-			err = errors.WithMessage(err, "(player *Player) ditDahToF(ditdah string, wpm, frequency uint64)")
+			err = errors.WithMessage(err, "(player *Player) ditDahToF(ditdah string)")
 		}
 	}()
 	// word == "paris" == 50 elements.
@@ -573,6 +603,34 @@ func (player *Player) ditDahToFF(ditdah string) (err error) {
 		}
 	}
 	return
+}
+
+func (player *Player) metronome(quitCh chan struct{}) {
+	// word == "paris" == 50 elements.
+	//samplesPerPeriod := float64(player.device.sampling_rate) / float64(frequency)
+	//samplesPerElement := float64(player.device.sampling_rate) / nElementsPerSecond
+	nElementsPerMinute := float64(50) * float64((*player.device).wpm)
+	nElementsPerSecond := math.Floor(nElementsPerMinute / float64(60))
+	secondsPerElement := float64(1) / nElementsPerSecond
+
+	//clickCount := 1.0
+	pauseCount := 0.9
+	// buffer -> period -> frames:32 -> samples:2 -> float64
+	// play sound and then timeout after the pause.
+	pauseFor := secondsPerElement * pauseCount
+	dur := uint64(float64(time.Second) * pauseFor)
+	timeout := time.After(time.Duration(dur))
+	for {
+		// play the click sound
+		C.GoAlsaTickTock(player.device)
+		// wait for the rest of 9/10 element.
+		select {
+		case <-timeout:
+			timeout = time.After(time.Duration(dur))
+		case <-quitCh:
+			return
+		}
+	}
 }
 
 func freeDeviceError(returnstruct *C.struct_goalsa_device_error) {

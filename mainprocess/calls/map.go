@@ -31,5 +31,7 @@ func GetCallMap(wPMStore storer.WPMStorer, keyCodeStore storer.KeyCodeStorer) ma
 
 		callids.GetTextWPMToKeyCallID: newGetTextWPMToKeyCall(keyCodeStore, wPMStore),
 		callids.CheckKeyCallID:        newCheckKeyCall(keyCodeStore),
+
+		callids.MetronomeCallID: newMetronomeCall(),
 	}
 }

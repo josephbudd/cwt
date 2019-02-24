@@ -36,6 +36,7 @@ type Caller struct {
 	getTextWPMToKeyConnection caller.Renderer
 	checkKeyConnection        caller.Renderer
 	getKeyCodesConnection     caller.Renderer
+	metronomeConnection       caller.Renderer
 }
 
 // addMainProcessCallBacks tells the main process what funcs to call back to.
@@ -81,6 +82,14 @@ func (panelCaller *Caller) addMainProcessCallBacks() (err error) {
 		return
 	}
 
+	// metronome
+	if panelCaller.metronomeConnection, found = panelCaller.connection[callids.MetronomeCallID]; !found {
+		err = errors.New("unable to find panelCaller.connection[callids.MetronomeCallID]")
+		return
+	}
+	// Have the connection call back to my call back handler.
+	panelCaller.metronomeConnection.AddCallBack(panelCaller.metronomeCB)
+
 	return
 }
 
@@ -122,6 +131,7 @@ func (panelCaller *Caller) getTextWPMToKeyCB(params interface{}) {
 // check key
 
 // Caller implements widgets.UserKeyChecker with func CheckUserKey.
+// Caller implements widgets.Metronomer with funcs StartMetronome and StopMetronome.
 
 // CheckUserKey checks the user's keying ability.
 func (panelCaller *Caller) CheckUserKey(milliSeconds []int64, solution [][]*types.KeyCodeRecord, wpm uint64) {
@@ -145,6 +155,45 @@ func (panelCaller *Caller) checkKeyCB(params interface{}) {
 			}
 			// no errors
 			panelCaller.controler.keyWidget.ShowResults(params.CorrectCount, params.IncorrectCount, params.KeyedCount, params.TestResults)
+		}
+	}
+}
+
+// metronome
+
+// StartMetronome starts the metronome.
+func (panelCaller *Caller) StartMetronome(wpm uint64) {
+	params := &types.RendererToMainProcessMetronomeCallParams{
+		Run:   true,
+		State: panelCaller.state,
+		WPM:   wpm,
+	}
+	panelCaller.checkKeyConnection.CallMainProcess(params)
+}
+
+// StopMetronome stops the metronome.
+func (panelCaller *Caller) StopMetronome() {
+	params := &types.RendererToMainProcessMetronomeCallParams{
+		Run:   false,
+		State: panelCaller.state,
+	}
+	panelCaller.checkKeyConnection.CallMainProcess(params)
+}
+
+func (panelCaller *Caller) metronomeCB(params interface{}) {
+	switch params := params.(type) {
+	case *types.MainProcessToRendererMetronomeCallParams:
+		if params.State&panelCaller.state == panelCaller.state {
+			if params.Error {
+				panelCaller.tools.Error(params.ErrorMessage)
+				return
+			}
+			// no errors
+			if params.Run {
+				panelCaller.tools.Success("Metronome Started")
+			} else {
+				panelCaller.tools.Success("Metronome Stopped")
+			}
 		}
 	}
 }

@@ -55,6 +55,23 @@ func playCW(ditdah string, wpm uint64) (err error) {
 	return
 }
 
+// Metronome clicks an element beat.
+func Metronome(wpm uint64, quitCh chan struct{}, errCh chan error) {
+	var err error
+	defer func() {
+		if err != nil {
+			err = errors.WithMessage(err, "Metronome(wpm uint64, quitCh chan struct{}, errCh chan error)")
+			errCh <- err
+		}
+	}()
+	player := newPlayer(440, wpm)
+	if err = player.open(); err != nil {
+		return
+	}
+	defer player.close()
+	player.metronome(quitCh)
+}
+
 // AlsaInfo supplies alsa information for this device.
 type AlsaInfo struct {
 	Version     string

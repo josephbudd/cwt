@@ -28,6 +28,7 @@ type KeyWidget struct {
 	copyDiv     js.Value
 
 	userKeyChecker UserKeyChecker
+	metronomer     Metronomer
 
 	userIsKeying bool
 	keyTime      time.Time
@@ -47,6 +48,12 @@ type UserKeyChecker interface {
 	CheckUserKey(milliSeconds []int64, solution [][]*types.KeyCodeRecord, wpm uint64)
 }
 
+// Metronomer starts and stops a metronome.
+type Metronomer interface {
+	StartMetronome(wpm uint64)
+	StopMetronome()
+}
+
 // API
 // * NewKeyWidget
 // * SetKeyCodesWPM
@@ -63,6 +70,7 @@ func NewKeyWidget(heading js.Value,
 	startButton, stopButton js.Value,
 	keyDiv, copyDiv js.Value,
 	userKeyChecker UserKeyChecker,
+	metronomer Metronomer,
 	tools *viewtools.Tools,
 	notJS *notjs.NotJS) (keyWidget *KeyWidget) {
 	keyWidget = &KeyWidget{
@@ -76,8 +84,10 @@ func NewKeyWidget(heading js.Value,
 		notJS: notJS,
 
 		userKeyChecker: userKeyChecker,
-		times:          make([]time.Time, 0, 1024),
-		durations:      make([]time.Duration, 0, 1024),
+		metronomer:     metronomer,
+
+		times:     make([]time.Time, 0, 1024),
+		durations: make([]time.Duration, 0, 1024),
 	}
 
 	notJS.SetInnerText(heading, initialInstructions)
@@ -107,6 +117,7 @@ func NewKeyWidget(heading js.Value,
 func (keyWidget *KeyWidget) SetKeyCodesWPM(records [][]*types.KeyCodeRecord, wpm uint64) {
 	keyWidget.keyCodes = records
 	keyWidget.wpm = wpm
+	keyWidget.metronomer.StartMetronome(wpm)
 	keyWidget.tellUserToStart()
 }
 
@@ -218,6 +229,7 @@ func (keyWidget *KeyWidget) handleStart(event js.Value) {
 
 func (keyWidget *KeyWidget) handleStop(event js.Value) {
 	keyWidget.setKeyingStopped()
+	keyWidget.metronomer.StopMetronome()
 	// l := len(keyWidget.durations)
 	// milliSeconds := make([]int64, l, l)
 	// for i, d := range keyWidget.durations {

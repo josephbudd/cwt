@@ -30,5 +30,7 @@ func GetCallMap(rendererSendPayload func(payload []byte) error) map[types.CallID
 
 		callids.GetTextWPMToKeyCallID: newGetTextWPMToKeyCall(rendererSendPayload),
 		callids.CheckKeyCallID:        newCheckKeyCall(rendererSendPayload),
+
+		callids.MetronomeCallID: newMetronomeCall(rendererSendPayload),
 	}
 }

@@ -26,7 +26,7 @@ func newUpdateCopyWPMCall(wpmStorer storer.WPMStorer) *calling.MainProcess {
 
 // mainProcessReceiveUpdateCopyWPM is a main process func.
 // This is how the main process receives a call from the renderer.
-// Param params is a []byte of a MainProcessToRendererUpdateCopyWPMCallCallParams
+// Param params is a []byte of a MainProcessToRendererUpdateCopyWPMCallParams
 // Param callBackToRenderer is a func that calls back to the renderer.
 // Param wpmStorer is the wpm repo.
 // The func is simple:

@@ -86,7 +86,7 @@ func (panelControler *Controler) defineControlsSetHandlers() (err error) {
 	}
 
 	// Define the keyWidget.
-	panelControler.keyWidget = widgets.NewKeyWidget(keyPracticeH, keyPracticeStart, keyPracticeCheck, keyPracticeKey, keyPracticeCopy, panelControler.caller, panelControler.tools, notJS)
+	panelControler.keyWidget = widgets.NewKeyWidget(keyPracticeH, keyPracticeStart, keyPracticeCheck, keyPracticeKey, keyPracticeCopy, panelControler.caller, panelControler.caller, panelControler.tools, notJS)
 	return
 }
 
