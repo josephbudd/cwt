@@ -18,7 +18,6 @@
     width:inherit;
     height:200px;
     border-width:1px;
-    border-style: solid;
     margin: 10px 20px 10px 0px;
     padding:10px;
     overflow-y:auto;
@@ -29,19 +28,33 @@
 #keyPracticeKey.user-keying
 {
     border-color:white;
+    border-style: solid;
+}
+
+#keyTestKey.user-key-up,
+#keyPracticeKey.user-key-up
+{
+    color: black;
+}
+
+#keyTestKey.user-key-down,
+#keyPracticeKey.user-key-down
+{
+    color: red;
 }
 
 #keyTestKey.user-not-keying,
 #keyPracticeKey.user-not-keying
 {
     border-color:black;
+    border-style: solid;
 }
 
 #keyTestKey.user-key-over,
 #keyPracticeKey.user-key-over
 {
     background-color:peachpuff;
-    color: black;
+    /* color: black; */
 }
 
 #keyTestKey.user-not-key-over,

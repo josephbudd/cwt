@@ -1,20 +1,36 @@
-ditMS is 369
-ditdahPauseMS is  492
 
-lenKeyed is 0. lenSolution is 5ditMS is 369
-ditdahPauseMS is  492
+The letter "A"
+
+D: SAY TO THE BEAT: "down up"
+    When you say "down" key down.
+    When you say "up" key up.
+    1 full beat
+U: (key is up for 1 beat)
+D: SAY TO THE BEAT: "down 2 3 up"
+    When you say "down" key down.
+    When you say "up" key up.
+    3 full beats
+U: SAY TO THE BEAT: " 2 3"
+    (key is up for 3 beats)
+U: SAY TO THE BEAT: " 2 3 4 5 6 7"
+    (key is up for 7 beats)
+
+- - - - -
+
+elementMS is 246
+ditMaxMS is 369
+betweenDitdahPauseMaxMS is  369
+betweenCharPauseMaxMS is  1107
 Keyed a .
-Pause between words is  2296
-The word is  E
-Keyed a .
-Pause between words is  2200
-The word is  E
-Keyed a .
-Pause between dits and dahs is  319
+Pause between dits and dahs is  280
 Keyed a -
-Pause between dits and dahs is  328
+Pause between chars is  696
+Keyed a .
+Pause between dits and dahs is  248
 Keyed a -
-Pause between dits and dahs is  328
-lenKeyed is 3. lenSolution is 5
-remove wpm from get text to copy
-have the callers get wmp
+Pause between chars is  664
+Keyed a .
+Pause between dits and dahs is  272
+Keyed a -
+lenKeyed is 1. lenSolution is 5
+2019/02/26 20:12:42 keyedLine is []*types.KeyCodeRecord{(*types.KeyCodeRecord)(0xc000093bc0), (*types.KeyCodeRecord)(0xc000093bc0), (*types.KeyCodeRecord)(0xc000093bc0)}

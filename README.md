@@ -1,17 +1,24 @@
 # cwt
 
-A **linux** morse code trainer. Close to being finished but still a beta version.
+A **linux** morse code trainer. This is far from being finished.
 
- The application still has some testing junk in some of it's output.
+## Services
+
+### The reference service
+
+The reference service of the application allows the user to select the morse code characters which are to be both copied and keyed by the user. It also shows the user the keying and copying test scores for the characters at each of the various speeds.
+
+### The copy service
+
+The copy service of the application allows the user to practice or test copying morse code at the selected copy speed.
+
+### The key service
+
+The key service of the application allows the user to practice or test keying morse code at the selected key speed. This is the part I am working on at the moment. There are changes in this service as I try to figure out how to teach myself to key.
 
 ## The morse code key
 
-My morse code key is wired to the contacts of the left button of a cheap usb mouse I ripped apart. So...
-
-* the morse code keying is sensed as "mouseup" and "mousedown" events in the browser.
-* the critical timing code is written with go compiled to wasm.
-
-So this will be a test to see if go wasm can keep up with the keying.
+My morse code key is wired to the contacts of the left button on a board that I ripped out of a cheap usb mouse. The board gets plugged into a usb port on the lap top. Pressing the key down causes a "mouse-down" event and letting the key up causes a "mouse-up" event. The go wasm code does a fine job of handling those events by appending the time of the event to a slice of time.Times.
 
 ## To install and build on linux
 
@@ -64,18 +71,23 @@ go build
 
 ```
 
-### Development issues
+## Development issues
 
-#### I can't key
+### I can't key
 
-The morse code key is like a musical instrument that plays only one note. Morse code is like a song that has
+The morse code key is like a musical instrument that can only play notes at one pitch.
+
+Morse code is like a song that has
 
 * a never changing beat,
-* notes that must only last 1 or 3 beats,
-* pauses that must only last 1 or 3 beats.
+* short notes ( dits ) that must only last 1 beat,
+* long notes ( dahs ) that must only last 3 beats,
+* pauses between the dit and dahs in a character that must only last 1 beat,
+* pauses between characters in a word that must only last 3 beats,
+* pauses between words that must only last 7 beats.
 
-I can't do any of that properly so I added a metronome. I'm hoping it will help me learn to key. Right now the metronome is automatic but I will be making changes with the metronome.
+I can't do any of that properly so I have allowed for variances in user input and I added a metronome. I'm hoping it will help me learn to key.
 
 ### CGO issues
 
-I think I fixed my CGO issue. It was revealed with my metronome. Time will tell.
+My big issue here is package mainprocess/goalsa. I'm getting fatals in my CGO every once in a while with the new metronome. So I need to look at that and fix it.

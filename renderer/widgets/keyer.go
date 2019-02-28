@@ -104,10 +104,10 @@ func NewKeyWidget(heading js.Value,
 	cb = notJS.RegisterEventCallBack(false, false, false, keyWidget.handleMouseLeave)
 	notJS.SetOnMouseLeave(keyWidget.keyDiv, cb)
 
-	cb = notJS.RegisterEventCallBack(false, false, false, keyWidget.handleMouseDown)
+	cb = notJS.RegisterEventCallBack(true, true, true, keyWidget.handleMouseDown)
 	notJS.SetOnMouseDown(keyWidget.keyDiv, cb)
 
-	cb = notJS.RegisterEventCallBack(false, false, false, keyWidget.handleMouseUp)
+	cb = notJS.RegisterEventCallBack(true, true, true, keyWidget.handleMouseUp)
 	notJS.SetOnMouseUp(keyWidget.keyDiv, cb)
 
 	return
@@ -230,21 +230,17 @@ func (keyWidget *KeyWidget) handleStart(event js.Value) {
 func (keyWidget *KeyWidget) handleStop(event js.Value) {
 	keyWidget.setKeyingStopped()
 	keyWidget.metronomer.StopMetronome()
-	// l := len(keyWidget.durations)
-	// milliSeconds := make([]int64, l, l)
-	// for i, d := range keyWidget.durations {
-	// 	milliSeconds[i] = int64(d) / 1000000
-	// }
-	l := len(keyWidget.times) / 2
+	keyWidget.notJS.Alert(fmt.Sprintf("len(keyWidget.times) is %d", len(keyWidget.times)))
+	l := len(keyWidget.times)
 	milliSeconds := make([]int64, 0, l)
-	l *= 2
 	for i := 0; i < l; {
 		start := keyWidget.times[i]
 		i++
-		end := keyWidget.times[i]
-		d := end.Sub(start)
-		milliSeconds = append(milliSeconds, int64(d/1000000))
-		i++
+		if i < l {
+			end := keyWidget.times[i]
+			d := end.Sub(start)
+			milliSeconds = append(milliSeconds, int64(d/1000000))
+		}
 	}
 	keyWidget.userKeyChecker.CheckUserKey(milliSeconds, keyWidget.keyCodes, keyWidget.wpm)
 	keyWidget.tools.ElementHide(keyWidget.stopButton)
@@ -269,17 +265,14 @@ func (keyWidget *KeyWidget) handleMouseLeave(event js.Value) {
 func (keyWidget *KeyWidget) handleMouseDown(event js.Value) {
 	if keyWidget.userIsKeying {
 		keyWidget.times = append(keyWidget.times, time.Now())
-		//keyWidget.durations = append(keyWidget.durations, time.Since(keyWidget.keyTime))
-		//keyWidget.keyTime = time.Now()
+		keyWidget.notJS.ClassListReplaceClass(keyWidget.keyDiv, "user-key-up", "user-key-down")
 	}
 }
 
 func (keyWidget *KeyWidget) handleMouseUp(event js.Value) {
 	if keyWidget.userIsKeying {
 		keyWidget.times = append(keyWidget.times, time.Now())
-		// since := time.Since(keyWidget.keyTime)
-		// keyWidget.durations = append(keyWidget.durations, since)
-		// keyWidget.keyTime = time.Now()
+		keyWidget.notJS.ClassListReplaceClass(keyWidget.keyDiv, "user-key-down", "user-key-up")
 	}
 }
 
