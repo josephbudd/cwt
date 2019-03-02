@@ -117,7 +117,6 @@ func NewKeyWidget(heading js.Value,
 func (keyWidget *KeyWidget) SetKeyCodesWPM(records [][]*types.KeyCodeRecord, wpm uint64) {
 	keyWidget.keyCodes = records
 	keyWidget.wpm = wpm
-	keyWidget.metronomer.StartMetronome(wpm)
 	keyWidget.tellUserToStart()
 }
 
@@ -229,7 +228,6 @@ func (keyWidget *KeyWidget) handleStart(event js.Value) {
 
 func (keyWidget *KeyWidget) handleStop(event js.Value) {
 	keyWidget.setKeyingStopped()
-	keyWidget.metronomer.StopMetronome()
 	keyWidget.notJS.Alert(fmt.Sprintf("len(keyWidget.times) is %d", len(keyWidget.times)))
 	l := len(keyWidget.times)
 	milliSeconds := make([]int64, 0, l)
@@ -252,6 +250,7 @@ func (keyWidget *KeyWidget) handleMouseEnter(event js.Value) {
 		notJS := keyWidget.notJS
 		notJS.ClassListReplaceClass(keyWidget.keyDiv, "user-not-key-over", "user-key-over")
 		keyWidget.notJS.SetInnerText(keyWidget.heading, mouseOverInstructions)
+		keyWidget.metronomer.StartMetronome(keyWidget.wpm)
 	}
 }
 
@@ -259,6 +258,7 @@ func (keyWidget *KeyWidget) handleMouseLeave(event js.Value) {
 	if keyWidget.userIsKeying {
 		keyWidget.notJS.ClassListReplaceClass(keyWidget.keyDiv, "user-key-over", "user-not-key-over")
 		keyWidget.notJS.SetInnerText(keyWidget.heading, mouseNotOverAgainInstructions)
+		keyWidget.metronomer.StopMetronome()
 	}
 }
 

@@ -29,6 +29,7 @@ func newKeyCall() *calling.MainProcess {
 // Param callBackToRenderer is a func that calls back to the renderer.
 // The func is simple:
 // 1. Unmarshall the params. Call back any errors.
+// 2. Turn off the keying if requested.
 // 2. Build the morse code text.
 // 3. Key the morse code. Call back any errors.
 func mainProcessReceiveKey(params []byte, callBackToRenderer func(params []byte)) {
@@ -46,7 +47,18 @@ func mainProcessReceiveKey(params []byte, callBackToRenderer func(params []byte)
 		callBackToRenderer(txparamsbb)
 		return
 	}
-	// 2. Build the morse code text.
+	// 2. Turn off the keying if requested.
+	if !rxparams.Run {
+		copyservice.StopKeying()
+		txparams := &types.MainProcessToRendererKeyCallParams{
+			State: rxparams.State,
+			Run:   rxparams.Run,
+		}
+		txparamsbb, _ := json.Marshal(txparams)
+		callBackToRenderer(txparamsbb)
+		return
+	}
+	// 3. Build the morse code text.
 	ditdahs := make([]string, 0, len(rxparams.Solution))
 	for _, line := range rxparams.Solution {
 		ditdahWord := make([]string, 0, len(line))
@@ -55,22 +67,23 @@ func mainProcessReceiveKey(params []byte, callBackToRenderer func(params []byte)
 		}
 		ditdahs = append(ditdahs, strings.Join(ditdahWord, " "))
 	}
-	// 3. Key the morse code.
+	// 4. Key the morse code.
 	if err := copyservice.Key(ditdahs, rxparams.WPM, rxparams.Pause); err != nil {
 		message := fmt.Sprintf("mainProcessKey:  ditdah.Key(rxparams.Ditdah, rxparams.WPM, rxparams.Delay): error is %s\n", err.Error())
-		log.Println(message)
 		txparams := &types.MainProcessToRendererKeyCallParams{
 			Error:        true,
 			ErrorMessage: message,
+			State:        rxparams.State,
+			Run:          rxparams.Run,
 		}
 		txparamsbb, _ := json.Marshal(txparams)
 		callBackToRenderer(txparamsbb)
 		return
 	}
 	// no error so call back to the renderer.
-	log.Println("mainProcessReceiveKey no errors")
 	txparams := &types.MainProcessToRendererKeyCallParams{
 		State: rxparams.State,
+		Run:   rxparams.Run,
 	}
 	txparamsbb, _ := json.Marshal(txparams)
 	callBackToRenderer(txparamsbb)

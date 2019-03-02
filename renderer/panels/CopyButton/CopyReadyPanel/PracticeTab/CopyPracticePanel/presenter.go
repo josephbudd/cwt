@@ -120,6 +120,11 @@ func (panelPresenter *Presenter) keyingFinished() {
 	notJS.Focus(panelPresenter.copyPracticeCopy)
 }
 
+func (panelPresenter *Presenter) keyingStopped() {
+	notJS := panelPresenter.notJS
+	notJS.Focus(panelPresenter.copyPracticeCopy)
+}
+
 func (panelPresenter *Presenter) showResult(correctCount, incorrectCount, keyedCount uint64, testResults [][]types.TestResult) {
 	div := panelPresenter.copyPracticeText
 	notJS := panelPresenter.notJS

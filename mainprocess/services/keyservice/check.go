@@ -1,9 +1,6 @@
 package keyservice
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/josephbudd/cwt/domain/data/keycodes"
 	"github.com/josephbudd/cwt/domain/interfaces/storer"
 	"github.com/josephbudd/cwt/domain/types"
@@ -23,7 +20,6 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 	testResults = make([][]types.TestResult, 0, 100)
 	lenKeyed := len(keyed)
 	lenSolution := len(solution)
-	fmt.Printf("lenKeyed is %d. lenSolution is %d\n", lenKeyed, lenSolution)
 	if lenSolution > lenKeyed {
 		// there are more solution lines than there is keyed lines.
 		// iterate through the keyed lines to find the mistakes.
@@ -32,7 +28,6 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 		testResultsLine := make([]types.TestResult, 0, lenSolution)
 		var keyedLine []*types.KeyCodeRecord
 		for i, keyedLine = range keyed {
-			log.Printf("keyedLine is %#v\n", keyedLine)
 			solutionLine := solution[i]
 			lenKeyedLine := len(keyedLine)
 			lenSolutionLine := len(solutionLine)

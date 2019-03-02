@@ -1,8 +1,12 @@
 # cwt
 
-A **linux** morse code trainer. This is far from being finished.
+A **linux** morse code trainer. This application will be finished as soon as I figure out how to teach myself to key. See the key service below.
 
-## Services
+## Credit where credit is due
+
+I downloaded the awesome goalsa package at https://github.com/cocoonlife/goalsa into the **cwt/mainprocess/goalsa/** folder. The code is beautifully written. I wish I would have taken the same approach with my own alsa code which I've given up on. Anyway, I slightly modified the code in the package's file **alsa.go**. My 2 mods allowed that package to build and made playing sound a little friendlier.
+
+## The application services
 
 ### The reference service
 
@@ -14,7 +18,26 @@ The copy service of the application allows the user to practice or test copying 
 
 ### The key service
 
-The key service of the application allows the user to practice or test keying morse code at the selected key speed. This is the part I am working on at the moment. There are changes in this service as I try to figure out how to teach myself to key.
+The key service of the application allows the user to practice or test keying morse code at the selected key speed. That's all well and good for people who know how to key.
+
+#### The problem: I can't key
+
+The morse code key is like a musical instrument that can only play notes at one pitch.
+
+Morse code is like a song that has
+
+* a never changing beat,
+* short notes ( dits ) that must only last 1 beat,
+* long notes ( dahs ) that must only last 3 beats,
+* pauses between the dit and dahs in a character that must only last 1 beat,
+* pauses between characters in a word that must only last 3 beats,
+* pauses between words that must only last 7 beats.
+
+#### The solution: I can learn
+
+1. So I have allowed for variances in user input.
+1. I added a metronome to help me keep the beat.
+1. I'm trying to come up with techiques for learning to key.
 
 ## The morse code key
 
@@ -29,7 +52,6 @@ My morse code key is wired to the contacts of the left button on a board that I 
 
 sudo apt install gcc
 sudo apt install libasound2-dev
-go get -u github.com/josephbudd/cwt
 
 ```
 
@@ -71,23 +93,16 @@ go build
 
 ```
 
-## Development issues
+## Linux binary installation and distribution
 
-### I can't key
+The executable in the source code if the file **cwt/cwt**. It was compiled on Ubuntu 18.04.2 LTS. So you may be able to just download and use the binary if you don't want to build this app.
 
-The morse code key is like a musical instrument that can only play notes at one pitch.
+1. Just download the entire source code.
+1. Make an empty folder to hold the application.
+1. Copy the executable **cwt/cwt** file into your folder.
+1. Copy the **cwt/http.yaml** file into your folder.
+1. Copy the **cwt/site/** folder into your folder.
+1. Then put the folder where you want it and run the executable in it.
+1. You won't need the downloaded source code after that so you can delete it if you want.
 
-Morse code is like a song that has
-
-* a never changing beat,
-* short notes ( dits ) that must only last 1 beat,
-* long notes ( dahs ) that must only last 3 beats,
-* pauses between the dit and dahs in a character that must only last 1 beat,
-* pauses between characters in a word that must only last 3 beats,
-* pauses between words that must only last 7 beats.
-
-I can't do any of that properly so I have allowed for variances in user input and I added a metronome. I'm hoping it will help me learn to key.
-
-### CGO issues
-
-My big issue here is package mainprocess/goalsa. I'm getting fatals in my CGO every once in a while with the new metronome. So I need to look at that and fix it.
+Let me know if this technique works for you.

@@ -163,6 +163,15 @@ func (panelCaller *Caller) key(solution [][]*types.KeyCodeRecord, wpm, pause uin
 		WPM:      wpm,
 		Pause:    pause,
 		State:    panelCaller.state,
+		Run:      true,
+	}
+	panelCaller.keyConnection.CallMainProcess(params)
+}
+
+func (panelCaller *Caller) stopKeying() {
+	params := &types.RendererToMainProcessKeyCallParams{
+		State: panelCaller.state,
+		Run:   false,
 	}
 	panelCaller.keyConnection.CallMainProcess(params)
 }
@@ -175,7 +184,11 @@ func (panelCaller *Caller) keyCB(params interface{}) {
 				panelCaller.tools.Error(params.ErrorMessage)
 			}
 			// no errors
-			panelCaller.controler.processKeyFinished()
+			if params.Run {
+				panelCaller.controler.processKeyFinished()
+			} else {
+				panelCaller.controler.processKeyStopped()
+			}
 		}
 	}
 }

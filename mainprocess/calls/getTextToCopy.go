@@ -3,7 +3,6 @@ package calls
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 
 	"github.com/josephbudd/cwt/domain/data/callids"
 	"github.com/josephbudd/cwt/domain/implementations/calling"
@@ -40,7 +39,6 @@ func mainProcessReceiveGetTextToCopy(params []byte, callBackToRenderer func(para
 	rxparams := &types.RendererToMainProcessGetTextToCopyCallParams{}
 	if err := json.Unmarshal(params, rxparams); err != nil {
 		// Calling back the error.
-		log.Println("mainProcessReceiveGetTextToCopy error is ", err.Error())
 		message := fmt.Sprintf("mainProcessGetTextToCopy: json.Unmarshal(params, rxparams): error is %s\n", err.Error())
 		txparams := &types.MainProcessToRendererGetTextToCopyCallParams{
 			Error:        true,
@@ -64,7 +62,6 @@ func mainProcessReceiveGetTextToCopy(params []byte, callBackToRenderer func(para
 		callBackToRenderer(txparamsbb)
 		return
 	}
-	log.Printf("mainProcessReceiveGetTextToCopy solution is %#v", solution)
 	// 3. Get the copy WPM for rendering the ditdahs.
 	r, err := wPMStorer.GetCopyWPM()
 	if err != nil {

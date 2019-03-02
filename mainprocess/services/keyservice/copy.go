@@ -2,7 +2,6 @@ package keyservice
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/josephbudd/cwt/domain/data/keycodes"
@@ -19,7 +18,6 @@ import (
 // Param wPMStorer is the wpm repository.Copy
 // Param keyCodeStorer is the keycode test results repository.
 func Copy(milliSeconds []int64, wpm uint64, keyCodeStorer storer.KeyCodeStorer) (solution [][]*types.KeyCodeRecord, err error) {
-	fmt.Printf("%#v\n", milliSeconds)
 	// the pause multiplier adjusts the pause times.
 	pauseMultiplier := 1.5
 	// the key multiplier adjusts the key times.
@@ -33,20 +31,15 @@ func Copy(milliSeconds []int64, wpm uint64, keyCodeStorer storer.KeyCodeStorer) 
 	// 1. define the true milleseconds of a single element.
 	elementsPerMinute := (wpm * 50) - 7
 	elementMS := int64(60000 / elementsPerMinute)
-	fmt.Printf("elementMS is %d\n", elementMS)
 	// 2. define the maximum milliseconds allowed for a dit.
 	//    a key down ms <= ditMaxMS is a dit.
 	//    a key down ms >= ditMaxMS is a dah.
 	ditMaxMS := int64(keyMultiplier * float64(elementMS))
-	fmt.Printf("ditMaxMS is %d\n", ditMaxMS)
 	// 3.a define the maximum millseconds allowed for a pause between dits and dahs
 	// 3.b define the maximum millseconds allowed for a pause between characters
 	betweenDitdahPauseMaxMS := int64(pauseMultiplier * float64(elementMS))
 	betweenCharPauseMaxMS := int64(pauseMultiplier * float64(3*elementMS))
 	// wordPauseMaxMS := int64(pauseMultiplier * float64(7*elementMS))
-	fmt.Println("betweenDitdahPauseMaxMS is ", betweenDitdahPauseMaxMS)
-	fmt.Println("betweenCharPauseMaxMS is ", betweenCharPauseMaxMS)
-	// fmt.Println("wordPauseMaxMS is ", wordPauseMaxMS)
 	// process stack ( pauseTime, keydownTime, ...)
 	solution = make([][]*types.KeyCodeRecord, 0, 100)
 	ditdahCharStack := make([]string, 0, 5)
@@ -59,7 +52,6 @@ func Copy(milliSeconds []int64, wpm uint64, keyCodeStorer storer.KeyCodeStorer) 
 				if ms <= betweenDitdahPauseMaxMS {
 					// pause between dits and dahs inside a character.
 					// between "." and "-" in ".-" ( "a" )
-					fmt.Println("Pause between dits and dahs is ", ms)
 				} else if ms < betweenCharPauseMaxMS {
 					// pause between chars in a word.
 					// between ".-" and "-." in ".- -." ( "an" )
@@ -67,12 +59,10 @@ func Copy(milliSeconds []int64, wpm uint64, keyCodeStorer storer.KeyCodeStorer) 
 						ditdahChar := strings.Join(ditdahs, "")
 						ditdahCharStack = append(ditdahCharStack, ditdahChar)
 						ditdahs = ditdahs[:0]
-						fmt.Println("Pause between chars is ", ms)
 					}
 				} else {
 					// pause between words in a phrase or sentence.
 					// between ".- -." and ".- .--. .--. .-.. ." in ".- -.   .- .--. .--. .-.. ." ( "an apple" )
-					fmt.Println("Pause between words is ", ms)
 					if len(ditdahs) > 0 {
 						ditdahChar := strings.Join(ditdahs, "")
 						ditdahCharStack = append(ditdahCharStack, ditdahChar)
@@ -87,17 +77,14 @@ func Copy(milliSeconds []int64, wpm uint64, keyCodeStorer storer.KeyCodeStorer) 
 						for j, r := range rr {
 							chars[j] = r.Character
 						}
-						fmt.Println("The word is ", strings.Join(chars, ""))
 					}
 				}
 			} else {
 				// key
 				if ms <= ditMaxMS {
 					ditdahs = append(ditdahs, ".")
-					fmt.Println("Keyed a .")
 				} else {
 					ditdahs = append(ditdahs, "-")
-					fmt.Println("Keyed a -")
 				}
 			}
 		}

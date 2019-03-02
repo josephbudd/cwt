@@ -177,12 +177,6 @@ func (panelCaller *Caller) metronomeCB(params interface{}) {
 				panelCaller.tools.Error(params.ErrorMessage)
 				return
 			}
-			// no errors
-			if params.Run {
-				panelCaller.tools.Success("Metronome Started")
-			} else {
-				panelCaller.tools.Success("Metronome Stopped")
-			}
 		}
 	}
 }

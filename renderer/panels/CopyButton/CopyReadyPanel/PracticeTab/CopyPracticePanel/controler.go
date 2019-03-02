@@ -151,6 +151,11 @@ func (panelControler *Controler) processKeyFinished() {
 	panelControler.presenter.keyingFinished()
 }
 
+func (panelControler *Controler) processKeyStopped() {
+	panelControler.codeIsKeying = false
+	panelControler.presenter.keyingStopped()
+}
+
 // initialCalls runs the first code that the controler needs to run.
 func (panelControler *Controler) initialCalls() {
 

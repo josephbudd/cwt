@@ -5,6 +5,7 @@ type RendererToMainProcessKeyCallParams struct {
 	Solution [][]*KeyCodeRecord
 	WPM      uint64
 	Pause    uint64
+	Run      bool
 	State    uint64
 }
 
@@ -12,5 +13,6 @@ type RendererToMainProcessKeyCallParams struct {
 type MainProcessToRendererKeyCallParams struct {
 	Error        bool
 	ErrorMessage string
+	Run          bool
 	State        uint64
 }

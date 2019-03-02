@@ -1,112 +1,103 @@
-package goalsa
+// Copyright 2015-2016 Cocoon Labs Ltd.
+//
+// See LICENSE file for terms and conditions.
+
+package alsa
 
 import (
-	"fmt"
-	"strings"
 	"testing"
-	"time"
+
+	"github.com/cocoonlife/testify/assert"
 )
 
-const paris = ".--. .- .-. .. ..."
+func TestCapture(t *testing.T) {
+	a := assert.New(t)
 
-func TestCW(t *testing.T) {
+	c, err := NewCaptureDevice("nonexistent", 1, FormatS16LE, 44100,
+		BufferParams{})
 
-	// goAlsaTestFail(t, "s", 0)
-	// goAlsaTestFail(t, ".- \tm.- \t", 4)
-	// goAlsaTestSecond(t, 30)
-	// goAlsaTestSecond(t, 5)
-	// goAlsaTestMinute(t, 30)
-	// goAlsaTestMinute(t, 5)
-	fmt.Println("Testing ditdah without word separators.")
-	goAlsaTest5(t, false)
-	fmt.Println("Testing ditdah with word separators.")
-	goAlsaTest5(t, true)
+	a.Equal(c, (*CaptureDevice)(nil), "capture device is nil")
+	a.Error(err, "no device error")
+
+	c, err = NewCaptureDevice("null", 1, FormatS32LE, 0, BufferParams{})
+
+	a.Equal(c, (*CaptureDevice)(nil), "capture device is nil")
+	a.Error(err, "bad rate error")
+
+	c, err = NewCaptureDevice("null", 1, FormatS32LE, 44100, BufferParams{})
+
+	a.NoError(err, "created capture device")
+
+	b1 := make([]int8, 100)
+	samples, err := c.Read(b1)
+
+	a.Error(err, "wrong type error")
+	a.Equal(samples, 0, "no samples read")
+
+	b2 := make([]int16, 200)
+	samples, err = c.Read(b2)
+
+	a.Error(err, "wrong type error")
+	a.Equal(samples, 0, "no samples read")
+
+	b3 := make([]float64, 50)
+	samples, err = c.Read(b3)
+
+	a.Error(err, "wrong type error")
+	a.Equal(samples, 0, "no samples read")
+
+	b4 := make([]int32, 200)
+	samples, err = c.Read(b4)
+
+	a.NoError(err, "read samples ok")
+	a.Equal(len(b2), samples, "correct number of samples read")
+
+	c.Close()
 }
 
-func goAlsaTest5(t *testing.T, separateWords bool) {
-	// pp is 5 words. At 5wpm should take 1 minute to play.
-	fmt.Println("Testing ditdahs. This should take 1 minute.")
-	pp := []string{paris, paris, paris, paris, paris}
-	var ditdah string
-	if separateWords {
-		ditdah = strings.Join(pp, "\t")
-	} else {
-		ditdah = strings.Join(pp, "")
-	}
-	startTime := time.Now()
-	err := PlayCW(ditdah, 5)
-	elapsedTime := time.Since(startTime)
-	seconds := elapsedTime.Seconds()
-	fmt.Printf(" That took %f seconds.", seconds)
-	if err != nil {
-		t.Error(err.Error())
-	}
-	fmt.Println("")
-}
+func TestPlayback(t *testing.T) {
+	a := assert.New(t)
 
-func goAlsaTestFail(t *testing.T, errorString string, errorIndex int) {
-	err := PlayCW(errorString, 5)
-	if err != nil {
-		got := err.Error()
-		want := fmt.Sprintf("'%s' is not a valid dit dah character at position %d. It should be a \".\", a \"-\", a space or a tab", errorString[errorIndex:errorIndex+1], errorIndex)
-		if got != want {
-			t.Errorf("got %q\nwant %q\n", got, want)
-		}
-	}
-}
+	p, err := NewPlaybackDevice("nonexistent", 1, FormatS16LE, 44100,
+		BufferParams{})
 
-func goAlsaTestSecond(t *testing.T, wpm uint64) {
-	fmt.Printf("1 second at %d wpm.", wpm)
-	startTime := time.Now()
-	err := playCW("s", wpm)
-	if err != nil {
-		t.Error("\nerr is ", err.Error())
-		return
-	}
-	elapsedTime := time.Since(startTime)
-	seconds := elapsedTime.Seconds()
-	fmt.Printf(" That took %f seconds.", seconds)
-	if err != nil {
-		t.Error("\nerr is ", err.Error())
-		return
-	}
-	if seconds > 1.05 {
-		off := seconds - float64(1.0)
-		t.Errorf(" That was %f seconds too long.\n", off)
-		return
-	}
-	if seconds < 1.0 {
-		off := float64(1.0) - seconds
-		t.Errorf(" That was %f seconds too short.\n", off)
-		return
-	}
-	fmt.Print("\n")
-}
+	a.Equal(p, (*PlaybackDevice)(nil), "playback device is nil")
+	a.Error(err, "no device error")
 
-func goAlsaTestMinute(t *testing.T, wpm uint64) {
-	fmt.Printf("30 seconds at %d wpm.", wpm)
-	startTime := time.Now()
-	err := playCW("m", wpm)
-	if err != nil {
-		t.Error("\nerr is ", err.Error())
-		return
-	}
-	elapsedTime := time.Since(startTime)
-	seconds := elapsedTime.Seconds()
-	fmt.Printf(" That took %f seconds.", seconds)
-	if err != nil {
-		t.Error("\nerr is ", err.Error())
-		return
-	}
-	if seconds > 31.0 {
-		off := seconds - float64(1.0)
-		t.Errorf(" That was %f seconds too long.\n", off)
-		return
-	}
-	if seconds < 29.9 {
-		off := float64(60.0) - seconds
-		t.Errorf(" That was %f seconds too short.\n", off)
-		return
-	}
-	fmt.Print("\n")
+	p, err = NewPlaybackDevice("null", 0, FormatS32LE, 44100,
+		BufferParams{})
+
+	a.Equal(p, (*PlaybackDevice)(nil), "playback device is nil")
+	a.Error(err, "bad channels error")
+
+	p, err = NewPlaybackDevice("null", 1, FormatS32LE, 44100,
+		BufferParams{})
+
+	a.NoError(err, "created playback device")
+
+	b1 := make([]int8, 100)
+	frames, err := p.Write(b1)
+
+	a.Error(err, "wrong type error")
+	a.Equal(frames, 0, "no frames written")
+
+	b2 := make([]int16, 100)
+	frames, err = p.Write(b2)
+
+	a.Error(err, "wrong type error")
+	a.Equal(frames, 0, "no frames written")
+
+	b3 := make([]float64, 100)
+	frames, err = p.Write(b3)
+
+	a.Error(err, "wrong type error")
+	a.Equal(frames, 0, "no frames written")
+
+	b4 := make([]int32, 100)
+	frames, err = p.Write(b4)
+
+	a.NoError(err, "buffer written ok")
+	a.Equal(frames, 100, "100 frames written")
+
+	p.Close()
 }

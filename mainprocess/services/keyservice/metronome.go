@@ -1,6 +1,6 @@
 package keyservice
 
-import "github.com/josephbudd/cwt/mainprocess/goalsa"
+import "github.com/josephbudd/cwt/mainprocess/sound"
 
 var metronomeRunning bool
 var metronomeQuitChannel = make(chan struct{})
@@ -9,7 +9,7 @@ var metronomeQuitChannel = make(chan struct{})
 func StartMetronome(wpm uint64, errCh chan error) {
 	if !metronomeRunning {
 		metronomeRunning = true
-		go goalsa.Metronome(wpm, metronomeQuitChannel, errCh)
+		go sound.Metronome(wpm, metronomeQuitChannel, errCh)
 	}
 }
 
@@ -18,6 +18,5 @@ func StopMetronome() {
 	if metronomeRunning {
 		metronomeRunning = false
 		metronomeQuitChannel <- struct{}{}
-		return
 	}
 }
