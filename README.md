@@ -18,9 +18,13 @@ The copy service of the application allows the user to practice or test copying 
 
 ### The key service
 
-The key service of the application allows the user to practice or test keying morse code at the selected key speed. That's all well and good for people who know how to key.
+The key service of the application allows the user to practice or test keying morse code at the selected key speed.
 
-#### The problem: I can't key
+That's all well and good for people who know how to key. But despite my attempts to teach myself years ago, I now realize that I only taught myself a bunch of crap that I now have to unlearn.
+
+So I am designing the key service to help me learn to key properly.
+
+#### Here is my premise
 
 The morse code key is like a musical instrument that can only play notes at one pitch.
 
@@ -33,7 +37,7 @@ Morse code is like a song that has
 * pauses between characters in a word that must only last 3 beats,
 * pauses between words that must only last 7 beats.
 
-#### The solution: I can learn
+#### My solution
 
 1. So I have allowed for variances in user input.
 1. I added a metronome to help me keep the beat.
