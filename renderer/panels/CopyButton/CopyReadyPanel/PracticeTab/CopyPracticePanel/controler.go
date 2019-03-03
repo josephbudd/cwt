@@ -42,6 +42,9 @@ type Controler struct {
 	codeIsKeying  bool
 	delaySeconds  uint64
 	wpm           uint64
+
+	lockMessageTitle string
+	lockMessage      string
 }
 
 // defineControlsSetHandlers defines controler members and sets their handlers.
@@ -87,6 +90,8 @@ func (panelControler *Controler) defineControlsSetHandlers() (err error) {
 	notJS.SetOnClick(panelControler.copyPracticeCheck, cb)
 
 	panelControler.delaySeconds = 5
+	panelControler.lockMessageTitle = "Oops!"
+	panelControler.lockMessage = "You are still copying."
 
 	return
 }
@@ -105,6 +110,7 @@ func (panelControler *Controler) handleStart([]js.Value) {
 	panelControler.userIsCopying = true
 	panelControler.presenter.started()
 	panelControler.caller.getTextToCopy()
+	panelControler.tools.LockButtonsWithMessage(panelControler.lockMessage, panelControler.lockMessageTitle)
 }
 
 func (panelControler *Controler) handleCheck([]js.Value) {
@@ -112,6 +118,7 @@ func (panelControler *Controler) handleCheck([]js.Value) {
 		panelControler.tools.Error("Can't stop yet. Still keying.")
 		return
 	}
+	panelControler.tools.UnLockButtons()
 	panelControler.userIsCopying = false
 	panelControler.presenter.checked()
 	copy := strings.TrimSpace(panelControler.notJS.GetValue(panelControler.copyPracticeCopy))
