@@ -99,7 +99,7 @@ go build
 
 ## Linux binary installation and distribution
 
-The executable in the source code if the file **cwt/cwt**. It was compiled on Ubuntu 18.04.2 LTS. So you may be able to just download and use the binary if you don't want to build this app.
+The executable in the source code is the file **cwt/cwt**. It was compiled on Ubuntu 18.04.2 LTS. So you may be able to just download and use the binary if you don't want to build this app.
 
 1. Just download the entire source code.
 1. Make an empty folder to hold the application.
