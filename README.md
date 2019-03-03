@@ -45,7 +45,7 @@ Morse code is like a song that has
 
 ## The morse code key
 
-My morse code key is wired to the contacts of the left button on a board that I ripped out of a cheap usb mouse. The board gets plugged into a usb port on the lap top. Pressing the key down causes a "mouse-down" event and letting the key up causes a "mouse-up" event. The go wasm code does a fine job of handling those events by appending the time of the event to a slice of time.Times.
+My morse code key is a straight key. It is wired to the contacts of the left button on a board that I ripped out of a cheap usb mouse. The board gets plugged into a usb port on the lap top. Pressing the key down causes a "mouse-down" event and letting the key up causes a "mouse-up" event. The go wasm code does a fine job of handling those events by appending the time of the event to a slice of time.Times.
 
 ## To install and build on linux
 
