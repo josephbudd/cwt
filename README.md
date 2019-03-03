@@ -1,6 +1,6 @@
 # cwt
 
-A **linux** morse code trainer. This application will be finished as soon as I figure out how to teach myself to key. See the key service below.
+A **linux** morse code trainer. This application is probably close to being finished. I will be finished when I'm convinced that I can use it to learn to key. See the key service below.
 
 ## Credit where credit is due
 
