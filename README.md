@@ -2,6 +2,8 @@
 
 A **linux** morse code trainer. This application is probably close to being finished. I will be finished with the code when I'm convinced that I can use this application to learn to key. See the key service below. Also I probably want to tweek the practice and test results reporting.
 
+Another issue I have is the key sound generated for when the user copies. Apparently I've only  got it going out of the left speaker so I need to figure yout how to correct that.
+
 ## Credit where credit is due
 
 I downloaded the awesome goalsa package at https://github.com/cocoonlife/goalsa into the **cwt/mainprocess/goalsa/** folder. The code is beautifully written. I wish I would have taken the same approach with my own alsa code which I've given up on. Anyway, I slightly modified the code in the package's file **alsa.go**. My 2 mods allowed that package to build and made playing sound a little friendlier.

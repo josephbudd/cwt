@@ -228,7 +228,6 @@ func (keyWidget *KeyWidget) handleStart(event js.Value) {
 
 func (keyWidget *KeyWidget) handleStop(event js.Value) {
 	keyWidget.setKeyingStopped()
-	keyWidget.notJS.Alert(fmt.Sprintf("len(keyWidget.times) is %d", len(keyWidget.times)))
 	l := len(keyWidget.times)
 	milliSeconds := make([]int64, 0, l)
 	for i := 0; i < l; {
