@@ -1,4 +1,4 @@
-package NumbersPanel
+package numberspanel
 
 import (
 	"fmt"

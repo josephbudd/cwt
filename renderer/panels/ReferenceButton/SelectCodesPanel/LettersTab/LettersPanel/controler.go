@@ -1,4 +1,4 @@
-package LettersPanel
+package letterspanel
 
 import (
 	"syscall/js"
@@ -62,11 +62,12 @@ func (panelControler *Controler) defineControlsSetHandlers() (err error) {
 
 func (panelControler *Controler) setup(records []*types.KeyCodeRecord) {
 	notJS := panelControler.notJS
+	tools := panelControler.tools
 	// fill the table first creating the input elements.
 	panelControler.presenter.fillTable(records)
 	// rebuild panelControler.records
 	panelControler.records = make(map[uint64]*types.KeyCodeRecord)
-	cb := notJS.RegisterEventCallBack(false, false, false, panelControler.handleChecked)
+	cb := tools.RegisterEventCallBack(panelControler.handleChecked, true, true, true)
 	for _, r := range records {
 		panelControler.records[r.ID] = r
 		// set the checkbox on change handler
@@ -76,7 +77,7 @@ func (panelControler *Controler) setup(records []*types.KeyCodeRecord) {
 	}
 }
 
-func (panelControler *Controler) handleChecked(event js.Value) {
+func (panelControler *Controler) handleChecked(event js.Value) interface{} {
 	notJS := panelControler.notJS
 	target := notJS.GetEventTarget(event)
 	notJS.Blur(target)
@@ -85,6 +86,7 @@ func (panelControler *Controler) handleChecked(event js.Value) {
 	record := panelControler.records[id]
 	record.Selected = checked
 	panelControler.caller.updateKeyCode(record)
+	return nil
 }
 
 // initialCalls runs the first code that the controler needs to run.
@@ -94,9 +96,6 @@ func (panelControler *Controler) initialCalls() {
 
 	// Make the initial calls.
 	// I use this to start up widgets. For example a virtual list widget.
-	// example:
-
-	panelControler.customerSelectWidget.start()
 
 	*/
 

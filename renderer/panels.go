@@ -30,52 +30,52 @@ import (
 
 func doPanels(quitCh chan struct{}, tools *viewtools.Tools, callMap map[types.CallID]caller.Renderer, notJS *notjs.NotJS, helper panelHelper.Helper) (err error) {
 	// 1. Construct the panel code.
-	var copyNotReadyPanel *CopyNotReadyPanel.Panel
-	if copyNotReadyPanel, err = CopyNotReadyPanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	var copyNotReadyPanel *copynotreadypanel.Panel
+	if copyNotReadyPanel, err = copynotreadypanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
 		return
 	}
-	var copyPracticePanel *CopyPracticePanel.Panel
-	if copyPracticePanel, err = CopyPracticePanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	var copyPracticePanel *copypracticepanel.Panel
+	if copyPracticePanel, err = copypracticepanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
 		return
 	}
-	var copyTestPanel *CopyTestPanel.Panel
-	if copyTestPanel, err = CopyTestPanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	var copyTestPanel *copytestpanel.Panel
+	if copyTestPanel, err = copytestpanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
 		return
 	}
-	var copyWPMPanel *CopyWPMPanel.Panel
-	if copyWPMPanel, err = CopyWPMPanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	var copyWPMPanel *copywpmpanel.Panel
+	if copyWPMPanel, err = copywpmpanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
 		return
 	}
-	var keyNotReadyPanel *KeyNotReadyPanel.Panel
-	if keyNotReadyPanel, err = KeyNotReadyPanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	var keyNotReadyPanel *keynotreadypanel.Panel
+	if keyNotReadyPanel, err = keynotreadypanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
 		return
 	}
-	var keyPracticePanel *KeyPracticePanel.Panel
-	if keyPracticePanel, err = KeyPracticePanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	var keyPracticePanel *keypracticepanel.Panel
+	if keyPracticePanel, err = keypracticepanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
 		return
 	}
-	var keyTestPanel *KeyTestPanel.Panel
-	if keyTestPanel, err = KeyTestPanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	var keyTestPanel *keytestpanel.Panel
+	if keyTestPanel, err = keytestpanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
 		return
 	}
-	var keyWPMPanel *KeyWPMPanel.Panel
-	if keyWPMPanel, err = KeyWPMPanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	var keyWPMPanel *keywpmpanel.Panel
+	if keyWPMPanel, err = keywpmpanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
 		return
 	}
-	var lettersPanel *LettersPanel.Panel
-	if lettersPanel, err = LettersPanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	var lettersPanel *letterspanel.Panel
+	if lettersPanel, err = letterspanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
 		return
 	}
-	var numbersPanel *NumbersPanel.Panel
-	if numbersPanel, err = NumbersPanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	var numbersPanel *numberspanel.Panel
+	if numbersPanel, err = numberspanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
 		return
 	}
-	var punctuationPanel *PunctuationPanel.Panel
-	if punctuationPanel, err = PunctuationPanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	var punctuationPanel *punctuationpanel.Panel
+	if punctuationPanel, err = punctuationpanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
 		return
 	}
-	var specialPanel *SpecialPanel.Panel
-	if specialPanel, err = SpecialPanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	var specialPanel *specialpanel.Panel
+	if specialPanel, err = specialpanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
 		return
 	}
 

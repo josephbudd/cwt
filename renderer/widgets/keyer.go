@@ -92,22 +92,22 @@ func NewKeyWidget(heading js.Value,
 
 	notJS.SetInnerText(heading, initialInstructions)
 
-	cb := notJS.RegisterEventCallBack(false, false, false, keyWidget.handleStart)
+	cb := tools.RegisterEventCallBack(keyWidget.handleStart, true, true, true)
 	notJS.SetOnClick(keyWidget.startButton, cb)
 
-	cb = notJS.RegisterEventCallBack(false, false, false, keyWidget.handleStop)
+	cb = tools.RegisterEventCallBack(keyWidget.handleStop, true, true, true)
 	notJS.SetOnClick(keyWidget.stopButton, cb)
 
-	cb = notJS.RegisterEventCallBack(false, false, false, keyWidget.handleMouseEnter)
+	cb = tools.RegisterEventCallBack(keyWidget.handleMouseEnter, true, true, true)
 	notJS.SetOnMouseEnter(keyWidget.keyDiv, cb)
 
-	cb = notJS.RegisterEventCallBack(false, false, false, keyWidget.handleMouseLeave)
+	cb = tools.RegisterEventCallBack(keyWidget.handleMouseLeave, true, true, true)
 	notJS.SetOnMouseLeave(keyWidget.keyDiv, cb)
 
-	cb = notJS.RegisterEventCallBack(true, true, true, keyWidget.handleMouseDown)
+	cb = tools.RegisterEventCallBack(keyWidget.handleMouseDown, true, true, true)
 	notJS.SetOnMouseDown(keyWidget.keyDiv, cb)
 
-	cb = notJS.RegisterEventCallBack(true, true, true, keyWidget.handleMouseUp)
+	cb = tools.RegisterEventCallBack(keyWidget.handleMouseUp, true, true, true)
 	notJS.SetOnMouseUp(keyWidget.keyDiv, cb)
 
 	return
@@ -214,7 +214,7 @@ func (keyWidget *KeyWidget) addTable(controlWord, ditDahWord, copiedWord string)
 
 // handlers
 
-func (keyWidget *KeyWidget) handleStart(event js.Value) {
+func (keyWidget *KeyWidget) handleStart(event js.Value) interface{} {
 	tools := keyWidget.tools
 	notJS := keyWidget.notJS
 	keyWidget.userKeyChecker.GetKeyCodesWPM()
@@ -224,9 +224,10 @@ func (keyWidget *KeyWidget) handleStart(event js.Value) {
 	keyWidget.keyTime = time.Now()
 	keyWidget.times = make([]time.Time, 1, 200)
 	keyWidget.times[0] = time.Now()
+	return nil
 }
 
-func (keyWidget *KeyWidget) handleStop(event js.Value) {
+func (keyWidget *KeyWidget) handleStop(event js.Value) interface{} {
 	keyWidget.setKeyingStopped()
 	l := len(keyWidget.times)
 	milliSeconds := make([]int64, 0, l)
@@ -242,37 +243,42 @@ func (keyWidget *KeyWidget) handleStop(event js.Value) {
 	keyWidget.userKeyChecker.CheckUserKey(milliSeconds, keyWidget.keyCodes, keyWidget.wpm)
 	keyWidget.tools.ElementHide(keyWidget.stopButton)
 	keyWidget.notJS.SetInnerText(keyWidget.heading, noInstructions)
+	return nil
 }
 
-func (keyWidget *KeyWidget) handleMouseEnter(event js.Value) {
+func (keyWidget *KeyWidget) handleMouseEnter(event js.Value) interface{} {
 	if keyWidget.userIsKeying {
 		notJS := keyWidget.notJS
 		notJS.ClassListReplaceClass(keyWidget.keyDiv, "user-not-key-over", "user-key-over")
 		keyWidget.notJS.SetInnerText(keyWidget.heading, mouseOverInstructions)
 		keyWidget.metronomer.StartMetronome(keyWidget.wpm)
 	}
+	return nil
 }
 
-func (keyWidget *KeyWidget) handleMouseLeave(event js.Value) {
+func (keyWidget *KeyWidget) handleMouseLeave(event js.Value) interface{} {
 	if keyWidget.userIsKeying {
 		keyWidget.notJS.ClassListReplaceClass(keyWidget.keyDiv, "user-key-over", "user-not-key-over")
 		keyWidget.notJS.SetInnerText(keyWidget.heading, mouseNotOverAgainInstructions)
 		keyWidget.metronomer.StopMetronome()
 	}
+	return nil
 }
 
-func (keyWidget *KeyWidget) handleMouseDown(event js.Value) {
+func (keyWidget *KeyWidget) handleMouseDown(event js.Value) interface{} {
 	if keyWidget.userIsKeying {
 		keyWidget.times = append(keyWidget.times, time.Now())
 		keyWidget.notJS.ClassListReplaceClass(keyWidget.keyDiv, "user-key-up", "user-key-down")
 	}
+	return nil
 }
 
-func (keyWidget *KeyWidget) handleMouseUp(event js.Value) {
+func (keyWidget *KeyWidget) handleMouseUp(event js.Value) interface{} {
 	if keyWidget.userIsKeying {
 		keyWidget.times = append(keyWidget.times, time.Now())
 		keyWidget.notJS.ClassListReplaceClass(keyWidget.keyDiv, "user-key-down", "user-key-up")
 	}
+	return nil
 }
 
 // misc funcs

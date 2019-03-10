@@ -1,4 +1,4 @@
-package KeyWPMPanel
+package keywpmpanel
 
 import (
 	"syscall/js"
@@ -53,6 +53,7 @@ func (panelControler *Controler) defineControlsSetHandlers() (err error) {
 	*/
 
 	notJS := panelControler.notJS
+	tools := panelControler.tools
 	null := js.Null()
 
 	// Define the wpm input field.
@@ -60,7 +61,7 @@ func (panelControler *Controler) defineControlsSetHandlers() (err error) {
 		err = errors.New("unable to find #keyWPM")
 		return
 	}
-	cb := notJS.RegisterCallBack(panelControler.handleOnChange)
+	cb := tools.RegisterEventCallBack(panelControler.handleOnChange, true, true, true)
 	notJS.SetOnChange(panelControler.keyWPM, cb)
 
 	return
@@ -72,9 +73,10 @@ func (panelControler *Controler) defineControlsSetHandlers() (err error) {
 
 */
 
-func (panelControler *Controler) handleOnChange([]js.Value) {
+func (panelControler *Controler) handleOnChange(event js.Value) interface{} {
 	panelControler.record.WPM = panelControler.notJS.GetValueUint64(panelControler.keyWPM)
 	panelControler.caller.updateKeyWPM(panelControler.record)
+	return nil
 }
 
 func (panelControler *Controler) processWPM(record *types.WPMRecord) {

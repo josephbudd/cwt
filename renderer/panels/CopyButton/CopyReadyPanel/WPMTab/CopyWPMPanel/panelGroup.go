@@ -1,4 +1,4 @@
-package CopyWPMPanel
+package copywpmpanel
 
 import (
 	"syscall/js"

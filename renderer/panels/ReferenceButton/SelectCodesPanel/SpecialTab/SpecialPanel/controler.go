@@ -1,4 +1,4 @@
-package SpecialPanel
+package specialpanel
 
 import (
 	"syscall/js"
@@ -48,27 +48,6 @@ func (panelControler *Controler) defineControlsSetHandlers() (err error) {
 
 	// Define the Controler members by their html elements.
 	// Set their handlers.
-	// example:
-
-	// import "syscall/js"
-
-	notJS := panelControler.notJS
-	tools := panelPresenter.tools
-	null := js.Null()
-
-	// Define the customer name input field.
-	if panelControler.customerName = notJS.GetElementByID("customerName"); panelControler.customerName == null {
-		err = errors.New("unable to find #customerName")
-		return
-	}
-
-	// Define the submit button and set it's handler.
-	if panelControler.addCustomerSubmit = notJS.GetElementByID("addCustomerSubmit"); panelControler.addCustomerSubmit == null {
-		err = errors.New("unable to find #addCustomerSubmit")
-		return
-	}
-	cb := notJS.RegisterCallBack(panelControler.handleSubmit)
-	notJS.SetOnClick(panelControler.addCustomerSubmit, cb)
 
 	*/
 
@@ -83,11 +62,12 @@ func (panelControler *Controler) defineControlsSetHandlers() (err error) {
 
 func (panelControler *Controler) setup(records []*types.KeyCodeRecord) {
 	notJS := panelControler.notJS
+	tools := panelControler.tools
 	// fill the table first creating the input elements.
 	panelControler.presenter.fillTable(records)
 	// rebuild panelControler.records
 	panelControler.records = make(map[uint64]*types.KeyCodeRecord)
-	cb := notJS.RegisterEventCallBack(false, false, false, panelControler.handleChecked)
+	cb := tools.RegisterEventCallBack(panelControler.handleChecked, true, true, true)
 	for _, r := range records {
 		panelControler.records[r.ID] = r
 		// set the checkbox on change handler
@@ -97,7 +77,7 @@ func (panelControler *Controler) setup(records []*types.KeyCodeRecord) {
 	}
 }
 
-func (panelControler *Controler) handleChecked(event js.Value) {
+func (panelControler *Controler) handleChecked(event js.Value) interface{} {
 	notJS := panelControler.notJS
 	target := notJS.GetEventTarget(event)
 	notJS.Blur(target)
@@ -106,6 +86,7 @@ func (panelControler *Controler) handleChecked(event js.Value) {
 	record := panelControler.records[id]
 	record.Selected = checked
 	panelControler.caller.updateKeyCode(record)
+	return nil
 }
 
 // initialCalls runs the first code that the controler needs to run.

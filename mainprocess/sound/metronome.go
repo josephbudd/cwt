@@ -24,10 +24,13 @@ func Metronome(wpm uint64, quitCh chan struct{}, errCh chan error) {
 	device, err = alsa.NewPlaybackDevice(
 		"default",
 		2,
-		alsa.FormatS16LE,
+		alsa.FormatS16BE,
 		44100,
 		alsa.BufferParams{},
 	)
+	if err != nil {
+		return
+	}
 	defer device.Close()
 	err = metronome(device, wpm, quitCh)
 }
@@ -67,7 +70,8 @@ func buildMetronomeSound(device *alsa.PlaybackDevice, wpm uint64) (data []int16)
 	// each sample is a frame of device.Channels int16.
 	for i := 0; i < nSamples; i++ {
 		for j := 1; j <= device.Channels; j++ {
-			data[device.Channels*i] = int16((i%(j*128))*100 - 1000)
+			index := (device.Channels * i) + j - 1
+			data[index] = int16((i%(j*128))*100 - 1000)
 		}
 	}
 	return

@@ -1,4 +1,4 @@
-package CopyPracticePanel
+package copypracticepanel
 
 import (
 	"github.com/pkg/errors"

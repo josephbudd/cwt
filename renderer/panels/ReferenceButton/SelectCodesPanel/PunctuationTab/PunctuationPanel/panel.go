@@ -1,4 +1,4 @@
-package PunctuationPanel
+package punctuationpanel
 
 import (
 	"github.com/pkg/errors"

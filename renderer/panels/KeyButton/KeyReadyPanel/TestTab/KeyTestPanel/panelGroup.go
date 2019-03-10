@@ -1,4 +1,4 @@
-package KeyTestPanel
+package keytestpanel
 
 import (
 	"syscall/js"

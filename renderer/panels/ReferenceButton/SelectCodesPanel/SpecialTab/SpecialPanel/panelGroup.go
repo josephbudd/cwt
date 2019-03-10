@@ -1,4 +1,4 @@
-package SpecialPanel
+package specialpanel
 
 import (
 	"syscall/js"

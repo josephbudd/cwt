@@ -1,4 +1,4 @@
-package LettersPanel
+package letterspanel
 
 import (
 	"fmt"

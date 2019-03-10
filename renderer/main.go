@@ -6,7 +6,7 @@ import (
 	"github.com/josephbudd/cwt/domain/data/callids"
 	"github.com/josephbudd/cwt/domain/data/loglevels"
 	"github.com/josephbudd/cwt/domain/types"
-	"github.com/josephbudd/cwt/renderer/callClient"
+	call "github.com/josephbudd/cwt/renderer/callClient"
 	"github.com/josephbudd/cwt/renderer/calls"
 	"github.com/josephbudd/cwt/renderer/implementations/panelHelping"
 	"github.com/josephbudd/cwt/renderer/notjs"
@@ -39,13 +39,13 @@ func main() {
 	notJS := notjs.NewNotJS()
 	tools := viewtools.NewTools(notJS)
 	helper := panelHelping.NewProductionHelper()
-
 	// get the renderer's connection client.
 	host, port := notJS.HostPort()
 	client := call.NewClient(host, port, tools, notJS)
 	client.SetOnConnectionBreak(
-		func([]js.Value) {
+		func(event js.Value, args []js.Value) interface{} {
 			quitCh <- struct{}{}
+			return nil
 		},
 	)
 	// get the local procedure calls

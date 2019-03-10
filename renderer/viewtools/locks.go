@@ -8,7 +8,8 @@ func (tools *Tools) LockButtons() {
 }
 
 // LockButtonsWithMessage blocks the tab and back buttons from working.
-// It also displays a message to the user when the user clicks a tab or back button.func (tools *Tools) LockButtonsWithMessage(message, title string) {
+// It also displays a message to the user when the user clicks a tab or back button.
+func (tools *Tools) LockButtonsWithMessage(message, title string) {
 	tools.buttonsLocked = true
 	tools.buttonsLockedMessageTitle = title
 	tools.buttonsLockedMessageText = message
@@ -30,3 +31,4 @@ func (tools *Tools) HandleButtonClick() (clicked bool) {
 	clicked = !tools.buttonsLocked
 	return
 }
+

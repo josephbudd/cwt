@@ -1,4 +1,4 @@
-package CopyTestPanel
+package copytestpanel
 
 import (
 	"fmt"
@@ -62,6 +62,7 @@ func (panelControler *Controler) defineControlsSetHandlers() (err error) {
 	*/
 
 	notJS := panelControler.notJS
+	tools := panelControler.tools
 	null := js.Null()
 
 	// Define the copy input field.
@@ -75,7 +76,7 @@ func (panelControler *Controler) defineControlsSetHandlers() (err error) {
 		err = errors.New("unable to find #copyTestStart")
 		return
 	}
-	cb := notJS.RegisterCallBack(panelControler.handleStart)
+	cb := tools.RegisterEventCallBack(panelControler.handleStart, true, true, true)
 	notJS.SetOnClick(panelControler.copyTestStart, cb)
 
 	// Define the check button and set it's handler.
@@ -83,7 +84,7 @@ func (panelControler *Controler) defineControlsSetHandlers() (err error) {
 		err = errors.New("unable to find #copyTestCheck")
 		return
 	}
-	cb = notJS.RegisterCallBack(panelControler.handleCheck)
+	cb = tools.RegisterEventCallBack(panelControler.handleCheck, true, true, true)
 	notJS.SetOnClick(panelControler.copyTestCheck, cb)
 
 	panelControler.delaySeconds = 5
@@ -101,23 +102,24 @@ func (panelControler *Controler) processWPM(wpm uint64) {
 	panelControler.wpm = wpm
 }
 
-func (panelControler *Controler) handleStart([]js.Value) {
+func (panelControler *Controler) handleStart(event js.Value) interface{} {
 	panelControler.userIsCopying = true
 	panelControler.presenter.started()
 	panelControler.caller.getTextToCopy()
+	return nil
 }
 
-func (panelControler *Controler) handleCheck([]js.Value) {
+func (panelControler *Controler) handleCheck(event js.Value) interface{} {
 	if panelControler.codeIsKeying {
 		panelControler.tools.Error("Can't stop yet. Still keying.")
-		return
+		return nil
 	}
 	panelControler.userIsCopying = false
 	panelControler.presenter.checked()
 	copy := strings.TrimSpace(panelControler.notJS.GetValue(panelControler.copyTestCopy))
 	if len(copy) == 0 {
 		panelControler.tools.Error("You didn't enter any copy.")
-		return
+		return nil
 	}
 	practiceWords := make([]string, 0, len(copy))
 	lines := strings.Split(copy, "\n")
@@ -130,6 +132,7 @@ func (panelControler *Controler) handleCheck([]js.Value) {
 		}
 	}
 	panelControler.caller.checkCopy(practiceWords, panelControler.solution, panelControler.wpm)
+	return nil
 }
 
 func (panelControler *Controler) processTextToCopy(solution [][]*types.KeyCodeRecord) {

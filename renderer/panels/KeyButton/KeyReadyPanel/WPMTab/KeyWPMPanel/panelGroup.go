@@ -1,4 +1,4 @@
-package KeyWPMPanel
+package keywpmpanel
 
 import (
 	"syscall/js"

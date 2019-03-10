@@ -153,7 +153,8 @@ func buildCWSound(nElements uint64, device *alsa.PlaybackDevice, wpm uint64) (da
 	// each sample is a frame of device.Channels int16.
 	for i := 0; i < nSamples; i++ {
 		for j := 1; j <= device.Channels; j++ {
-			data[device.Channels*i] = int16((i%(j*128))*100 - 1000)
+			index := (device.Channels * i) + j - 1
+			data[index] = int16((i%(j*128))*100 - 1000)
 		}
 	}
 	return

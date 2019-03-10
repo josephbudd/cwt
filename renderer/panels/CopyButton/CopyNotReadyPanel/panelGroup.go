@@ -1,4 +1,4 @@
-package CopyNotReadyPanel
+package copynotreadypanel
 
 import (
 	"syscall/js"

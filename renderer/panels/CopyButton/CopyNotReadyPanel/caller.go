@@ -1,4 +1,4 @@
-package CopyNotReadyPanel
+package copynotreadypanel
 
 import (
 	"github.com/pkg/errors"

@@ -90,46 +90,55 @@ func (d *device) createDevice(deviceName string, channels int, format Format, ra
 		ret = C.snd_pcm_open(&d.h, deviceCString, C.SND_PCM_STREAM_CAPTURE, 0)
 	}
 	if ret < 0 {
-		return fmt.Errorf("could not open ALSA device %s", deviceName)
+		err = fmt.Errorf("could not open ALSA device %s", deviceName)
+		return
 	}
 	runtime.SetFinalizer(d, (*device).Close)
 	var hwParams *C.snd_pcm_hw_params_t
 	ret = C.snd_pcm_hw_params_malloc(&hwParams)
 	if ret < 0 {
-		return createError("could not alloc hw params", ret)
+		err = createError("could not alloc hw params", ret)
+		return
 	}
 	defer C.snd_pcm_hw_params_free(hwParams)
 	ret = C.snd_pcm_hw_params_any(d.h, hwParams)
 	if ret < 0 {
-		return createError("could not set default hw params", ret)
+		err = createError("could not set default hw params", ret)
+		return
 	}
 	ret = C.snd_pcm_hw_params_set_access(d.h, hwParams, C.SND_PCM_ACCESS_RW_INTERLEAVED)
 	if ret < 0 {
-		return createError("could not set access params", ret)
+		err = createError("could not set access params", ret)
+		return
 	}
 	ret = C.snd_pcm_hw_params_set_format(d.h, hwParams, C.snd_pcm_format_t(format))
 	if ret < 0 {
-		return createError("could not set format params", ret)
+		err = createError("could not set format params", ret)
+		return
 	}
 	ret = C.snd_pcm_hw_params_set_channels(d.h, hwParams, C.uint(channels))
 	if ret < 0 {
-		return createError("could not set channels params", ret)
+		err = createError("could not set channels params", ret)
+		return
 	}
 	ret = C.snd_pcm_hw_params_set_rate(d.h, hwParams, C.uint(rate), 0)
 	if ret < 0 {
-		return createError("could not set rate params", ret)
+		err = createError("could not set rate params", ret)
+		return
 	}
 	var bufferSize = C.snd_pcm_uframes_t(bufferParams.BufferFrames)
 	if bufferParams.BufferFrames == 0 {
 		// Default buffer size: max buffer size
 		ret = C.snd_pcm_hw_params_get_buffer_size_max(hwParams, &bufferSize)
 		if ret < 0 {
-			return createError("could not get buffer size", ret)
+			err = createError("could not get buffer size", ret)
+			return
 		}
 	}
 	ret = C.snd_pcm_hw_params_set_buffer_size_near(d.h, hwParams, &bufferSize)
 	if ret < 0 {
-		return createError("could not set buffer size", ret)
+		err = createError("could not set buffer size", ret)
+		return
 	}
 	// Default period size: 1/8 of a second
 	var periodFrames = C.snd_pcm_uframes_t(rate / 8)
@@ -140,16 +149,19 @@ func (d *device) createDevice(deviceName string, channels int, format Format, ra
 	}
 	ret = C.snd_pcm_hw_params_set_period_size_near(d.h, hwParams, &periodFrames, nil)
 	if ret < 0 {
-		return createError("could not set period size", ret)
+		err = createError("could not set period size", ret)
+		return
 	}
 	var periods = C.uint(0)
 	ret = C.snd_pcm_hw_params_get_periods(hwParams, &periods, nil)
 	if ret < 0 {
-		return createError("could not get periods", ret)
+		err = createError("could not get periods", ret)
+		return
 	}
 	ret = C.snd_pcm_hw_params(d.h, hwParams)
 	if ret < 0 {
-		return createError("could not set hw params", ret)
+		err = createError("could not set hw params", ret)
+		return
 	}
 	d.frames = int(periodFrames)
 	d.Channels = channels
@@ -171,18 +183,21 @@ func (d *device) Close() {
 	runtime.SetFinalizer(d, nil)
 }
 
-func (d device) formatSampleSize() (s int) {
+func (d device) formatSampleSize() (nbytes int) {
 	switch d.Format {
 	case FormatS8, FormatU8:
-		return 1
+		nbytes = 1
 	case FormatS16LE, FormatS16BE, FormatU16LE, FormatU16BE:
-		return 2
+		nbytes = 2
 	case FormatS24LE, FormatS24BE, FormatU24LE, FormatU24BE, FormatS32LE, FormatS32BE, FormatU32LE, FormatU32BE, FormatFloatLE, FormatFloatBE:
-		return 4
+		nbytes = 4
 	case FormatFloat64LE, FormatFloat64BE:
-		return 8
+		nbytes = 8
 	}
-	panic("unsupported format")
+	if nbytes == 0 {
+		panic("unsupported format")
+	}
+	return
 }
 
 // CaptureDevice is an ALSA device configured to record audio.
@@ -194,10 +209,7 @@ type CaptureDevice struct {
 func NewCaptureDevice(deviceName string, channels int, format Format, rate int, bufferParams BufferParams) (c *CaptureDevice, err error) {
 	c = new(CaptureDevice)
 	err = c.createDevice(deviceName, channels, format, rate, false, bufferParams)
-	if err != nil {
-		return nil, err
-	}
-	return c, nil
+	return
 }
 
 // Read reads samples into a buffer and returns the amount read.
@@ -205,29 +217,35 @@ func (c *CaptureDevice) Read(buffer interface{}) (samples int, err error) {
 	bufferType := reflect.TypeOf(buffer)
 	if !(bufferType.Kind() == reflect.Array ||
 		bufferType.Kind() == reflect.Slice) {
-		return 0, errors.New("Read requires an array type")
+		err = errors.New("Read requires an array type")
+		return
 	}
 
 	sizeError := errors.New("Read requires a matching sample size")
 	switch bufferType.Elem().Kind() {
 	case reflect.Int8:
 		if c.formatSampleSize() != 1 {
-			return 0, sizeError
+			err = sizeError
+			return
 		}
 	case reflect.Int16:
 		if c.formatSampleSize() != 2 {
-			return 0, sizeError
+			err = sizeError
+			return
 		}
 	case reflect.Int32, reflect.Float32:
 		if c.formatSampleSize() != 4 {
-			return 0, sizeError
+			err = sizeError
+			return
 		}
 	case reflect.Float64:
 		if c.formatSampleSize() != 8 {
-			return 0, sizeError
+			err = sizeError
+			return
 		}
 	default:
-		return 0, errors.New("Read does not support this format")
+		err = errors.New("Read does not support this format")
+		return
 	}
 
 	val := reflect.ValueOf(buffer)
@@ -241,9 +259,11 @@ func (c *CaptureDevice) Read(buffer interface{}) (samples int, err error) {
 
 	if ret == -C.EPIPE {
 		C.snd_pcm_prepare(c.h)
-		return 0, ErrOverrun
+		err = ErrOverrun
+		return
 	} else if ret < 0 {
-		return 0, createError("read error", C.int(ret))
+		err = createError("read error", C.int(ret))
+		return
 	}
 	samples = int(ret) * c.Channels
 	return
@@ -258,40 +278,42 @@ type PlaybackDevice struct {
 func NewPlaybackDevice(deviceName string, channels int, format Format, rate int, bufferParams BufferParams) (p *PlaybackDevice, err error) {
 	p = new(PlaybackDevice)
 	err = p.createDevice(deviceName, channels, format, rate, true, bufferParams)
-	if err != nil {
-		return nil, err
-	}
-	return p, nil
+	return
 }
 
 // Write writes a buffer of data to a playback device.
 func (p *PlaybackDevice) Write(buffer interface{}) (samples int, err error) {
 	bufferType := reflect.TypeOf(buffer)
-	if !(bufferType.Kind() == reflect.Array ||
-		bufferType.Kind() == reflect.Slice) {
-		return 0, errors.New("Write requires an array type")
+	if !(bufferType.Kind() == reflect.Array || bufferType.Kind() == reflect.Slice) {
+		err = errors.New("Write requires an array type")
+		return
 	}
 
 	sizeError := errors.New("Write requires a matching sample size")
 	switch bufferType.Elem().Kind() {
 	case reflect.Int8:
 		if p.formatSampleSize() != 1 {
-			return 0, sizeError
+			err = sizeError
+			return
 		}
 	case reflect.Int16:
 		if p.formatSampleSize() != 2 {
-			return 0, sizeError
+			err = sizeError
+			return
 		}
 	case reflect.Int32, reflect.Float32:
 		if p.formatSampleSize() != 4 {
-			return 0, sizeError
+			err = sizeError
+			return
 		}
 	case reflect.Float64:
 		if p.formatSampleSize() != 8 {
-			return 0, sizeError
+			err = sizeError
+			return
 		}
 	default:
-		return 0, errors.New("Write does not support this format")
+		err = errors.New("Write does not support this format")
+		return
 	}
 
 	val := reflect.ValueOf(buffer)
@@ -307,7 +329,8 @@ func (p *PlaybackDevice) Write(buffer interface{}) (samples int, err error) {
 		ret = C.snd_pcm_writei(p.h, bufPtr, frames)
 	}
 	if ret < 0 {
-		return 0, createError("write error", C.int(ret))
+		err = createError("write error", C.int(ret))
+		return
 	}
 	samples = int(ret) * p.Channels
 	return

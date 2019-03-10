@@ -25,11 +25,13 @@ func (tools *Tools) initializeTabBar() {
 	tools.tabberLastPanelLevels["tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar"] = "tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar-WPMTabPanel"
 	tools.tabberLastPanelLevels["tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar"] = "tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar-WPMTabPanel"
 	tools.tabberLastPanelLevels["tabsMasterView_home_pad_ReferenceButton_SelectCodesPanel_tab_bar"] = "tabsMasterView_home_pad_ReferenceButton_SelectCodesPanel_tab_bar-LettersTabPanel"
-	cb := tools.notJS.RegisterCallBack(
-		func(args []js.Value) {
-			target := notJS.GetEventTarget(args[0])
+	cb := tools.RegisterEventCallBack(
+		func(event js.Value) interface{} {
+			target := notJS.GetEventTarget(event)
 			tools.handleTabButtonOnClick(target)
+			return nil
 		},
+		true, true, true,
 	)
 	for id := range tools.tabberLastPanelLevels {
 		tabbar := notJS.GetElementByID(id)
@@ -37,7 +39,7 @@ func (tools *Tools) initializeTabBar() {
 	}
 }
 
-func (tools *Tools) setTabBarOnClicks(tabbar js.Value, cb js.Callback) {
+func (tools *Tools) setTabBarOnClicks(tabbar js.Value, cb js.Func) {
 	notJS := tools.notJS
 	children := notJS.ChildrenSlice(tabbar)
 	for _, ch := range children {

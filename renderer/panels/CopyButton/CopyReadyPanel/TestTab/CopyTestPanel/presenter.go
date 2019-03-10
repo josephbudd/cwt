@@ -1,4 +1,4 @@
-package CopyTestPanel
+package copytestpanel
 
 import (
 	"fmt"

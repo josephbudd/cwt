@@ -1,4 +1,4 @@
-package KeyPracticePanel
+package keypracticepanel
 
 import (
 	"syscall/js"

@@ -1,4 +1,4 @@
-package LettersPanel
+package letterspanel
 
 import (
 	"github.com/pkg/errors"

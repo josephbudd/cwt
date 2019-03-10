@@ -1,4 +1,4 @@
-package KeyTestPanel
+package keytestpanel
 
 import (
 	"github.com/pkg/errors"

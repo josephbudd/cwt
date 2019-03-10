@@ -15,7 +15,6 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 		if err != nil {
 			return
 		}
-		fmt.Printf("recordResults is %v", recordResults)
 		if recordResults {
 			err = recordCheckResults(keyCodeStorer, testResults, wpm)
 		}

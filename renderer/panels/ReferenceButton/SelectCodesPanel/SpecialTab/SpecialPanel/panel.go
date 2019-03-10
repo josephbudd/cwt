@@ -1,4 +1,4 @@
-package SpecialPanel
+package specialpanel
 
 import (
 	"github.com/pkg/errors"

@@ -1,4 +1,4 @@
-package KeyNotReadyPanel
+package keynotreadypanel
 
 import (
 	"syscall/js"

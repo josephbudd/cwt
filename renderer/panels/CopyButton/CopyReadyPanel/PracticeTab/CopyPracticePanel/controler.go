@@ -1,4 +1,4 @@
-package CopyPracticePanel
+package copypracticepanel
 
 import (
 	"fmt"
@@ -65,6 +65,7 @@ func (panelControler *Controler) defineControlsSetHandlers() (err error) {
 	*/
 
 	notJS := panelControler.notJS
+	tools := panelControler.tools
 	null := js.Null()
 
 	// Define the copy input field.
@@ -78,7 +79,7 @@ func (panelControler *Controler) defineControlsSetHandlers() (err error) {
 		err = errors.New("unable to find #copyPracticeStart")
 		return
 	}
-	cb := notJS.RegisterCallBack(panelControler.handleStart)
+	cb := tools.RegisterEventCallBack(panelControler.handleStart, true, true, true)
 	notJS.SetOnClick(panelControler.copyPracticeStart, cb)
 
 	// Define the check button and set it's handler.
@@ -86,7 +87,7 @@ func (panelControler *Controler) defineControlsSetHandlers() (err error) {
 		err = errors.New("unable to find #copyPracticeCheck")
 		return
 	}
-	cb = notJS.RegisterCallBack(panelControler.handleCheck)
+	cb = tools.RegisterEventCallBack(panelControler.handleCheck, true, true, true)
 	notJS.SetOnClick(panelControler.copyPracticeCheck, cb)
 
 	panelControler.delaySeconds = 5
@@ -106,17 +107,18 @@ func (panelControler *Controler) processWPM(wpm uint64) {
 	panelControler.wpm = wpm
 }
 
-func (panelControler *Controler) handleStart([]js.Value) {
+func (panelControler *Controler) handleStart(event js.Value) interface{} {
 	panelControler.userIsCopying = true
 	panelControler.presenter.started()
 	panelControler.caller.getTextToCopy()
 	panelControler.tools.LockButtonsWithMessage(panelControler.lockMessage, panelControler.lockMessageTitle)
+	return nil
 }
 
-func (panelControler *Controler) handleCheck([]js.Value) {
+func (panelControler *Controler) handleCheck(event js.Value) interface{} {
 	if panelControler.codeIsKeying {
 		panelControler.tools.Error("Can't stop yet. Still keying.")
-		return
+		return nil
 	}
 	panelControler.tools.UnLockButtons()
 	panelControler.userIsCopying = false
@@ -124,7 +126,7 @@ func (panelControler *Controler) handleCheck([]js.Value) {
 	copy := strings.TrimSpace(panelControler.notJS.GetValue(panelControler.copyPracticeCopy))
 	if len(copy) == 0 {
 		panelControler.tools.Error("You didn't enter any copy.")
-		return
+		return nil
 	}
 	practiceWords := make([]string, 0, len(copy))
 	lines := strings.Split(copy, "\n")
@@ -137,6 +139,7 @@ func (panelControler *Controler) handleCheck([]js.Value) {
 		}
 	}
 	panelControler.caller.checkCopy(practiceWords, panelControler.solution, panelControler.wpm)
+	return nil
 }
 
 func (panelControler *Controler) processTextToCopy(solution [][]*types.KeyCodeRecord) {
