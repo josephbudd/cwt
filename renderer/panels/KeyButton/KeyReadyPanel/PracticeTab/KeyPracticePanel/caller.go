@@ -102,7 +102,8 @@ func (panelCaller *Caller) addMainProcessCallBacks() (err error) {
 // GetKeyCodesWPM gets new text for the user to key and the wpm required for keying.
 func (panelCaller *Caller) GetKeyCodesWPM() {
 	params := &types.RendererToMainProcessGetTextWPMToKeyCallParams{
-		State: panelCaller.state,
+		State:    panelCaller.state,
+		Practice: true,
 	}
 	panelCaller.getTextWPMToKeyConnection.CallMainProcess(params)
 }
@@ -116,7 +117,7 @@ func (panelCaller *Caller) getTextWPMToKeyCB(params interface{}) {
 				return
 			}
 			// no errors
-			panelCaller.controler.keyWidget.SetKeyCodesWPM(params.Solution, params.WPM)
+			panelCaller.controler.keyWidget.SetKeyCodesHelpWPM(params.Solution, params.Help, params.WPM)
 		}
 	}
 }

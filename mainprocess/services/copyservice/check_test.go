@@ -23,13 +23,13 @@ type checkCopyArgs struct {
 }
 
 type checkCopyData struct {
-	name           string
-	checkCopyArgs  checkCopyArgs
-	wantNCorrect   uint64
-	wantNIncorrect uint64
-	wantNKeyed     uint64
+	name            string
+	checkCopyArgs   checkCopyArgs
+	wantNCorrect    uint64
+	wantNIncorrect  uint64
+	wantNKeyed      uint64
 	wantTestResults [][]types.TestResult
-	wantErr        bool
+	wantErr         bool
 }
 
 var (
@@ -46,7 +46,7 @@ func TestCheck(t *testing.T) {
 	keyCodeStore = boltstoring.NewKeyCodeBoltDB(db, path, filepaths.GetFmode())
 	defer keyCodeStore.Close()
 	var keyCodeRecords []*types.KeyCodeRecord
-	if keyCodeRecords, err = getKeyCodes(); err != nil {
+	if keyCodeRecords, err = _getKeyCodes(); err != nil {
 		t.Fatal(err)
 	}
 	okCheckTest(keyCodeRecords, t)
@@ -71,9 +71,9 @@ func extraKeysCheckTest(keyCodeRecords []*types.KeyCodeRecord, t *testing.T) {
 				solution:      solution,
 				keyCodeStorer: keyCodeStore,
 			},
-			wantNCorrect:   uint64(len(solution[0])),
-			wantNIncorrect: 1,
-			wantNKeyed:     uint64(len(solution[0])),
+			wantNCorrect:    uint64(len(solution[0])),
+			wantNIncorrect:  1,
+			wantNKeyed:      uint64(len(solution[0])),
 			wantTestResults: testResults,
 		},
 	}
@@ -97,9 +97,9 @@ func missingKeysCheckTest(keyCodeRecords []*types.KeyCodeRecord, t *testing.T) {
 				solution:      solution,
 				keyCodeStorer: keyCodeStore,
 			},
-			wantNCorrect:   uint64(len(copied[0])),
-			wantNIncorrect: 1,
-			wantNKeyed:     uint64(len(solution[0])),
+			wantNCorrect:    uint64(len(copied[0])),
+			wantNIncorrect:  1,
+			wantNKeyed:      uint64(len(solution[0])),
 			wantTestResults: testResults,
 		},
 	}
@@ -132,9 +132,9 @@ func okCheckTest(keyCodeRecords []*types.KeyCodeRecord, t *testing.T) {
 				solution:      solution,
 				keyCodeStorer: keyCodeStore,
 			},
-			wantNCorrect:   sizeSolution,
-			wantNIncorrect: 0,
-			wantNKeyed:     sizeSolution,
+			wantNCorrect:    sizeSolution,
+			wantNIncorrect:  0,
+			wantNKeyed:      sizeSolution,
 			wantTestResults: testResults,
 		},
 	}
@@ -180,7 +180,7 @@ func buildBoltStores() (path string, db *bolt.DB, err error) {
 	return
 }
 
-func getKeyCodes() (keyCodeRecords []*types.KeyCodeRecord, err error) {
+func _getKeyCodes() (keyCodeRecords []*types.KeyCodeRecord, err error) {
 	if keyCodeRecords, err = keyCodeStore.GetKeyCodes(); err != nil {
 		err = errors.WithMessage(err, `keyCodeStore.GetKeyCodes()`)
 	}

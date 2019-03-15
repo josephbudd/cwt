@@ -1,34 +1,34 @@
 # cwt
 
-A **linux** morse code trainer.
+## A linux Continuous Wave ( Morse Code ) Trainer
 
-## The framework for this application was built by kickwasm v3.0.0
+According to [wikipedia](https://en.wikipedia.org/wiki/Continuous_wave)
 
-This application will be finished when I'm convinced that I can use this application to learn to key. See **The key service** below.
+> Continuous wave is also the name given to an early method of radio transmission, in which a sinusoidal carrier wave is switched on and off. Information is carried in the varying duration of the on and off periods of the signal, for example by Morse code in early radio.
 
 ## Credit where credit is due
 
-I downloaded the awesome goalsa package at https://github.com/cocoonlife/goalsa into the **cwt/mainprocess/goalsa/** folder. The code is well written. I wish I would have taken the same approach with my own alsa code which I've given up on. Anyway, I slightly modified the code in the package's file **alsa.go**. My mods allowed that package to compile and made playing sound a little friendlier.
+Thanks to **cocoonlife**. I downloaded the goalsa package at https://github.com/cocoonlife/goalsa into the **cwt/mainprocess/goalsa/** folder. I wish I would have taken the same approach with my own alsa code which I've given up on. Take a look at it if you are interested in CGO. Anyway, I slightly modified the code in the package's file **alsa.go**. My mods allowed that package to compile and made playing sound a little friendlier.
 
 ## The application services
 
-### The reference service
+### Selections
 
-The reference service of the application allows the user to select the morse code characters which are to be simultaniously copied and keyed by the user. It also shows the user the keying and copying test scores for the characters at each of the various speeds.
+The **Selections** service of the application allows the user to select the morse code characters which are to be simultaniously copied and keyed by the user. It also shows the user the keying and copying test scores for the characters at each of the various speeds.
 
-### The copy service
+### Copy
 
-The copy service of the application allows the user to practice or test copying morse code at the selected copy speed. The difference between practice and test is that test saves results.
+The **Copy** service of the application allows the user to practice or test copying morse code at the selected copy speed. The difference between practice and test is that test saves results.
 
-### The key service
+### Key
 
-The key service of the application allows the user to practice or test keying morse code at the selected key speed. The difference between practice and test is that test saves results.
+The **Key** service of the application allows the user to practice or test keying morse code at the selected key speed. One difference between practice and test is that test saves results.
 
 That's all well and good for people who know how to key. But despite my attempts to teach myself to key years ago, I now realize that I didn't really understand what keying was and only taught myself a bunch of crap that I want to forget.
 
-So the key service is designed to help me learn to key properly.
+The **Key** service is designed to help me and you learn to key properly.
 
-#### Here is my premise concerning keying
+#### The cwt keying rational
 
 The morse code key is like a piano that only has one key.
 
@@ -41,11 +41,14 @@ Morse code is like a song that has
 * pauses between characters in a word that must only last 3 beats,
 * pauses between words that must only last 7 beats.
 
-#### My solution
+Did you store those principles into your memory? Don't worry, you don't have to. Cwt will passively lead you to follow those principles. Without realizing it, those priciples will become a part of your concious thought process and then slip into your sub concious. Then you will key correctly without even thinking about it.
 
-1. So I have allowed for variances in user input.
-1. I added a metronome to help me keep the beat.
-1. I'm trying to come up with techiques for learning to key.
+#### The cwt solution for practicing keying
+
+1. One randomly created five character word at a time. The word is created from the characters that the user has the worst test scores for.
+1. A metronome to keep the beat.
+1. A morse code cheat sheet with per beat keying instructions.
+1. Tolerances.
 
 ## The morse code key
 
@@ -90,8 +93,8 @@ Doing so will also import the following packages for cwt
 
 ### The application has 2 processes
 
-1. The **main process** is a web server running through whatever port you indicate in your application's http.yaml file. When you start the application, it runs the main process. The main process opens a browser which loads and runs the renderer process from the **cwt/site/** folder.
-1. The **renderer process** is for the browser. It is all of the wasm, html, css, images, etc contained in the **cwt/site** folder.
+1. The **main process** is a web server running through whatever port you indicate in your application's http.yaml file. Port 0 allows any suitable open port to be selected. When you start the application, it runs the main process. The main process opens a browser and serves the renderer process from the **cwt/site/** folder to the browser.
+1. The **renderer process** runs in the browser. It is all of the wasm, html, css, images, etc contained in the **cwt/site** folder.
 
 ### The application has a 2 step build
 
@@ -116,9 +119,9 @@ cd ..
 
 ## Distribution
 
-If you don't want to or cant build cwt, that's ok. The ubuntu 18.04.2 linux binary **cwt** is included in the source so you can still distribute and run it on linux.
+Sure you should build cwt but if you don't want to build cwt, that's ok. The ubuntu 18.04.2 linux executable **cwt/cwt** is included in the source. I assume that you can still distribute this app using the existing **cwt/cwt**.
 
-### How to
+### How to install
 
 1. Make an empty distribution folder.
 1. Copy the executable **cwt/cwt** file into your distribution folder.
@@ -127,8 +130,20 @@ If you don't want to or cant build cwt, that's ok. The ubuntu 18.04.2 linux bina
 1. Then put your distribution folder where you want it and run the executable in it.
 1. You won't need the downloaded source code after that so you can delete it if you want.
 
-Let me know if this technique works for you.
+### FYI
+
+1. To run cwt just double click on it with the mouse or run it in a terminal.
+1. Cwt creates and stores your keying information at **~/.cwt_kwfw/boltdb/allstores.nosql**. If you delete the folder or file cwt will just create a new one the next time you run it.
+
+### How to uninstall
+
+1. Delete the distribution folder.
+1. Delete **~/.cwt_kwfw/**.
+
+## Miscelanious
+
+The **cwt/.kickwasm/** folder was created by kickwasm, the tool which created this application's framework. The folder contains information that rekickwasm needs. Rekickwasm is a refactoring tool for this application's framework.
 
 ## License
 
-This application has an MIT License. You are free to take this source code and use it to make a better application.
+This application has an MIT License. You are free to take this source code and use it to make an even better application.

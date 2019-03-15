@@ -38,6 +38,7 @@ type KeyWidget struct {
 	notJS *notjs.NotJS
 
 	keyCodes [][]*types.KeyCodeRecord
+	help     [][]types.HowTo
 	wpm      uint64
 	times    []time.Time
 }
@@ -113,9 +114,18 @@ func NewKeyWidget(heading js.Value,
 	return
 }
 
+// SetKeyCodesHelpWPM sets the key codes, ( the solution ) that the user must key.
+func (keyWidget *KeyWidget) SetKeyCodesHelpWPM(records [][]*types.KeyCodeRecord, help [][]types.HowTo, wpm uint64) {
+	keyWidget.keyCodes = records
+	keyWidget.help = help
+	keyWidget.wpm = wpm
+	keyWidget.tellUserToStart()
+}
+
 // SetKeyCodesWPM sets the key codes, ( the solution ) that the user must key.
 func (keyWidget *KeyWidget) SetKeyCodesWPM(records [][]*types.KeyCodeRecord, wpm uint64) {
 	keyWidget.keyCodes = records
+	keyWidget.help = nil
 	keyWidget.wpm = wpm
 	keyWidget.tellUserToStart()
 }
@@ -251,7 +261,9 @@ func (keyWidget *KeyWidget) handleMouseEnter(event js.Value) interface{} {
 		notJS := keyWidget.notJS
 		notJS.ClassListReplaceClass(keyWidget.keyDiv, "user-not-key-over", "user-key-over")
 		keyWidget.notJS.SetInnerText(keyWidget.heading, mouseOverInstructions)
-		keyWidget.metronomer.StartMetronome(keyWidget.wpm)
+		if keyWidget.metronomer != nil {
+			keyWidget.metronomer.StartMetronome(keyWidget.wpm)
+		}
 	}
 	return nil
 }
@@ -260,7 +272,9 @@ func (keyWidget *KeyWidget) handleMouseLeave(event js.Value) interface{} {
 	if keyWidget.userIsKeying {
 		keyWidget.notJS.ClassListReplaceClass(keyWidget.keyDiv, "user-key-over", "user-not-key-over")
 		keyWidget.notJS.SetInnerText(keyWidget.heading, mouseNotOverAgainInstructions)
-		keyWidget.metronomer.StopMetronome()
+		if keyWidget.metronomer != nil {
+			keyWidget.metronomer.StopMetronome()
+		}
 	}
 	return nil
 }
@@ -292,29 +306,81 @@ func (keyWidget *KeyWidget) tellUserToStart() {
 }
 
 func (keyWidget *KeyWidget) showTextToKey() {
+	if keyWidget.help == nil {
+		keyWidget.showTextOnlyToKey()
+	} else {
+		keyWidget.showTextHelpToKey()
+	}
+}
+
+func (keyWidget *KeyWidget) showTextOnlyToKey() {
 	notJS := keyWidget.notJS
 	keyDiv := keyWidget.keyDiv
 	// clear the div
 	notJS.RemoveChildNodes(keyDiv)
+	// put the lines in a paragraph.
 	p := notJS.CreateElementP()
-	lineLength := 0
+	var b strings.Builder
+	// the words each on a separate line.
 	for _, wordCode := range keyWidget.keyCodes {
-		l := len(wordCode)
-		word := make([]string, l, l)
-		for j, charCode := range wordCode {
-			word[j] = charCode.Character
+		for _, charCode := range wordCode {
+			fmt.Fprint(&b, charCode.Character)
 		}
-		tn := notJS.CreateTextNode(strings.Join(word, ""))
+		tn := notJS.CreateTextNode(b.String())
 		notJS.AppendChild(p, tn)
-		lineLength += l
-		if lineLength >= 40 {
-			lineLength = 0
-			notJS.AppendChild(p, notJS.CreateElementBR())
-		} else {
-			notJS.AppendChild(p, notJS.CreateTextNode(" "))
-		}
+		notJS.AppendChild(p, notJS.CreateElementBR())
+		b.Reset()
 	}
 	notJS.AppendChild(keyDiv, p)
+}
+
+func (keyWidget *KeyWidget) showTextHelpToKey() {
+	notJS := keyWidget.notJS
+	keyDiv := keyWidget.keyDiv
+	// clear the div
+	notJS.RemoveChildNodes(keyDiv)
+	for i, wordCode := range keyWidget.keyCodes {
+		// the word
+		l := len(wordCode)
+		chars := make([]string, l, l)
+		for j, charCode := range wordCode {
+			chars[j] = charCode.Character
+		}
+		word := strings.Join(chars, "")
+		table := notJS.CreateElementTABLE()
+		tbody := notJS.CreateElementTBODY()
+		notJS.AppendChild(table, tbody)
+		tr := notJS.CreateElementTR()
+		td := notJS.CreateElementTD()
+		notJS.SetAttributeInt(td, "colspan", 3)
+		tn := notJS.CreateTextNode(word)
+		notJS.AppendChild(td, tn)
+		notJS.AppendChild(tr, td)
+		notJS.AppendChild(tbody, tr)
+		// help
+		wordHelp := keyWidget.help[i]
+		for _, h := range wordHelp {
+			tr = notJS.CreateElementTR()
+			// character
+			td = notJS.CreateElementTD()
+			tn = notJS.CreateTextNode(h.Character)
+			notJS.AppendChild(td, tn)
+			notJS.AppendChild(tr, td)
+			// dit dah
+			td = notJS.CreateElementTD()
+			tn = notJS.CreateTextNode(h.DitDah)
+			notJS.AppendChild(td, tn)
+			notJS.AppendChild(tr, td)
+			// instructions
+			td = notJS.CreateElementTD()
+			tn = notJS.CreateTextNode(h.Instructions)
+			notJS.AppendChild(td, tn)
+			notJS.AppendChild(tr, td)
+			notJS.AppendChild(tbody, tr)
+		}
+		notJS.AppendChild(table, tbody)
+		notJS.AppendChild(keyDiv, table)
+	}
 }
 
 func (keyWidget *KeyWidget) setKeyingStarted() {

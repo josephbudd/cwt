@@ -34,9 +34,10 @@ func newGetTextWPMToKeyCall(keyCodeStorer storer.KeyCodeStorer, wPMStorer storer
 // Param wPMStorer is the wpm storer.
 // The func is simple:
 // 1. Unmarshall the params. Call back any errors.
-// 2. Get the text for the user to key from the repo. Call back any errors or not found.
-// 3. Get the wpm for the user to key. Call back any errors or not found.
-// 4. Call the renderer back with the text, wpm.
+// 2. Get the wpm for the user to key. Call back any errors or not found.
+// 3. Get the text for the user to key from the repo and the help. Call back any errors or not found.
+// 4. Get the help for each word in the text.
+// 5. Call the renderer back with the text, wpm.
 func mainProcessReceiveGetTextWPMToKey(params []byte, callBackToRenderer func(params []byte), keyCodeStorer storer.KeyCodeStorer, wPMStorer storer.WPMStorer) {
 	// 1. Unmarshall the params.
 	rxparams := &types.RendererToMainProcessGetTextWPMToKeyCallParams{}
@@ -52,27 +53,14 @@ func mainProcessReceiveGetTextWPMToKey(params []byte, callBackToRenderer func(pa
 		callBackToRenderer(txparamsbb)
 		return
 	}
-	// 2. Get the text to key.
-	text, err := keyservice.GetKeyCodes(keyCodeStorer)
-	if err != nil {
-		// Calling back the error.
-		message := fmt.Sprintf("mainProcessGetTextWPMToKey: keyservice.GetTextWPMToKey(keyCodeStorer): error is %s\n", err.Error())
-		txparams := &types.MainProcessToRendererGetTextWPMToKeyCallParams{
-			State:        rxparams.State,
-			Error:        true,
-			ErrorMessage: message,
-		}
-		txparamsbb, _ := json.Marshal(txparams)
-		callBackToRenderer(txparamsbb)
-		return
-	}
-	// 3 Get the wpm to key.
+	// 2 Get the wpm to key.
 	r, err := wPMStorer.GetKeyWPM()
 	if err != nil {
 		// Calling back the error.
 		message := fmt.Sprintf("mainProcessGetTextWPMToKey: keyCodeStorer.GetKeyWPM(): error is %s\n", err.Error())
 		txparams := &types.MainProcessToRendererGetTextWPMToKeyCallParams{
 			State:        rxparams.State,
+			Practice:     rxparams.Practice,
 			Error:        true,
 			ErrorMessage: message,
 		}
@@ -80,10 +68,48 @@ func mainProcessReceiveGetTextWPMToKey(params []byte, callBackToRenderer func(pa
 		callBackToRenderer(txparamsbb)
 		return
 	}
-	// 4. Call the renderer back with the text, wpm.
+	// 3. Get the text for the user to key from the repo and the help.
+	var text [][]*types.KeyCodeRecord
+	var help [][]types.HowTo
+	if rxparams.Practice {
+		// practicing
+		text, help, err = keyservice.GetPracticeKeyCodes(keyCodeStorer, r.WPM)
+		if err != nil {
+			// Calling back the error.
+			message := fmt.Sprintf("mainProcessGetTextWPMToKey: keyservice.GetPracticeKeyCodes(keyCodeStorer, r.WPM): error is %s\n", err.Error())
+			txparams := &types.MainProcessToRendererGetTextWPMToKeyCallParams{
+				State:        rxparams.State,
+				Practice:     rxparams.Practice,
+				Error:        true,
+				ErrorMessage: message,
+			}
+			txparamsbb, _ := json.Marshal(txparams)
+			callBackToRenderer(txparamsbb)
+			return
+		}
+	} else {
+		// testing not practicing
+		text, err = keyservice.GetTestKeyCodes(keyCodeStorer)
+		if err != nil {
+			// Calling back the error.
+			message := fmt.Sprintf("mainProcessGetTextWPMToKey: keyservice.GetTestKeyCodes(keyCodeStorer): error is %s\n", err.Error())
+			txparams := &types.MainProcessToRendererGetTextWPMToKeyCallParams{
+				State:        rxparams.State,
+				Practice:     rxparams.Practice,
+				Error:        true,
+				ErrorMessage: message,
+			}
+			txparamsbb, _ := json.Marshal(txparams)
+			callBackToRenderer(txparamsbb)
+			return
+		}
+	}
+	// . Call the renderer back with the text, wpm.
 	txparams := &types.MainProcessToRendererGetTextWPMToKeyCallParams{
 		Solution: text,
+		Help:     help,
 		WPM:      r.WPM,
+		Practice: rxparams.Practice,
 		State:    rxparams.State,
 	}
 	txparamsbb, _ := json.Marshal(txparams)

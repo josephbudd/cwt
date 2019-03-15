@@ -27,7 +27,7 @@ func getElementMS(wpm uint64) (elementMS int64) {
 	return
 }
 
-func getKeyCodes() (keyCodeRecords []*types.KeyCodeRecord, err error) {
+func getCopyTestKeyCodes() (keyCodeRecords []*types.KeyCodeRecord, err error) {
 	if keyCodeRecords, err = keyCodeStore.GetKeyCodes(); err != nil {
 		err = errors.WithMessage(err, `keyCodeStore.GetKeyCodes()`)
 	}
@@ -59,7 +59,7 @@ func TestCopy(t *testing.T) {
 	keyCodeStore = boltstoring.NewKeyCodeBoltDB(db, path, filepaths.GetFmode())
 	defer keyCodeStore.Close()
 	var keyCodeRecords []*types.KeyCodeRecord
-	if keyCodeRecords, err = getKeyCodes(); err != nil {
+	if keyCodeRecords, err = getCopyTestKeyCodes(); err != nil {
 		t.Fatal(err)
 	}
 	l := len(keyCodeRecords)

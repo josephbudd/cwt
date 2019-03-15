@@ -16,12 +16,18 @@
 #keyPracticeKey
 {
     width:inherit;
-    height:200px;
+    height:300px;
     border-width:1px;
     margin: 10px 20px 10px 0px;
     padding:10px;
     overflow-y:auto;
     overflow-x:hidden;
+}
+
+#keyTestKey > table > tbody > tr > td,
+#keyPracticeKey > table > tbody > tr > td
+{
+    padding: 2px 5px;
 }
 
 #keyTestKey.user-keying,
@@ -31,6 +37,7 @@
     border-style: solid;
 }
 
+/*
 #keyTestKey.user-key-up,
 #keyPracticeKey.user-key-up
 {
@@ -42,6 +49,7 @@
 {
     color: red;
 }
+*/
 
 #keyTestKey.user-not-keying,
 #keyPracticeKey.user-not-keying
@@ -54,11 +62,25 @@
 #keyPracticeKey.user-key-over
 {
     background-color:peachpuff;
-    /* color: black; */
+    color: black;
+}
+
+#keyTestKey.user-key-over > table > tbody > tr > td,
+#keyPracticeKey.user-key-over > table > tbody > tr > td
+{
+    background-color:peachpuff;
+    color: black;
 }
 
 #keyTestKey.user-not-key-over,
 #keyPracticeKey.user-not-key-over
+{
+    background:transparent;
+    color: white;
+}
+
+#keyTestKey.user-not-key-over > table > tbody > tr > td,
+#keyPracticeKey.user-not-key-over > table > tbody > tr > td
 {
     background:transparent;
     color: white;

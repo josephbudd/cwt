@@ -34,47 +34,45 @@ var UnknownKeyFromUser *types.KeyCodeRecord
 const nbsp = " "
 
 func init() {
+	NotCopied = types.NewKeyCodeRecord()
 	NotCopied = &types.KeyCodeRecord{
 		ID:        1,
 		Character: "{NotCopied}",
 		DitDah:    "{NotCopied}",
 	}
+	NotKeyed = types.NewKeyCodeRecord()
 	NotKeyed = &types.KeyCodeRecord{
 		ID:        2,
 		Character: "{NotKeyed}",
 		DitDah:    "{NotKeyed}",
 	}
-	NotKeyedByApp = &types.KeyCodeRecord{
-		ID:        3,
-		Character: "{Not Keyed BA}",
-		DitDah:    "{Not Keyed BA}",
-	}
+	NotKeyedByApp = types.NewKeyCodeRecord()
+	NotKeyedByApp.ID = 3
+	NotKeyedByApp.Character = "{Not Keyed BA}"
+	NotKeyedByApp.DitDah = "{Not Keyed BA}"
 
-	NotCopiedByUser = &types.KeyCodeRecord{
-		ID:        4,
-		Character: "{Not Copied BU}",
-		DitDah:    "{Not Copied BU}",
-	}
+	NotCopiedByUser = types.NewKeyCodeRecord()
+	NotCopiedByUser.ID = 4
+	NotCopiedByUser.Character = "{Not Copied BU}"
+	NotCopiedByUser.DitDah = "{Not Copied BU}"
 
-	NotCopiedByApp = &types.KeyCodeRecord{
-		ID:        5,
-		Character: "{Not Copied BA}",
-		DitDah:    "{Not Copied BA}",
-	}
-	NotKeyedByUser = &types.KeyCodeRecord{
-		ID:        6,
-		Character: "{ }",
-		DitDah:    "{ }",
-	}
-	NotInText = &types.KeyCodeRecord{
-		ID:        7,
-		Character: "{No Text}",
-		DitDah:    "{No Text}",
-	}
-	UnknownKeyFromUser = &types.KeyCodeRecord{
-		ID:        8,
-		Character: "{Unknown Key}",
-		DitDah:    "{Unknown Key}",
-	}
+	NotCopiedByApp = types.NewKeyCodeRecord()
+	NotCopiedByApp.ID = 5
+	NotCopiedByApp.Character = "{Not Copied BA}"
+	NotCopiedByApp.DitDah = "{Not Copied BA}"
 
+	NotKeyedByUser = types.NewKeyCodeRecord()
+	NotKeyedByUser.ID = 6
+	NotKeyedByUser.Character = "{ }"
+	NotKeyedByUser.DitDah = "{ }"
+
+	NotInText = types.NewKeyCodeRecord()
+	NotInText.ID = 7
+	NotInText.Character = "{No Text}"
+	NotInText.DitDah = "{No Text}"
+
+	UnknownKeyFromUser = types.NewKeyCodeRecord()
+	UnknownKeyFromUser.ID = 8
+	UnknownKeyFromUser.Character = "{Unknown Key}"
+	UnknownKeyFromUser.DitDah = "{Unknown Key}"
 }
