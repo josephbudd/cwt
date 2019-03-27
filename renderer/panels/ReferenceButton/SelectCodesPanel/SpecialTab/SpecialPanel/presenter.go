@@ -174,6 +174,7 @@ func (panelPresenter *Presenter) initialFillTable(records []*types.KeyCodeRecord
 		tr = notJS.CreateElementTR()
 		// name column
 		td := notJS.CreateElementTD()
+		notJS.ClassListAddClass(td, "name")
 		checkBox := notJS.CreateElementCheckBox()
 		notJS.SetAttributeUint64(checkBox, recordIDAttribute, r.ID)
 		cbID := panelPresenter.recordIDToCheckBoxID(r.ID)
@@ -189,6 +190,7 @@ func (panelPresenter *Presenter) initialFillTable(records []*types.KeyCodeRecord
 		tn := notJS.CreateTextNode(r.DitDah)
 		notJS.AppendChild(td, tn)
 		notJS.AppendChild(tr, td)
+		// stats
 		for _, wpm := range wpmSorted {
 			td = notJS.CreateElementTD()
 			notJS.SetID(td, panelPresenter.recordIDToKeyPercentCorrectID(r.ID, wpm))

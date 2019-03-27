@@ -33,5 +33,6 @@ table.keycode-table > tbody > tr > td.code
 table.keycode-table > tbody > tr > td.name
 {
   width:300px;
-  padding:0;
+  padding:0 5px;
+  text-align:left;
 }

@@ -100,20 +100,33 @@ Doing so will also import the following packages for cwt
 
 So when you build the application, you build both the renderer process and the main process.
 
-* The main process source code is for your operating system ( linux ). It is compiled into the executable file at **cwt/cwt**.
-* The renderer process source code is in the **cwt/renderer/** folder. It is compiled into web assembly code at **cwt/site/app.wasm** file.
+``` text
 
-There is a shell script at **cwt/renderer/build.sh** which builds the renderer process into the **cwt/site/** folder.
+$ cd $GOPATH
+$ cd src/github.com/josephbudd/cwt
+$ cd renderer
+$ ./build.sh 
+Building your wasm into ../site/app.wasm
 
-``` bash
+Great! Your wasm has been compiled.
 
-cd $GOPATH
-cd src/github.com/josephbudd/cwt
+Now its time to write the source code for your new cwtsitepack package.
+The cwtsitepack package is your applications renderer process.
+( The stuff the gets loaded into the browser. )
+This could take a while.
+cd ~/go/src/github.com/josephbudd/cwt
+kickpack -o ~/go/src/github.com/josephbudd/cwtsitepack ./site ./http.yaml
+
+Finally! Now its time to build your new cwtsitepack package.
+cd ~/go/src/github.com/josephbudd/cwtsitepack
 go build
-cd renderer
-./build.sh
-cd ..
-./cwt
+
+You've done it!
+The package at ~/go/src/github.com/josephbudd/cwtsitepack contains the files from your renderer process.
+
+$ cd ..
+$ go build
+$ ./cwt
 
 ```
 
@@ -123,21 +136,14 @@ Sure you should build cwt but if you don't want to build cwt, that's ok. The ubu
 
 ### How to install
 
-1. Make an empty distribution folder.
-1. Copy the executable **cwt/cwt** file into your distribution folder.
-1. Copy the **cwt/http.yaml** file into your distribution folder.
-1. Copy the **cwt/site/** folder into your distribution folder.
-1. Then put your distribution folder where you want it and run the executable in it.
-1. You won't need the downloaded source code after that so you can delete it if you want.
+The entire application is contained in the executable file **cwt/cwt**. Put that file where ever you want it. You can start it however you want to start it.
 
 ### FYI
 
-1. To run cwt just double click on it with the mouse or run it in a terminal.
-1. Cwt creates and stores your keying information at **~/.cwt_kwfw/boltdb/allstores.nosql**. If you delete the folder or file cwt will just create a new one the next time you run it.
+Cwt creates and stores your keying information at **~/.cwt_kwfw/boltdb/allstores.nosql**. If you delete the folder or file cwt will just create a new one the next time you run it.
 
 ### How to uninstall
 
-1. Delete the distribution folder.
 1. Delete **~/.cwt_kwfw/**.
 
 ## Miscelanious

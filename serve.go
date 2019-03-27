@@ -1,10 +1,17 @@
 package main
 
 import (
+	"log"
 	"net/http"
+	"path/filepath"
 	"strings"
 
+	"github.com/josephbudd/cwtsitepack"
 	"github.com/josephbudd/cwt/domain/data/filepaths"
+)
+
+const (
+	wasmPrefix = "/wasm"
 )
 
 /*
@@ -38,11 +45,14 @@ func serve(w http.ResponseWriter, r *http.Request) {
 	case r.URL.Path == "/":
 		withDefaultHeaders(w, r, serveMain)
 	case strings.HasPrefix(r.URL.Path, "/css"):
-		withDefaultHeaders(w, r, serveURLPath)
+		// withDefaultHeaders(w, r, serveURLPath)
+		withDefaultHeaders(w, r, serveFileStore)
 	case strings.HasPrefix(r.URL.Path, "/mycss"):
-		withDefaultHeaders(w, r, serveURLPath)
-	case strings.HasPrefix(r.URL.Path, "/wasm"):
-		withDefaultWASMHeaders(w, r, serveWASMURLPath)
+		// withDefaultHeaders(w, r, serveURLPath)
+		withDefaultHeaders(w, r, serveFileStore)
+	case strings.HasPrefix(r.URL.Path, wasmPrefix):
+		// withDefaultWASMHeaders(w, r, serveWASMURLPath)
+		withDefaultWASMHeaders(w, r, serveFileStore)
 	default:
 		http.Error(w, "Not found", 404)
 	}
@@ -76,4 +86,28 @@ func serveURLPath(w http.ResponseWriter, r *http.Request) {
 
 func serveWASMURLPath(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, filepaths.BuildRendererPath(r.URL.Path[5:]))
+}
+
+func serveFileStore(w http.ResponseWriter, r *http.Request) {
+	var bb []byte
+	var found bool
+	var path string
+	var urlPath string
+	urlPath = r.URL.Path
+	// fix url path
+	if strings.HasPrefix(urlPath, wasmPrefix) {
+		// the wasm prefix only flags to use wasm headers.
+		// there is no wams folder.
+		urlPath = urlPath[len(wasmPrefix):]
+	}
+	path = filepath.Join(filepaths.GetShortSitePath(), urlPath)
+	if bb, found = cwtsitepack.Contents(path); !found {
+		log.Println("%q not found", path)
+		http.Error(w, "Not found", 404)
+		return
+	}
+	var err error
+	if _, err = w.Write(bb); err != nil {
+		http.Error(w, err.Error(), 300)
+	}
 }

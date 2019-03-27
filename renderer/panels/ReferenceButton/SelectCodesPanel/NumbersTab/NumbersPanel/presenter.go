@@ -174,6 +174,7 @@ func (panelPresenter *Presenter) initialFillTable(records []*types.KeyCodeRecord
 		tr = notJS.CreateElementTR()
 		// name column
 		td := notJS.CreateElementTD()
+		notJS.ClassListAddClass(td, "name")
 		checkBox := notJS.CreateElementCheckBox()
 		notJS.SetAttributeUint64(checkBox, recordIDAttribute, r.ID)
 		cbID := panelPresenter.recordIDToCheckBoxID(r.ID)
