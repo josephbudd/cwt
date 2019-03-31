@@ -30,7 +30,6 @@ var serviceEmptyInsidePanelNamePathMap = map[string]map[string][]string{"Copy": 
 
 // serveMainHTML only serves up main.tmpl with all of the templates for your markup panels.
 func serveMainHTML(w http.ResponseWriter) {
-	fmt.Println("serving serveMainHTML")
 	var err error
 	var masterT, tmpl *template.Template
 	var tpath, s string

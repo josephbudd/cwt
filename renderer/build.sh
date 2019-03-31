@@ -20,6 +20,15 @@ authorwd="${appwd%/*}"
 sitepackagename="${prefix}sitepack"
 sitepackpath="${authorwd}/${sitepackagename}"
 
+
+# remove the old package if it's there.
+if [ -d "${sitepackpath}" ]
+then
+    echo ""
+    echo "Removing your previous build of ${sitepackagename}"
+    rm -r "${sitepackpath}"
+fi
+
 # pack ./site and .http.yaml into a new sitepack package
 echo ""
 echo "Now its time to write the source code for your new ${sitepackagename} package."

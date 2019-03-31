@@ -164,6 +164,7 @@ func (panelCaller *Caller) key(solution [][]*types.KeyCodeRecord, wpm, pause uin
 		WPM:      wpm,
 		Pause:    pause,
 		State:    panelCaller.state,
+		Run:      true,
 	}
 	panelCaller.keyConnection.CallMainProcess(params)
 }

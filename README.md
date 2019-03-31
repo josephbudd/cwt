@@ -2,11 +2,11 @@
 
 ## A linux Continuous Wave ( Morse Code ) Trainer
 
-According to [wikipedia](https://en.wikipedia.org/wiki/Continuous_wave)
+March 31, 2019
 
-> Continuous wave is also the name given to an early method of radio transmission, in which a sinusoidal carrier wave is switched on and off. Information is carried in the varying duration of the on and off periods of the signal, for example by Morse code in early radio.
+The copy-test panel wasn't upgraded. It is now. I had upgrade the application but neglected to complete the upgrade for the copy-test panel.
 
-## Credit where credit is due
+### Credit where credit is due
 
 Thanks to **cocoonlife**. I downloaded the goalsa package at https://github.com/cocoonlife/goalsa into the **cwt/mainprocess/goalsa/** folder. I wish I would have taken the same approach with my own alsa code which I've given up on. Take a look at it if you are interested in CGO. Anyway, I slightly modified the code in the package's file **alsa.go**. My mods allowed that package to compile and made playing sound a little friendlier.
 
@@ -23,8 +23,6 @@ The **Copy** service of the application allows the user to practice or test copy
 ### Key
 
 The **Key** service of the application allows the user to practice or test keying morse code at the selected key speed. One difference between practice and test is that test saves results.
-
-That's all well and good for people who know how to key. But despite my attempts to teach myself to key years ago, I now realize that I didn't really understand what keying was and only taught myself a bunch of crap that I want to forget.
 
 The **Key** service is designed to help me and you learn to key properly.
 
@@ -45,7 +43,7 @@ Did you store those principles into your memory? Don't worry, you don't have to.
 
 #### The cwt solution for practicing keying
 
-1. One randomly created five character word at a time. The word is created from the characters that the user has the worst test scores for.
+1. One randomly created 5 character word at a time. The word is created from the characters that the user has the worst test scores for.
 1. A metronome to keep the beat.
 1. A morse code cheat sheet with per beat keying instructions.
 1. Tolerances.
@@ -54,25 +52,35 @@ Did you store those principles into your memory? Don't worry, you don't have to.
 
 My morse code key is a straight key. It is wired to the contacts of the left button on a board that I ripped out of a cheap usb mouse. The board gets plugged into a usb port on the lap top. Pressing the key down causes a "mouse-down" event and letting the key up causes a "mouse-up" event.
 
-## To install and build on linux
+## To run on ubuntu
+
+The executable **cwt/cwt** is compiled for 64 bit ubuntu 18.04 on an amd64. Just download it and try it. If it does not run try adding libasound2-dev but I think its already in the executable.
+
+``` text
+
+$ sudo apt install libasound2-dev
+
+```
+
+## To build on linux
 
 * The mainprocess/goalsa package is written in cgo which requires gcc.
 * The mainprocess/goalsa package uses the alsa lib and requires libasound2-dev.
 
 So install those with
 
-``` bash
+``` text
 
-sudo apt install gcc
-sudo apt install libasound2-dev
+$ sudo apt install gcc
+$ sudo apt install libasound2-dev
 
 ```
 
 Then get cwt with
 
-``` bash
+``` text
 
-go get -u github.com/josephbudd/cwt
+$ go get -u github.com/josephbudd/cwt
 
 ```
 
@@ -82,7 +90,17 @@ Doing so will also import the following packages for cwt
 * [the yaml package.](https://gopkg.in/yaml.v2)
 * [the gorilla websocket package.](https://github.com/gorilla/websocket)
 
-## The build
+### You must download kickpack
+
+The new renderer build script which is **renderer/build.sh** uses kickpack. So you will need to download, build and install kickpack.
+
+``` text
+
+$ go get -u https://github.com/josephbudd/kickpack
+$ cd ~/go/src/github.com/josephbudd/kickpack
+$ go install
+
+```
 
 ### The application code is physically and logically organized into 4 areas
 

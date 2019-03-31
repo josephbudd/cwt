@@ -2,6 +2,7 @@ package keyservice
 
 import (
 	"github.com/josephbudd/cwt/domain/data/keycodes"
+	"github.com/josephbudd/cwt/domain/implementations/storing/boltstoring"
 	"github.com/josephbudd/cwt/domain/interfaces/storer"
 	"github.com/josephbudd/cwt/domain/types"
 )
@@ -16,6 +17,22 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 			err = recordCheckResults(keyCodeStorer, testResults, wpm)
 		}
 	}()
+	var kRecord *types.KeyCodeRecord
+	var sRecord *types.KeyCodeRecord
+	var cRecord *types.KeyCodeRecord
+	var testResultsLine []types.TestResult
+	var solutionLine []*types.KeyCodeRecord
+	var i, j int
+	var m types.TestResult
+	// get a list of record pointers
+	var rr []*types.KeyCodeRecord
+	if rr, err = keyCodeStorer.GetKeyCodes(); err != nil {
+		return
+	}
+	controlIDRecord := make(map[uint64]*types.KeyCodeRecord, len(rr))
+	for _, r := range rr {
+		controlIDRecord[r.ID] = r
+	}
 	// keyed and solution should match if the user copied correctly.
 	testResults = make([][]types.TestResult, 0, 100)
 	lenKeyed := len(keyed)
@@ -24,36 +41,40 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 		// there are more solution lines than there is keyed lines.
 		// iterate through the keyed lines to find the mistakes.
 		// after all the keyed lines is checked iterate through the remaining solution lines and mark those as mistakes.
-		var i int
-		testResultsLine := make([]types.TestResult, 0, lenSolution)
+		testResultsLine = make([]types.TestResult, 0, lenSolution)
 		var keyedLine []*types.KeyCodeRecord
 		for i, keyedLine = range keyed {
-			solutionLine := solution[i]
+			// solutionLine must be true records
+			tempSolutionLine := solution[i]
+			l := len(tempSolutionLine)
+			solutionLine = make([]*types.KeyCodeRecord, l, l)
+			for j = range tempSolutionLine {
+				r := tempSolutionLine[j]
+				solutionLine[j] = controlIDRecord[r.ID]
+			}
 			lenKeyedLine := len(keyedLine)
 			lenSolutionLine := len(solutionLine)
 			if lenKeyedLine > lenSolutionLine {
 				nRead += uint64(lenKeyedLine)
 				// the user added extra keys in this line.
-				var j int
-				var sRecord *types.KeyCodeRecord
 				for j, sRecord = range solutionLine {
-					cRecord := keyedLine[j]
-					if cRecord.Character == sRecord.Character {
+					kRecord = keyedLine[j]
+					if kRecord.Character == sRecord.Character {
 						nCorrect++
 					} else {
 						nIncorrect++
 					}
-					m := types.TestResult{
-						Input:   cRecord,
+					m = types.TestResult{
+						Input:   kRecord,
 						Control: sRecord,
 					}
 					testResultsLine = append(testResultsLine, m)
 				}
 				for j++; j < lenKeyedLine; j++ {
 					// extra keys in this line.
-					cRecord := keyedLine[j]
+					cRecord = controlIDRecord[keyedLine[j].ID]
 					nIncorrect++
-					m := types.TestResult{
+					m = types.TestResult{
 						Input:   cRecord,
 						Control: keycodes.NotInText,
 					}
@@ -64,26 +85,24 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 				// the user did not add extra keys in this line.
 				// there may not be enough keys.
 				// lenKeyedLine <= lenSolutionLine
-				var j int
-				var cRecord *types.KeyCodeRecord
 				// keyed
-				for j, cRecord = range keyedLine {
-					sRecord := solutionLine[j]
-					if cRecord.Character == sRecord.Character {
+				for j, kRecord = range keyedLine {
+					sRecord = solutionLine[j]
+					if kRecord.Character == sRecord.Character {
 						nCorrect++
 					} else {
 						nIncorrect++
 					}
-					m := types.TestResult{
-						Input:   cRecord,
+					m = types.TestResult{
+						Input:   kRecord,
 						Control: sRecord,
 					}
 					testResultsLine = append(testResultsLine, m)
 				}
 				for j++; j < lenSolutionLine; j++ {
 					// missing keys in this line.
-					sRecord := solutionLine[j]
-					m := types.TestResult{
+					sRecord = solutionLine[j]
+					m = types.TestResult{
 						Input:   keycodes.NotKeyedByUser,
 						Control: sRecord,
 					}
@@ -97,12 +116,12 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 		// there is more lines of solution but no more keyed.
 		// each remaining solution represents a mis matched line.
 		for i = len(keyed); i < lenSolution; i++ {
-			solutionLine := solution[i]
+			solutionLine = solution[i]
 			nRead += uint64(len(solutionLine))
-			for _, sRecord := range solutionLine {
+			for _, sRecord = range solutionLine {
 				// not keyed by the user.
 				nIncorrect++
-				m := types.TestResult{
+				m = types.TestResult{
 					Control: sRecord,
 					Input:   keycodes.NotKeyedByUser,
 				}
@@ -116,9 +135,7 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 		// there is more keyed lines than there are solution lines.
 		// iterate through the solutions and find the mistakes in the keyed.
 		// after the solutions are checked mark the rest of the keyed as mistakes.
-		var i int
-		testResultsLine := make([]types.TestResult, 0, lenKeyed)
-		var solutionLine []*types.KeyCodeRecord
+		testResultsLine = make([]types.TestResult, 0, lenKeyed)
 		for i, solutionLine = range solution {
 			keyedLine := keyed[i]
 			lenKeyedLine := len(keyedLine)
@@ -126,18 +143,16 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 			if lenKeyedLine > lenSolutionLine {
 				nRead += uint64(lenKeyedLine)
 				// the user keyed extra chars in this line.
-				var j int
-				var sRecord *types.KeyCodeRecord
 				for j, sRecord = range solutionLine {
 					// text and keys.
-					cRecord := keyedLine[j]
-					if cRecord.Character == sRecord.Character {
+					kRecord := keyedLine[j]
+					if kRecord.Character == sRecord.Character {
 						nCorrect++
 					} else {
 						nIncorrect++
 					}
-					m := types.TestResult{
-						Input:   cRecord,
+					m = types.TestResult{
+						Input:   kRecord,
 						Control: sRecord,
 					}
 					testResultsLine = append(testResultsLine, m)
@@ -145,9 +160,9 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 				for j++; j < lenKeyedLine; j++ {
 					// keyed but there was no text to key in this line.
 					nIncorrect++
-					cRecord := keyedLine[j]
-					m := types.TestResult{
-						Input:   cRecord,
+					kRecord = keyedLine[j]
+					m = types.TestResult{
+						Input:   kRecord,
 						Control: keycodes.NotInText,
 					}
 					testResultsLine = append(testResultsLine, m)
@@ -156,26 +171,24 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 				nRead += uint64(lenSolutionLine)
 				// lenKeyed <= lenSolution
 				// the user keyed the correct number or too few this line.
-				var j int
-				var cRecord *types.KeyCodeRecord
-				for j, cRecord = range keyedLine {
+				for j, kRecord = range keyedLine {
 					// text and keys.
-					sRecord := solutionLine[j]
-					if cRecord.Character == sRecord.Character {
+					sRecord = solutionLine[j]
+					if kRecord.Character == sRecord.Character {
 						nCorrect++
 					} else {
 						nIncorrect++
 					}
-					m := types.TestResult{
-						Input:   cRecord,
+					m = types.TestResult{
+						Input:   kRecord,
 						Control: sRecord,
 					}
 					testResultsLine = append(testResultsLine, m)
 				}
 				for j++; j < lenSolutionLine; j++ {
 					// text but the user missed keys for this line.
-					sRecord := solutionLine[j]
-					m := types.TestResult{
+					sRecord = solutionLine[j]
+					m = types.TestResult{
 						Input:   keycodes.NotKeyedByUser,
 						Control: sRecord,
 					}
@@ -194,10 +207,10 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 		// extra keyed lines are mistakes.
 		for ; i < lenKeyed; i++ {
 			keyedLine := keyed[i]
-			for _, cRecord := range keyedLine {
+			for _, kRecord = range keyedLine {
 				nIncorrect++
-				m := types.TestResult{
-					Input:   cRecord,
+				m = types.TestResult{
+					Input:   kRecord,
 					Control: keycodes.NotInText,
 				}
 				testResultsLine = append(testResultsLine, m)
@@ -209,15 +222,29 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 }
 
 func recordCheckResults(keyCodeStorer storer.KeyCodeStorer, testResults [][]types.TestResult, wpm uint64) (err error) {
-	for _, mm := range testResults {
-		for _, m := range mm {
-			results := m.Control.KeyWPMResults[wpm]
-			results.Attempts++
-			if m.Control.ID == m.Input.ID {
-				results.Correct++
+	var wpmAC types.KeyCodeRecordResult
+	var cRecord *types.KeyCodeRecord
+	idRecord := make(map[uint64]*types.KeyCodeRecord, 100)
+	for _, testResultsLine := range testResults {
+		for _, testResult := range testResultsLine {
+			if testResult.Control.ID >= boltstoring.FirstValidID {
+				if _, found := idRecord[testResult.Control.ID]; !found {
+					idRecord[testResult.Control.ID] = testResult.Control
+				}
+				cRecord = idRecord[testResult.Control.ID]
+				wpmAC = cRecord.KeyWPMResults[wpm]
+				wpmAC.Attempts++
+				if testResult.Control.ID == testResult.Input.ID {
+					wpmAC.Correct++
+				}
+				cRecord.KeyWPMResults[wpm] = wpmAC
 			}
-			m.Control.KeyWPMResults[wpm] = results
-			keyCodeStorer.UpdateKeyCode(m.Control)
+		}
+	}
+	var r *types.KeyCodeRecord
+	for _, r = range idRecord {
+		if err = keyCodeStorer.UpdateKeyCode(r); err != nil {
+			return
 		}
 	}
 	return

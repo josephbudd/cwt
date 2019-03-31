@@ -34,7 +34,6 @@ func newGetCopyWPMCall(wPMStorer storer.WPMStorer) *calling.MainProcess {
 // 2. Get the keyCodes from the repo. Call back any errors or not found.
 // 3. Call the renderer back with the keyCode records.
 func mainProcessReceiveGetCopyWPM(params []byte, callBackToRenderer func(params []byte), wPMStorer storer.WPMStorer) {
-	log.Println("mainProcessReceiveGetCopyWPM")
 	// 1. ignore params.
 	// 2. Get the keyCode from the repo.
 	r, err := wPMStorer.GetCopyWPM()

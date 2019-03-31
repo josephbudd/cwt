@@ -121,6 +121,10 @@ func (keyCodedb *KeyCodeBoltDB) getKeyCodes() ([]*types.KeyCodeRecord, error) {
 // if record is new then record.ID is updated as well.
 // Returns the error.
 func (keyCodedb *KeyCodeBoltDB) UpdateKeyCode(r *types.KeyCodeRecord) error {
+	if r.ID > 0 && r.ID < FirstValidID {
+		// not a real record so just ignore it.
+		return nil
+	}
 	return keyCodedb.updateKeyCodeBucket(r)
 }
 

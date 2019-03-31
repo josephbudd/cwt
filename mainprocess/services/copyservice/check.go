@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/josephbudd/cwt/domain/data/keycodes"
+	"github.com/josephbudd/cwt/domain/implementations/storing/boltstoring"
 	"github.com/josephbudd/cwt/domain/interfaces/storer"
 	"github.com/josephbudd/cwt/domain/types"
 )
@@ -19,6 +20,15 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 			err = recordCheckResults(keyCodeStorer, testResults, wpm)
 		}
 	}()
+	// get a list of record pointers
+	var rr []*types.KeyCodeRecord
+	if rr, err = keyCodeStorer.GetKeyCodes(); err != nil {
+		return
+	}
+	controlIDRecord := make(map[uint64]*types.KeyCodeRecord, len(rr))
+	for _, r := range rr {
+		controlIDRecord[r.ID] = r
+	}
 	// now copy is a slice of strings and solutionChars is a slice of strings.
 	// the 2 should match is the user copied correctly.
 	testResults = make([][]types.TestResult, 0, 100)
@@ -32,7 +42,14 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 		testResultsLine := make([]types.TestResult, 0, ls)
 		var copyLine []*types.KeyCodeRecord
 		for i, copyLine = range copy {
-			solutionLine := solution[i]
+			// solutionLine must be true records
+			tempSolutionLine := solution[i]
+			l := len(tempSolutionLine)
+			solutionLine := make([]*types.KeyCodeRecord, l, l)
+			for j := range tempSolutionLine {
+				r := tempSolutionLine[j]
+				solutionLine[j] = controlIDRecord[r.ID]
+			}
 			lcl := len(copyLine)
 			lsl := len(solutionLine)
 			nKeyed += uint64(lsl)
@@ -96,7 +113,14 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 		// there is more solution but no more copy.
 		// each remaining solution represents a mis match.
 		for i++; i < ls; i++ {
-			solutionLine := solution[i]
+			// solutionLine must be true records
+			tempSolutionLine := solution[i]
+			l := len(tempSolutionLine)
+			solutionLine := make([]*types.KeyCodeRecord, l, l)
+			for i := range tempSolutionLine {
+				r := tempSolutionLine[i]
+				solutionLine[i] = controlIDRecord[r.ID]
+			}
 			for _, sRecord := range solutionLine {
 				// not copied
 				nIncorrect++
@@ -116,8 +140,15 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 		// after the solutions are checked mark the rest of the copy as mistakes.
 		var i int
 		testResultsLine := make([]types.TestResult, 0, lc)
-		var solutionLine []*types.KeyCodeRecord
-		for i, solutionLine = range solution {
+		var tempSolutionLine []*types.KeyCodeRecord
+		for i, tempSolutionLine = range solution {
+			// solutionLine must be true records
+			l := len(tempSolutionLine)
+			solutionLine := make([]*types.KeyCodeRecord, l, l)
+			for j := range tempSolutionLine {
+				r := tempSolutionLine[j]
+				solutionLine[j] = controlIDRecord[r.ID]
+			}
 			copyLine := copy[i]
 			lcl := len(copyLine)
 			lsl := len(solutionLine)
@@ -204,22 +235,29 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 }
 
 func recordCheckResults(keyCodeStorer storer.KeyCodeStorer, testResults [][]types.TestResult, wpm uint64) (err error) {
+	idRecord := make(map[uint64]*types.KeyCodeRecord, 100)
 	for _, mm := range testResults {
 		for _, m := range mm {
-			var results types.KeyCodeRecordResult
-			var found bool
-			if results, found = m.Control.CopyWPMResults[wpm]; !found {
-				message := fmt.Sprintf("wpm %d is invalid", wpm)
-				err = errors.New(message)
+			if m.Control.ID >= boltstoring.FirstValidID {
+				var results types.KeyCodeRecordResult
+				var found bool
+				if results, found = m.Control.CopyWPMResults[wpm]; !found {
+					message := fmt.Sprintf("wpm %d is invalid", wpm)
+					err = errors.New(message)
+				}
+				results.Attempts++
+				if m.Control.ID == m.Input.ID {
+					results.Correct++
+				}
+				m.Control.CopyWPMResults[wpm] = results
+				idRecord[m.Control.ID] = m.Control
 			}
-			results.Attempts++
-			if m.Control.ID == m.Input.ID {
-				results.Correct++
-			}
-			m.Control.CopyWPMResults[wpm] = results
-			if err = keyCodeStorer.UpdateKeyCode(m.Control); err != nil {
-				return
-			}
+		}
+	}
+	var r *types.KeyCodeRecord
+	for _, r = range idRecord {
+		if err = keyCodeStorer.UpdateKeyCode(r); err != nil {
+			return
 		}
 	}
 	return

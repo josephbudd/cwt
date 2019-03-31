@@ -198,6 +198,7 @@ func (panelPresenter *Presenter) initialFillTable(records []*types.KeyCodeRecord
 			// copying
 			var copyTN js.Value
 			if copyResults.Attempts != 0 {
+				// copyTN = notJS.CreateTextNode(fmt.Sprintf("%d / %d", copyResults.Correct, copyResults.Attempts))
 				perCentCopy := 100 * copyResults.Correct / copyResults.Attempts
 				copyTN = notJS.CreateTextNode(fmt.Sprintf("%d%%", perCentCopy))
 			} else {
@@ -212,6 +213,7 @@ func (panelPresenter *Presenter) initialFillTable(records []*types.KeyCodeRecord
 			// keying
 			var keyTN js.Value
 			if keyResults.Attempts != 0 {
+				// keyTN = notJS.CreateTextNode(fmt.Sprintf("%d / %d", keyResults.Correct, keyResults.Attempts))
 				perCentKey := 100 * keyResults.Correct / keyResults.Attempts
 				keyTN = notJS.CreateTextNode(fmt.Sprintf("%d%%", perCentKey))
 			} else {

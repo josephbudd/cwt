@@ -5,6 +5,11 @@ import (
 	"github.com/josephbudd/cwt/domain/types"
 )
 
+// Shared constants.
+const (
+	FirstValidID = uint64(100)
+)
+
 var (
 	cwLetters = map[string]struct {
 		Char   string
@@ -88,7 +93,7 @@ var (
 // initialize is only useful if you want to add the default records to the db.
 // otherwise you don't need it to do anything.
 func (keyCodedb *KeyCodeBoltDB) initialize() (err error) {
-	var id uint64 = 99
+	id := FirstValidID - 1
 	for name, cd := range cwLetters {
 		record := types.NewKeyCodeRecord()
 		id++

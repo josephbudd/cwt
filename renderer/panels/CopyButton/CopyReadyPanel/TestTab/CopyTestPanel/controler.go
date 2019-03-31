@@ -42,6 +42,9 @@ type Controler struct {
 	codeIsKeying  bool
 	delaySeconds  uint64
 	wpm           uint64
+
+	lockMessageTitle string
+	lockMessage      string
 }
 
 // defineControlsSetHandlers defines controler members and sets their handlers.
@@ -88,6 +91,8 @@ func (panelControler *Controler) defineControlsSetHandlers() (err error) {
 	notJS.SetOnClick(panelControler.copyTestCheck, cb)
 
 	panelControler.delaySeconds = 5
+	panelControler.lockMessageTitle = "Oops!"
+	panelControler.lockMessage = "You are still copying."
 
 	return
 }
@@ -106,6 +111,7 @@ func (panelControler *Controler) handleStart(event js.Value) interface{} {
 	panelControler.userIsCopying = true
 	panelControler.presenter.started()
 	panelControler.caller.getTextToCopy()
+	panelControler.tools.LockButtonsWithMessage(panelControler.lockMessage, panelControler.lockMessageTitle)
 	return nil
 }
 
@@ -114,6 +120,7 @@ func (panelControler *Controler) handleCheck(event js.Value) interface{} {
 		panelControler.tools.Error("Can't stop yet. Still keying.")
 		return nil
 	}
+	panelControler.tools.UnLockButtons()
 	panelControler.userIsCopying = false
 	panelControler.presenter.checked()
 	copy := strings.TrimSpace(panelControler.notJS.GetValue(panelControler.copyTestCopy))
@@ -140,7 +147,7 @@ func (panelControler *Controler) processTextToCopy(solution [][]*types.KeyCodeRe
 	panelControler.presenter.ready1()
 	panelControler.tools.GoModal(
 		fmt.Sprintf("The CW will begin %d seconds after you click close. Enter your copy into the red square.", panelControler.delaySeconds),
-		"Copy Test",
+		"Copy Practice",
 		func() {
 			panelControler.presenter.ready2()
 			panelControler.codeIsKeying = true
@@ -152,6 +159,11 @@ func (panelControler *Controler) processTextToCopy(solution [][]*types.KeyCodeRe
 func (panelControler *Controler) processKeyFinished() {
 	panelControler.codeIsKeying = false
 	panelControler.presenter.keyingFinished()
+}
+
+func (panelControler *Controler) processKeyStopped() {
+	panelControler.codeIsKeying = false
+	panelControler.presenter.keyingStopped()
 }
 
 // initialCalls runs the first code that the controler needs to run.
