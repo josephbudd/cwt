@@ -4,7 +4,7 @@
 
 March 31, 2019
 
-The copy-test panel wasn't upgraded. It is now. I had upgrade the application but neglected to complete the upgrade for the copy-test panel.
+The copy-test panel and the key-test panels had not been upgraded. They are upgraded now.
 
 ### Credit where credit is due
 
