@@ -21,13 +21,13 @@ type checkKeyArgs struct {
 }
 
 type checkKeyData struct {
-	name           string
-	checkKeyArgs   checkKeyArgs
-	wantNCorrect   uint64
-	wantNIncorrect uint64
-	wantNRead      uint64
+	name            string
+	checkKeyArgs    checkKeyArgs
+	wantNCorrect    uint64
+	wantNIncorrect  uint64
+	wantNRead       uint64
 	wantTestResults [][]types.TestResult
-	wantErr        bool
+	wantErr         bool
 }
 
 func TestCheck(t *testing.T) {
@@ -39,23 +39,30 @@ func TestCheck(t *testing.T) {
 	}
 	keyCodeStore = boltstoring.NewKeyCodeBoltDB(db, path, filepaths.GetFmode())
 	defer keyCodeStore.Close()
-	var keyCodeRecords []*types.KeyCodeRecord
-	if keyCodeRecords, err = getKeyCodes(); err != nil {
+	var keyCodeWords [][]*types.KeyCodeRecord
+	if keyCodeWords, err = getKeyCodes(keyCodeStore); err != nil {
 		t.Fatal(err)
 	}
-	okCheckTest(keyCodeRecords, t)
-	missingKeysCheckTest(keyCodeRecords, t)
-	extraKeysCheckTest(keyCodeRecords, t)
+	var keyCodeRecords []*types.KeyCodeRecord
+	for _, keyCodeRecords = range keyCodeWords {
+		okCheckTest(keyCodeRecords, t)
+		missingKeysCheckTest(keyCodeRecords, t)
+		extraKeysCheckTest(keyCodeRecords, t)
+	}
 }
 
 func extraKeysCheckTest(keyCodeRecords []*types.KeyCodeRecord, t *testing.T) {
 	wordLength := 5
+	l := len(keyCodeRecords)
+	if wordLength > l {
+		wordLength = l
+	}
 	wordCount := 1
 	solution := make([][]*types.KeyCodeRecord, wordCount, wordCount)
 	keyed := make([][]*types.KeyCodeRecord, wordCount, wordCount)
 	testResults := make([][]types.TestResult, wordCount, wordCount)
-	solution[0] = keyCodeRecords[:4]
-	keyed[0] = keyCodeRecords[:5]
+	solution[0] = keyCodeRecords[:wordLength-1]
+	keyed[0] = keyCodeRecords[:wordLength]
 	testResults[0] = makeResultsLine(solution[0], keyed[0])
 	tests := []checkKeyData{
 		// TODO: Add test cases.
@@ -66,9 +73,9 @@ func extraKeysCheckTest(keyCodeRecords []*types.KeyCodeRecord, t *testing.T) {
 				solution:      solution,
 				keyCodeStorer: keyCodeStore,
 			},
-			wantNCorrect:   uint64(wordLength - 1),
-			wantNIncorrect: 1,
-			wantNRead:      uint64(wordLength),
+			wantNCorrect:    uint64(wordLength - 1),
+			wantNIncorrect:  1,
+			wantNRead:       uint64(wordLength),
 			wantTestResults: testResults,
 		},
 	}
@@ -77,12 +84,16 @@ func extraKeysCheckTest(keyCodeRecords []*types.KeyCodeRecord, t *testing.T) {
 
 func missingKeysCheckTest(keyCodeRecords []*types.KeyCodeRecord, t *testing.T) {
 	wordLength := 5
+	l := len(keyCodeRecords)
+	if wordLength > l {
+		wordLength = l
+	}
 	wordCount := 1
 	solution := make([][]*types.KeyCodeRecord, wordCount, wordCount)
 	keyed := make([][]*types.KeyCodeRecord, wordCount, wordCount)
 	testResults := make([][]types.TestResult, wordCount, wordCount)
-	solution[0] = keyCodeRecords[:5]
-	keyed[0] = keyCodeRecords[:4]
+	solution[0] = keyCodeRecords[:wordLength]
+	keyed[0] = keyCodeRecords[:wordLength-1]
 	testResults[0] = makeResultsLine(solution[0], keyed[0])
 	tests := []checkKeyData{
 		// TODO: Add test cases.
@@ -93,9 +104,9 @@ func missingKeysCheckTest(keyCodeRecords []*types.KeyCodeRecord, t *testing.T) {
 				solution:      solution,
 				keyCodeStorer: keyCodeStore,
 			},
-			wantNCorrect:   uint64(wordLength - 1),
-			wantNIncorrect: 1,
-			wantNRead:      uint64(wordLength),
+			wantNCorrect:    uint64(wordLength - 1),
+			wantNIncorrect:  1,
+			wantNRead:       uint64(wordLength),
 			wantTestResults: testResults,
 		},
 	}
@@ -106,7 +117,11 @@ func okCheckTest(keyCodeRecords []*types.KeyCodeRecord, t *testing.T) {
 	// pauses
 	// make the words 5 characters long.
 	wordLength := 5
-	wordCount := len(keyCodeRecords) / wordLength
+	l := len(keyCodeRecords)
+	if wordLength > l {
+		wordLength = l
+	}
+	wordCount := l / wordLength
 	wantTestResults := make([][]types.TestResult, wordCount, wordCount)
 	wantSolution := make([][]*types.KeyCodeRecord, wordCount, wordCount)
 	var i int
@@ -128,9 +143,9 @@ func okCheckTest(keyCodeRecords []*types.KeyCodeRecord, t *testing.T) {
 				solution:      wantSolution,
 				keyCodeStorer: keyCodeStore,
 			},
-			wantNCorrect:   sizeSolution,
-			wantNIncorrect: 0,
-			wantNRead:      sizeSolution,
+			wantNCorrect:    sizeSolution,
+			wantNIncorrect:  0,
+			wantNRead:       sizeSolution,
 			wantTestResults: wantTestResults,
 		},
 	}
@@ -184,24 +199,24 @@ func makeResultsLine(solution, keyed []*types.KeyCodeRecord) (results []types.Te
 }
 
 func testCheck(tests []checkKeyData, t *testing.T) {
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			gotNCorrect, gotNIncorrect, gotNRead, gotTestResults, err := Check(tt.checkKeyArgs.keyed, tt.checkKeyArgs.solution, tt.checkKeyArgs.keyCodeStorer, tt.checkKeyArgs.wpm, tt.checkKeyArgs.recordResults)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Check() error = %v, wantErr %v", err, tt.wantErr)
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			gotNCorrect, gotNIncorrect, gotNRead, gotTestResults, err := Check(test.checkKeyArgs.keyed, test.checkKeyArgs.solution, test.checkKeyArgs.keyCodeStorer, test.checkKeyArgs.wpm, test.checkKeyArgs.recordResults)
+			if (err != nil) != test.wantErr {
+				t.Errorf("%s: Check() error = %v, wantErr %v", test.name, err, test.wantErr)
 				return
 			}
-			if gotNCorrect != tt.wantNCorrect {
-				t.Errorf("Check() gotNCorrect = %v, want %v", gotNCorrect, tt.wantNCorrect)
+			if gotNCorrect != test.wantNCorrect {
+				t.Errorf("%s: Check() gotNCorrect = %v, want %v", test.name, gotNCorrect, test.wantNCorrect)
 			}
-			if gotNIncorrect != tt.wantNIncorrect {
-				t.Errorf("Check() gotNIncorrect = %v, want %v", gotNIncorrect, tt.wantNIncorrect)
+			if gotNIncorrect != test.wantNIncorrect {
+				t.Errorf("%s: Check() gotNIncorrect = %v, want %v", test.name, gotNIncorrect, test.wantNIncorrect)
 			}
-			if gotNRead != tt.wantNRead {
-				t.Errorf("Check() gotNRead = %v, want %v", gotNRead, tt.wantNRead)
+			if gotNRead != test.wantNRead {
+				t.Errorf("%s: Check() gotNRead = %v, want %v", test.name, gotNRead, test.wantNRead)
 			}
-			if !reflect.DeepEqual(gotTestResults, tt.wantTestResults) {
-				t.Errorf("Check() gotTestResults = %v, want %v", gotTestResults, tt.wantTestResults)
+			if !reflect.DeepEqual(gotTestResults, test.wantTestResults) {
+				t.Errorf("%s: Check() gotTestResults = %v, want %v", test.name, gotTestResults, test.wantTestResults)
 			}
 		})
 	}

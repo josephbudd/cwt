@@ -17,6 +17,7 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 			err = recordCheckResults(keyCodeStorer, testResults, wpm)
 		}
 	}()
+
 	var kRecord *types.KeyCodeRecord
 	var sRecord *types.KeyCodeRecord
 	var cRecord *types.KeyCodeRecord
@@ -59,7 +60,7 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 				// the user added extra keys in this line.
 				for j, sRecord = range solutionLine {
 					kRecord = keyedLine[j]
-					if kRecord.Character == sRecord.Character {
+					if kRecord.ID == sRecord.ID {
 						nCorrect++
 					} else {
 						nIncorrect++
@@ -70,10 +71,10 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 					}
 					testResultsLine = append(testResultsLine, m)
 				}
-				for j++; j < lenKeyedLine; j++ {
+				nIncorrect += uint64(lenKeyedLine - lenSolutionLine)
+				for j = lenSolutionLine; j < lenKeyedLine; j++ {
 					// extra keys in this line.
 					cRecord = controlIDRecord[keyedLine[j].ID]
-					nIncorrect++
 					m = types.TestResult{
 						Input:   cRecord,
 						Control: keycodes.NotInText,
@@ -88,7 +89,7 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 				// keyed
 				for j, kRecord = range keyedLine {
 					sRecord = solutionLine[j]
-					if kRecord.Character == sRecord.Character {
+					if kRecord.ID == sRecord.ID {
 						nCorrect++
 					} else {
 						nIncorrect++
@@ -99,7 +100,8 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 					}
 					testResultsLine = append(testResultsLine, m)
 				}
-				for j++; j < lenSolutionLine; j++ {
+				nIncorrect += uint64(lenSolutionLine - lenKeyedLine)
+				for j = lenKeyedLine; j < lenSolutionLine; j++ {
 					// missing keys in this line.
 					sRecord = solutionLine[j]
 					m = types.TestResult{
@@ -107,7 +109,6 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 						Control: sRecord,
 					}
 					testResultsLine = append(testResultsLine, m)
-					nIncorrect++
 				}
 			}
 			testResults = append(testResults, testResultsLine)
@@ -115,12 +116,13 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 		}
 		// there is more lines of solution but no more keyed.
 		// each remaining solution represents a mis matched line.
-		for i = len(keyed); i < lenSolution; i++ {
+		for i = lenKeyed; i < lenSolution; i++ {
 			solutionLine = solution[i]
-			nRead += uint64(len(solutionLine))
+			lenSolutionLine := len(solutionLine)
+			nRead += uint64(lenSolutionLine)
+			nIncorrect += uint64(lenSolutionLine)
 			for _, sRecord = range solutionLine {
 				// not keyed by the user.
-				nIncorrect++
 				m = types.TestResult{
 					Control: sRecord,
 					Input:   keycodes.NotKeyedByUser,
@@ -146,7 +148,7 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 				for j, sRecord = range solutionLine {
 					// text and keys.
 					kRecord := keyedLine[j]
-					if kRecord.Character == sRecord.Character {
+					if kRecord.ID == sRecord.ID {
 						nCorrect++
 					} else {
 						nIncorrect++
@@ -157,9 +159,9 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 					}
 					testResultsLine = append(testResultsLine, m)
 				}
-				for j++; j < lenKeyedLine; j++ {
+				nIncorrect += uint64(lenKeyedLine - lenSolutionLine)
+				for j = lenSolutionLine; j < lenKeyedLine; j++ {
 					// keyed but there was no text to key in this line.
-					nIncorrect++
 					kRecord = keyedLine[j]
 					m = types.TestResult{
 						Input:   kRecord,
@@ -168,13 +170,13 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 					testResultsLine = append(testResultsLine, m)
 				}
 			} else {
-				nRead += uint64(lenSolutionLine)
-				// lenKeyed <= lenSolution
+				// lenKeyedLine <= lenSolutionLine
 				// the user keyed the correct number or too few this line.
+				nRead += uint64(lenSolutionLine)
 				for j, kRecord = range keyedLine {
 					// text and keys.
 					sRecord = solutionLine[j]
-					if kRecord.Character == sRecord.Character {
+					if kRecord.ID == sRecord.ID {
 						nCorrect++
 					} else {
 						nIncorrect++
@@ -185,7 +187,8 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 					}
 					testResultsLine = append(testResultsLine, m)
 				}
-				for j++; j < lenSolutionLine; j++ {
+				nIncorrect += uint64(lenSolutionLine - lenKeyedLine)
+				for j = lenKeyedLine; j < lenSolutionLine; j++ {
 					// text but the user missed keys for this line.
 					sRecord = solutionLine[j]
 					m = types.TestResult{
@@ -193,7 +196,6 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 						Control: sRecord,
 					}
 					testResultsLine = append(testResultsLine, m)
-					nIncorrect++
 				}
 			}
 			testResults = append(testResults, testResultsLine)
@@ -207,8 +209,8 @@ func Check(keyed, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCod
 		// extra keyed lines are mistakes.
 		for ; i < lenKeyed; i++ {
 			keyedLine := keyed[i]
+			nIncorrect += uint64(len(keyedLine))
 			for _, kRecord = range keyedLine {
-				nIncorrect++
 				m = types.TestResult{
 					Input:   kRecord,
 					Control: keycodes.NotInText,

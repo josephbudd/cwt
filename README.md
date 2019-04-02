@@ -2,6 +2,10 @@
 
 ## A linux Continuous Wave ( Morse Code ) Trainer
 
+April 1, 2019
+
+Fixed the key and copy service checks.
+
 March 31, 2019
 
 The copy-test panel and the key-test panels had not been upgraded. They are upgraded now.
@@ -11,6 +15,8 @@ The copy-test panel and the key-test panels had not been upgraded. They are upgr
 Thanks to **cocoonlife**. I downloaded the goalsa package at https://github.com/cocoonlife/goalsa into the **cwt/mainprocess/goalsa/** folder. I wish I would have taken the same approach with my own alsa code which I've given up on. Take a look at it if you are interested in CGO. Anyway, I slightly modified the code in the package's file **alsa.go**. My mods allowed that package to compile and made playing sound a little friendlier.
 
 ## The application services
+
+The application offers the user 3 services.
 
 ### Selections
 
@@ -22,11 +28,11 @@ The **Copy** service of the application allows the user to practice or test copy
 
 ### Key
 
-The **Key** service of the application allows the user to practice or test keying morse code at the selected key speed. One difference between practice and test is that test saves results.
+The **Key** service of the application allows the user to practice or test keying morse code at the selected key speed. One difference between practice and test is that test involves more words and saves results.
 
 The **Key** service is designed to help me and you learn to key properly.
 
-#### The cwt keying rational
+#### The current cwt keying principles
 
 The morse code key is like a piano that only has one key.
 
@@ -39,9 +45,9 @@ Morse code is like a song that has
 * pauses between characters in a word that must only last 3 beats,
 * pauses between words that must only last 7 beats.
 
-Did you store those principles into your memory? Don't worry, you don't have to. Cwt will passively lead you to follow those principles. Without realizing it, those priciples will become a part of your concious thought process and then slip into your sub concious. Then you will key correctly without even thinking about it.
+My intention is that when I key with cwt, those priciples become a part of my concious thought process and then slip into my sub concious. Then I will key correctly without even thinking about it.
 
-#### The cwt solution for practicing keying
+#### The current cwt implementation for keying practice
 
 1. One randomly created 5 character word at a time. The word is created from the characters that the user has the worst test scores for.
 1. A metronome to keep the beat.
