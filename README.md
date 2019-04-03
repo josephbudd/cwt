@@ -177,3 +177,7 @@ The **cwt/.kickwasm/** folder was created by kickwasm, the tool which created th
 ## License
 
 This application has an MIT License. You are free to take this source code and use it to make an even better application.
+
+## The cwt video
+
+[![Learning Morse Code with CWT.](https://i.vimeocdn.com/video/772644525.jpg)](https://vimeo.com/328175343)
