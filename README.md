@@ -2,6 +2,10 @@
 
 ## A linux Continuous Wave ( Morse Code ) Trainer
 
+May 1, 2019
+
+I'll be adding another level of practice keying that will allow the user to parctice keying sentences. I just need a little time.
+
 April 1, 2019
 
 Fixed the key and copy service checks.
