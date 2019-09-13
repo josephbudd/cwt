@@ -2,9 +2,9 @@
 
 ## A linux Continuous Wave ( Morse Code ) Trainer
 
-Sept 10, 2019
+Sept 13, 2019
 
-* Rebuilt with [kickwasm](https://github.com/josephbudd/kickwasm) version 8.2.2.
+* Rebuilt with [kickwasm](https://github.com/josephbudd/kickwasm) version 8.2.3.
 * Added metronome on or off during keying practice.
 
 ### Credit where credit is due
@@ -63,7 +63,17 @@ My morse code key is a straight key. It is wired to the contacts of the left but
 
 ## To run on ubuntu
 
-The executable **cwt/cwt** is compiled for 64 bit ubuntu 18.04 on an amd64. Just download it and try it. If it does not run try adding libasound2-dev but I think its already in the executable.
+The executable **cwt/cwt** is compiled for 64 bit ubuntu 18.04 on an amd64. Just download it and try it.
+
+``` shell
+
+$ go get github.com/josephbudd/cwt
+$ cd ~/src/github.com/josephbudd/cwt
+$ ./cwt
+
+```
+
+If it does not run try adding libasound2-dev but I think its already in the executable.
 
 ``` shell
 
@@ -85,27 +95,35 @@ $ sudo apt install libasound2-dev
 
 ```
 
-Then get cwt with
+### Get cwt
 
 ``` shell
 
-$ go get -u github.com/josephbudd/cwt
+$ go get github.com/josephbudd/cwt
 
 ```
 
-Doing so will also import the following packages for cwt
+### Get cwt's other dependencies
 
 * [the boltdb package.](https://github.com/boltdb/bolt)
 * [the yaml package.](https://gopkg.in/yaml.v2)
 * [the gorilla websocket package.](https://github.com/gorilla/websocket)
 
-### You must download kickpack
+``` shell
 
-The new renderer build script which is **renderer/build.sh** uses kickpack. So you will need to download, build and install kickpack.
+$ go get github.com/boltdb/bolt/...
+$ go get gopkg.in/yaml.v2
+$ go get github.com/gorilla/websocket
+
+```
+
+### Finally download the kickpack tool
+
+The new renderer build scripts which are **renderer/build.sh** and **renderer/buildPack.sh** use kickpack. So you will need to download, build and install kickpack.
 
 ``` shell
 
-$ go get -u https://github.com/josephbudd/kickpack
+$ go get -u github.com/josephbudd/kickpack
 $ cd ~/go/src/github.com/josephbudd/kickpack
 $ go install
 
@@ -127,29 +145,62 @@ $ go install
 
 So when you build the application, you build both the renderer process and the main process.
 
+#### Build Step 1: Build the renderer process
+
 ``` shell
 
 $ cd $GOPATH
-$ cd src/github.com/josephbudd/cwt
-$ cd renderer
-$ ./buildPack.sh
-Building your wasm into ../site/app.wasm
+$ cd src/github.com/josephbudd/cwt/renderer
+nil@NIL:~/go/src/github.com/josephbudd/cwt/renderer$ ./buildPack.sh 
 
-Great! Your wasm has been compiled.
+STEP 1:
+REMOVE YOUR PREVIOUS BUILD OF /home/nil/go/src/github.com/josephbudd/cwt/renderer/spawnpack
+rm -r /home/nil/go/src/github.com/josephbudd/cwt/renderer/spawnpack
 
-Now its time to write the source code for your new cwtsitepack package.
-The cwtsitepack package is your applications renderer process.
-( The stuff the gets loaded into the browser. )
-This could take a while.
-cd ~/go/src/github.com/josephbudd/cwt
-kickpack -o ~/go/src/github.com/josephbudd/cwtsitepack ./site ./http.yaml
+STEP 2:
+WRITE THE SOURCE CODE FOR YOUR NEW spawnpack PACKAGE.
+ * The spawnpack package is your renderer's spawn html templates.
+cd /home/nil/go/src/github.com/josephbudd/cwt/site
+kickpack -nu -o=/home/nil/go/src/github.com/josephbudd/cwt/renderer/spawnpack ./spawnTemplates
+cd /home/nil/go/src/github.com/josephbudd/cwt/renderer
+ * Success. The source code for your new spawnpack package is written.
 
-Finally! Now its time to build your new cwtsitepack package.
-cd ~/go/src/github.com/josephbudd/cwtsitepack
+STEP 3:
+BUILD THE RENDERER GO CODE INTO WEB ASSEMBLY CODE AT ../site/app.wasm
+GOARCH=wasm GOOS=js go build -o ../site/app.wasm main.go panels.go
+ * Success. The renderer go code is compiled into web assembly code at ../site/app.wasm
+
+STEP 4:
+WRITE THE cwtsitepack PACKAGE SOURCE CODE.
+ * The cwtsitepack package will be a file store
+     containing all of the files in the /site folder.
+ * So this process could take a while.
+ * See func serveFileStore in Serve.go.
+cd /home/nil/go/src/github.com/josephbudd/cwt
+kickpack -nu -strict -o=/home/nil/go/src/github.com/josephbudd/cwtsitepack ./site ./Http.yaml
+ * Success. The cwtsitepack package source code has been written.
+
+STEP 5:
+BUILD THE cwtsitepack PACKAGE.
+ * This process could take use of all of your CPU cores.
+ * This process will take a while.
+cd /home/nil/go/src/github.com/josephbudd/cwtsitepack
 go build
+ * Success.
+ * You have successfully compiled the cwtsitepack package object code.
+ * In other words, you have compiled your entire renderer process into object code.
 
-You've done it!
-The package at ~/go/src/github.com/josephbudd/cwtsitepack contains the files from your renderer process.
+STEP 6:
+BUILD THE ENTIRE APPLICATION INTO A SINGLE EXECUTABLE cwt.
+   You will do so with the following 2 commands...
+   cd ..
+   go build
+
+```
+
+#### Build Step 2: Build the main process and the entire app into a single executable file ./cwt
+
+``` shell
 
 $ cd ..
 $ go build
