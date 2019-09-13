@@ -89,8 +89,3 @@ func (notjs *NotJS) Focus(element js.Value) {
 func (notjs *NotJS) Blur(element js.Value) {
 	element.Call("blur")
 }
-
-// SetFor sets the for attribute.
-func (notjs *NotJS) SetFor(element js.Value, forID string) {
-	notjs.SetAttribute(element, forAttributeName, forID)
-}

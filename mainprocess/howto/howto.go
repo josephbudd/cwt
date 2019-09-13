@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/josephbudd/cwt/domain/types"
+	"github.com/josephbudd/cwt/domain/data"
+	"github.com/josephbudd/cwt/domain/store/record"
 )
 
 const (
@@ -14,18 +15,18 @@ const (
 )
 
 // KeyCodesToHelp turns key code records that form a word into help.
-func KeyCodesToHelp(words [][]*types.KeyCodeRecord) (howtos [][]types.HowTo) {
+func KeyCodesToHelp(words [][]*record.KeyCode) (howtos [][]data.HowTo) {
 	lws := len(words)
-	howtos = make([][]types.HowTo, lws, lws)
+	howtos = make([][]data.HowTo, lws, lws)
 	for i, word := range words {
 		//lw := len(word)
 		helps := keyCodesWordToHelp(word)
 		l := len(helps)
 		if i > 0 {
 			// new word
-			var howto []types.HowTo
-			howto = make([]types.HowTo, 0, l+1)
-			howto = append(howto, types.HowTo{Instructions: wordSeparaterInstructions})
+			var howto []data.HowTo
+			howto = make([]data.HowTo, 0, l+1)
+			howto = append(howto, data.HowTo{Instructions: wordSeparaterInstructions})
 			for _, h := range helps {
 				howto = append(howto, h)
 			}
@@ -37,16 +38,16 @@ func KeyCodesToHelp(words [][]*types.KeyCodeRecord) (howtos [][]types.HowTo) {
 	return
 }
 
-func keyCodesWordToHelp(word []*types.KeyCodeRecord) (howto []types.HowTo) {
+func keyCodesWordToHelp(word []*record.KeyCode) (howto []data.HowTo) {
 	l := len(word)
-	howto = make([]types.HowTo, 0, l*2)
+	howto = make([]data.HowTo, 0, l*2)
 	for i, char := range word {
 		if i > 0 {
-			howto = append(howto, types.HowTo{
+			howto = append(howto, data.HowTo{
 				Instructions: charSeparaterInstructions,
 			})
 		}
-		howto = append(howto, types.HowTo{
+		howto = append(howto, data.HowTo{
 			Character:    char.Character,
 			DitDah:       char.DitDah,
 			Instructions: ditDahToHowTo(char.DitDah),

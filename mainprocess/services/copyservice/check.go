@@ -4,14 +4,16 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/josephbudd/cwt/domain/data"
 	"github.com/josephbudd/cwt/domain/data/keycodes"
-	"github.com/josephbudd/cwt/domain/implementations/storing/boltstoring"
-	"github.com/josephbudd/cwt/domain/interfaces/storer"
-	"github.com/josephbudd/cwt/domain/types"
+	"github.com/josephbudd/cwt/domain/store/record"
+	"github.com/josephbudd/cwt/domain/store/storer"
+	"github.com/josephbudd/cwt/domain/store/storing"
 )
 
 // Check checks the user's copy agains the solutionChars and returns results.
-func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, keyCodeStorer storer.KeyCodeStorer, wpm uint64, recordResults bool) (nCorrect, nIncorrect, nKeyed uint64, testResults [][]types.TestResult, err error) {
+func Check(copy [][]*record.KeyCode, solution [][]*record.KeyCode, keyCodeStorer storer.KeyCodeStorer, wpm uint64, recordResults bool) (nCorrect, nIncorrect, nKeyed uint64, testResults [][]data.TestResult, err error) {
+
 	defer func() {
 		if err != nil {
 			return
@@ -22,17 +24,17 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 	}()
 
 	// get a list of record pointers
-	var rr []*types.KeyCodeRecord
-	if rr, err = keyCodeStorer.GetKeyCodes(); err != nil {
+	var rr []*record.KeyCode
+	if rr, err = keyCodeStorer.GetAll(); err != nil {
 		return
 	}
-	controlIDRecord := make(map[uint64]*types.KeyCodeRecord, len(rr))
+	controlIDRecord := make(map[uint64]*record.KeyCode, len(rr))
 	for _, r := range rr {
 		controlIDRecord[r.ID] = r
 	}
 	// now copy is a slice of strings and solutionChars is a slice of strings.
 	// the 2 should match is the user copied correctly.
-	testResults = make([][]types.TestResult, 0, 100)
+	testResults = make([][]data.TestResult, 0, 100)
 	lc := len(copy)
 	ls := len(solution)
 	if ls > lc {
@@ -40,13 +42,13 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 		// iterate through the copy to find the mistakes.
 		// after all the copy is checked iterate through the remaining solutions and mark those as mistakes.
 		var i int
-		testResultsLine := make([]types.TestResult, 0, ls)
-		var copyLine []*types.KeyCodeRecord
+		testResultsLine := make([]data.TestResult, 0, ls)
+		var copyLine []*record.KeyCode
 		for i, copyLine = range copy {
 			// solutionLine must be true records
 			tempSolutionLine := solution[i]
 			l := len(tempSolutionLine)
-			solutionLine := make([]*types.KeyCodeRecord, l, l)
+			solutionLine := make([]*record.KeyCode, l, l)
 			for j := range tempSolutionLine {
 				r := tempSolutionLine[j]
 				solutionLine[j] = controlIDRecord[r.ID]
@@ -56,7 +58,7 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 			nKeyed += uint64(lsl)
 			if lcl > lsl {
 				var j int
-				var sRecord *types.KeyCodeRecord
+				var sRecord *record.KeyCode
 				for j, sRecord = range solutionLine {
 					cRecord := copyLine[j]
 					if cRecord.ID == sRecord.ID {
@@ -64,7 +66,7 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 					} else {
 						nIncorrect++
 					}
-					m := types.TestResult{
+					m := data.TestResult{
 						Input:   cRecord,
 						Control: sRecord,
 					}
@@ -73,7 +75,7 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 				nIncorrect += uint64(lcl - lsl)
 				for j = lsl; j < lcl; j++ {
 					cRecord := copyLine[j]
-					m := types.TestResult{
+					m := data.TestResult{
 						Input:   cRecord,
 						Control: keycodes.NotKeyedByApp,
 					}
@@ -82,7 +84,7 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 			} else {
 				// lcl <= lsl
 				var j int
-				var cRecord *types.KeyCodeRecord
+				var cRecord *record.KeyCode
 				for j, cRecord = range copyLine {
 					// copied
 					sRecord := solutionLine[j]
@@ -91,7 +93,7 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 					} else {
 						nIncorrect++
 					}
-					m := types.TestResult{
+					m := data.TestResult{
 						Input:   cRecord,
 						Control: sRecord,
 					}
@@ -101,7 +103,7 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 				for j = lcl; j < lsl; j++ {
 					// missing copy
 					sRecord := solutionLine[j]
-					m := types.TestResult{
+					m := data.TestResult{
 						Input:   keycodes.NotCopiedByUser,
 						Control: sRecord,
 					}
@@ -109,7 +111,7 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 				}
 			}
 			testResults = append(testResults, testResultsLine)
-			testResultsLine = make([]types.TestResult, 0, ls)
+			testResultsLine = make([]data.TestResult, 0, ls)
 		}
 		// there is more solution but no more copy.
 		// each remaining solution represents a mis match.
@@ -117,7 +119,7 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 			// solutionLine must be true records
 			tempSolutionLine := solution[i]
 			l := len(tempSolutionLine)
-			solutionLine := make([]*types.KeyCodeRecord, l, l)
+			solutionLine := make([]*record.KeyCode, l, l)
 			for i := range tempSolutionLine {
 				r := tempSolutionLine[i]
 				solutionLine[i] = controlIDRecord[r.ID]
@@ -125,14 +127,14 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 			nIncorrect += uint64(l)
 			for _, sRecord := range solutionLine {
 				// not copied
-				m := types.TestResult{
+				m := data.TestResult{
 					Control: sRecord,
 					Input:   keycodes.NotCopiedByUser,
 				}
 				testResultsLine = append(testResultsLine, m)
 			}
 			testResults = append(testResults, testResultsLine)
-			testResultsLine = make([]types.TestResult, 0, ls)
+			testResultsLine = make([]data.TestResult, 0, ls)
 		}
 	} else {
 		// lc >= ls {
@@ -140,12 +142,12 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 		// iterate through the solutions and find the mistakes in the copy.
 		// after the solutions are checked mark the rest of the copy as mistakes.
 		var i int
-		testResultsLine := make([]types.TestResult, 0, lc)
-		var tempSolutionLine []*types.KeyCodeRecord
+		testResultsLine := make([]data.TestResult, 0, lc)
+		var tempSolutionLine []*record.KeyCode
 		for i, tempSolutionLine = range solution {
 			// solutionLine must be true records
 			l := len(tempSolutionLine)
-			solutionLine := make([]*types.KeyCodeRecord, l, l)
+			solutionLine := make([]*record.KeyCode, l, l)
 			for j := range tempSolutionLine {
 				r := tempSolutionLine[j]
 				solutionLine[j] = controlIDRecord[r.ID]
@@ -156,7 +158,7 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 			nKeyed += uint64(lsl)
 			if lcl > lsl {
 				var j int
-				var sRecord *types.KeyCodeRecord
+				var sRecord *record.KeyCode
 				for j, sRecord = range solutionLine {
 					// copied
 					cRecord := copyLine[j]
@@ -165,7 +167,7 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 					} else {
 						nIncorrect++
 					}
-					m := types.TestResult{
+					m := data.TestResult{
 						Input:   cRecord,
 						Control: sRecord,
 					}
@@ -175,7 +177,7 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 				for j = lsl; j < lcl; j++ {
 					// copied but nothing keyed
 					cRecord := copyLine[j]
-					m := types.TestResult{
+					m := data.TestResult{
 						Input:   cRecord,
 						Control: keycodes.NotKeyedByApp,
 					}
@@ -184,7 +186,7 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 			} else {
 				// lcl <= lsl
 				var j int
-				var cRecord *types.KeyCodeRecord
+				var cRecord *record.KeyCode
 				for j, cRecord = range copyLine {
 					// keyed and copied
 					sRecord := solutionLine[j]
@@ -193,7 +195,7 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 					} else {
 						nIncorrect++
 					}
-					m := types.TestResult{
+					m := data.TestResult{
 						Input:   cRecord,
 						Control: sRecord,
 					}
@@ -203,7 +205,7 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 				for j = lcl; j < lsl; j++ {
 					// keyed but never copied
 					sRecord := solutionLine[j]
-					m := types.TestResult{
+					m := data.TestResult{
 						Input:   keycodes.NotCopiedByUser,
 						Control: sRecord,
 					}
@@ -211,7 +213,7 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 				}
 			}
 			testResults = append(testResults, testResultsLine)
-			testResultsLine = make([]types.TestResult, 0, ls)
+			testResultsLine = make([]data.TestResult, 0, ls)
 		}
 		if ls == lc {
 			// no more copy
@@ -222,7 +224,7 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 		for i = ls; i < lc; i++ {
 			copyLine := copy[i]
 			for _, cRecord := range copyLine {
-				m := types.TestResult{
+				m := data.TestResult{
 					Input:   cRecord,
 					Control: keycodes.NotKeyedByApp,
 				}
@@ -234,12 +236,12 @@ func Check(copy [][]*types.KeyCodeRecord, solution [][]*types.KeyCodeRecord, key
 	return
 }
 
-func recordCheckResults(keyCodeStorer storer.KeyCodeStorer, testResults [][]types.TestResult, wpm uint64) (err error) {
-	idRecord := make(map[uint64]*types.KeyCodeRecord, 100)
+func recordCheckResults(keyCodeStorer storer.KeyCodeStorer, testResults [][]data.TestResult, wpm uint64) (err error) {
+	idRecord := make(map[uint64]*record.KeyCode, 100)
 	for _, mm := range testResults {
 		for _, m := range mm {
-			if m.Control.ID >= boltstoring.FirstValidID {
-				var results types.KeyCodeRecordResult
+			if m.Control.ID >= storing.FirstValidID {
+				var results record.KeyCodeResult
 				var found bool
 				if results, found = m.Control.CopyWPMResults[wpm]; !found {
 					message := fmt.Sprintf("wpm %d is invalid", wpm)
@@ -254,9 +256,9 @@ func recordCheckResults(keyCodeStorer storer.KeyCodeStorer, testResults [][]type
 			}
 		}
 	}
-	var r *types.KeyCodeRecord
+	var r *record.KeyCode
 	for _, r = range idRecord {
-		if err = keyCodeStorer.UpdateKeyCode(r); err != nil {
+		if err = keyCodeStorer.Update(r); err != nil {
 			return
 		}
 	}

@@ -25,7 +25,7 @@ func (tools *Tools) hideSlider() {
 }
 
 func (tools *Tools) initializeSlider() {
-	notJS := tools.notJS
+	notJS := tools.NotJS
 	buttoncb := tools.RegisterEventCallBack(
 		tools.handlePadButtonOnClick,
 		true, true, true,
@@ -54,7 +54,7 @@ func (tools *Tools) initializeSlider() {
 
 func (tools *Tools) handlePadButtonOnClick(event js.Value) interface{} {
 	// get back div
-	notJS := tools.notJS
+	notJS := tools.NotJS
 	target := notJS.GetEventTarget(event)
 	backid := target.Call("getAttribute", BackIDAttribute).String()
 	backdiv := notJS.GetElementByID(backid)
@@ -62,7 +62,7 @@ func (tools *Tools) handlePadButtonOnClick(event js.Value) interface{} {
 	targetid := notJS.ID(target)
 	divs, found := tools.buttonPanelsMap[targetid]
 	if !found {
-		notJS.Alert(fmt.Sprintf("slider.controler.handlePadButtonOnClick: id %q not found in tools.buttonPanelsMap", targetid))
+		notJS.Alert(fmt.Sprintf("slider.controller.handlePadButtonOnClick: id %q not found in tools.buttonPanelsMap", targetid))
 		return nil
 	}
 	for _, div := range divs {
@@ -73,7 +73,7 @@ func (tools *Tools) handlePadButtonOnClick(event js.Value) interface{} {
 			return nil
 		}
 	}
-	notJS.Alert(fmt.Sprintf("slider.controler.handlePadButtonOnClick: tobe-seen not found with button %q", target.Get("innerText")))
+	notJS.Alert(fmt.Sprintf("slider.controller.handlePadButtonOnClick: tobe-seen not found with button %q", target.Get("innerText")))
 	return nil
 }
 
@@ -88,6 +88,6 @@ func (tools *Tools) hereIsVisible() bool {
 	if tools.here == js.Undefined() {
 		return false
 	}
-	p := tools.notJS.ParentNode(tools.here)
+	p := tools.NotJS.ParentNode(tools.here)
 	return p == tools.tabsMasterviewHomeSliderCollection
 }

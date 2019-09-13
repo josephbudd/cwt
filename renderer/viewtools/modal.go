@@ -48,7 +48,7 @@ func (tools *Tools) beModal() {
 	if tools.beingModal = m != nil; !tools.beingModal {
 		return
 	}
-	notJS := tools.notJS
+	notJS := tools.NotJS
 	notJS.SetInnerText(tools.modalMasterViewH1, m.title)
 	notJS.SetInnerHTML(tools.modalMasterViewMessage, m.message)
 	tools.modalCallBack = m.cb
@@ -99,4 +99,3 @@ func (tools *Tools) handleModalMasterViewClose(event js.Value) interface{} {
 	tools.beNotModal()
 	return nil
 }
-

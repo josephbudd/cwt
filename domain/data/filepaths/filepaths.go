@@ -20,6 +20,10 @@ var templatePath string
 var shortTemplatePath string
 var shortSitePath string
 
+// spawnTemplates
+var spawnTemplatePath string
+var shortSpawnTemplatePath string
+
 // fmode is the applications mode for files.
 var fmode = os.FileMode(0666)
 
@@ -45,7 +49,6 @@ func Testing() bool {
 }
 
 func initialize() {
-	initialized = true
 	buildUserHomeDataPath()
 	if initerr != nil {
 		return
@@ -55,13 +58,16 @@ func initialize() {
 		initerr = fmt.Errorf("os.Getwd() error is %s", initerr.Error())
 		return
 	}
-	appSettingsPath = filepath.Join(pwd, "http.yaml")
-	shortAppSettingsPath = "http.yaml"
+	appSettingsPath = filepath.Join(pwd, "Http.yaml")
+	shortAppSettingsPath = "Http.yaml"
 	applicationSitePath = filepath.Join(pwd, "site")
 	faviconPath = filepath.Join(applicationSitePath, "favicon.ico")
 	templatePath = filepath.Join(applicationSitePath, "templates")
+	spawnTemplatePath = filepath.Join(applicationSitePath, "spawnTemplates")
 	shortSitePath = "site"
 	shortTemplatePath = filepath.Join(shortSitePath, "templates")
+	shortSpawnTemplatePath = filepath.Join(shortSitePath, "spawnTemplates")
+	initialized = true
 }
 
 // GetSettingsPath returns the settings yaml path.
@@ -88,14 +94,6 @@ func GetFaviconPath() string {
 	return faviconPath
 }
 
-// GetShortTemplatePath returns the short path to the application's template folder.
-func GetShortTemplatePath() string {
-	if !initialized {
-		initialize()
-	}
-	return shortTemplatePath
-}
-
 // GetShortSitePath returns the short path to the applications site folder.
 func GetShortSitePath() string {
 	if !initialized {
@@ -112,6 +110,14 @@ func GetTemplatePath() string {
 	return templatePath
 }
 
+// GetShortTemplatePath returns the short path to the application's template folder.
+func GetShortTemplatePath() string {
+	if !initialized {
+		initialize()
+	}
+	return shortTemplatePath
+}
+
 // GetFmode returns the file mode for files.
 func GetFmode() os.FileMode {
 	return fmode
@@ -123,7 +129,7 @@ func GetDmode() os.FileMode {
 }
 
 // BuildUserSubFoldersPath builds a sub folder path in the user's home folder.
-// It makes the path if neccessary.
+// It makes the path if necessary.
 // Param sfpath [in] is the subfolder path.
 // Returns the folder path.
 func BuildUserSubFoldersPath(sfpath string) (string, error) {

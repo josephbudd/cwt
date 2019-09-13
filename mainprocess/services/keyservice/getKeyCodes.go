@@ -6,15 +6,16 @@ import (
 	"math/big"
 	"sort"
 
-	"github.com/josephbudd/cwt/domain/interfaces/storer"
-	"github.com/josephbudd/cwt/domain/types"
+	"github.com/josephbudd/cwt/domain/data"
+	"github.com/josephbudd/cwt/domain/store/record"
+	"github.com/josephbudd/cwt/domain/store/storer"
 	"github.com/josephbudd/cwt/mainprocess/howto"
 )
 
 // GetTestKeyCodes returns
 // Key codes for the user to key in a test.
 // Help
-func GetTestKeyCodes(keyCodeStorer storer.KeyCodeStorer) (keyCodeWords [][]*types.KeyCodeRecord, err error) {
+func GetTestKeyCodes(keyCodeStorer storer.KeyCodeStorer) (keyCodeWords [][]*record.KeyCode, err error) {
 	if keyCodeWords, err = getKeyCodes(keyCodeStorer); err != nil {
 		return
 	}
@@ -24,7 +25,7 @@ func GetTestKeyCodes(keyCodeStorer storer.KeyCodeStorer) (keyCodeWords [][]*type
 // GetPracticeKeyCodes returns
 // Key codes for the user to key in practice.
 // Help
-func GetPracticeKeyCodes(keyCodeStorer storer.KeyCodeStorer, wpm uint64) (keyCodeWords [][]*types.KeyCodeRecord, help [][]types.HowTo, err error) {
+func GetPracticeKeyCodes(keyCodeStorer storer.KeyCodeStorer, wpm uint64) (keyCodeWords [][]*record.KeyCode, help [][]data.HowTo, err error) {
 	if keyCodeWords, err = getPracticeKeyCodes(keyCodeStorer, wpm); err != nil {
 		return
 	}
@@ -37,10 +38,10 @@ func GetPracticeKeyCodes(keyCodeStorer storer.KeyCodeStorer, wpm uint64) (keyCod
 // Returns a slice of key code words.
 // A keycode word is a slice of key code records.
 // Each word has a length of 5 key codes.
-func getPracticeKeyCodes(keyCodeStorer storer.KeyCodeStorer, wpm uint64) (keyCodeWords [][]*types.KeyCodeRecord, err error) {
-	rr, err := keyCodeStorer.GetKeyCodes()
-	if err != nil {
-		err = errors.New("GetKeyCodes keyCodeStorer.GetKeyCodes() error is " + err.Error())
+func getPracticeKeyCodes(keyCodeStorer storer.KeyCodeStorer, wpm uint64) (keyCodeWords [][]*record.KeyCode, err error) {
+	var rr []*record.KeyCode
+	if rr, err = keyCodeStorer.GetAll(); err != nil {
+		err = errors.New("getPracticeKeyCodes keyCodeStorer.GetAll() error is " + err.Error())
 		return
 	}
 	worst := getWorst(rr, wpm, 5)
@@ -48,10 +49,10 @@ func getPracticeKeyCodes(keyCodeStorer storer.KeyCodeStorer, wpm uint64) (keyCod
 	return
 }
 
-func getWorst(rr []*types.KeyCodeRecord, wpm uint64, count uint64) (worst []*types.KeyCodeRecord) {
+func getWorst(rr []*record.KeyCode, wpm uint64, count uint64) (worst []*record.KeyCode) {
 	// map records to wpm
 	var percent int
-	percentRecord := make(map[int][]*types.KeyCodeRecord)
+	percentRecord := make(map[int][]*record.KeyCode)
 	for _, r := range rr {
 		if r.Selected {
 			if result, ok := r.KeyWPMResults[wpm]; ok {
@@ -61,7 +62,7 @@ func getWorst(rr []*types.KeyCodeRecord, wpm uint64, count uint64) (worst []*typ
 					percent = int((result.Correct * 100) / result.Attempts)
 				}
 				if _, ok = percentRecord[percent]; !ok {
-					percentRecord[percent] = make([]*types.KeyCodeRecord, 0, 50)
+					percentRecord[percent] = make([]*record.KeyCode, 0, 50)
 				}
 				percentRecord[percent] = append(percentRecord[percent], r)
 			}
@@ -75,7 +76,7 @@ func getWorst(rr []*types.KeyCodeRecord, wpm uint64, count uint64) (worst []*typ
 	}
 	sort.Sort(sort.Reverse(sort.IntSlice(sortedPercent)))
 	// collect the worst
-	worst = make([]*types.KeyCodeRecord, 0, count)
+	worst = make([]*record.KeyCode, 0, count)
 	max := int(count)
 	for _, percent = range sortedPercent {
 		for _, r := range percentRecord[percent] {
@@ -99,13 +100,13 @@ func getWorst(rr []*types.KeyCodeRecord, wpm uint64, count uint64) (worst []*typ
 // Returns a slice of key code words.
 // A keycode word is a slice of key code records.
 // Each word has a length of 5 key codes.
-func getKeyCodes(keyCodeStorer storer.KeyCodeStorer) (keyCodeWords [][]*types.KeyCodeRecord, err error) {
-	rr, err := keyCodeStorer.GetKeyCodes()
+func getKeyCodes(keyCodeStorer storer.KeyCodeStorer) (keyCodeWords [][]*record.KeyCode, err error) {
+	rr, err := keyCodeStorer.GetAll()
 	if err != nil {
-		err = errors.New("GetKeyCodes keyCodeStorer.GetKeyCodes() error is " + err.Error())
+		err = errors.New("getKeyCodes keyCodeStorer.GetAll() error is " + err.Error())
 		return
 	}
-	records := make([]*types.KeyCodeRecord, 0, len(rr))
+	records := make([]*record.KeyCode, 0, len(rr))
 	for _, r := range rr {
 		if r.Selected {
 			records = append(records, r)
@@ -117,8 +118,8 @@ func getKeyCodes(keyCodeStorer storer.KeyCodeStorer) (keyCodeWords [][]*types.Ke
 
 // buildKeyCodeWords builds a slice of key code words.
 // A keycode word is a slice of key code records.
-func buildKeyCodeWords(rr []*types.KeyCodeRecord, wordSize, maxLines int) (keyCodeWords [][]*types.KeyCodeRecord) {
-	keyCodeWords = make([][]*types.KeyCodeRecord, 0, maxLines)
+func buildKeyCodeWords(rr []*record.KeyCode, wordSize, maxLines int) (keyCodeWords [][]*record.KeyCode) {
+	keyCodeWords = make([][]*record.KeyCode, 0, maxLines)
 	recordCount := len(rr)
 	if recordCount < wordSize {
 		wordSize = recordCount
@@ -130,9 +131,9 @@ func buildKeyCodeWords(rr []*types.KeyCodeRecord, wordSize, maxLines int) (keyCo
 	return
 }
 
-func shuffleKeyCodeRecords(records []*types.KeyCodeRecord) (shuffled []*types.KeyCodeRecord) {
+func shuffleKeyCodeRecords(records []*record.KeyCode) (shuffled []*record.KeyCode) {
 	count := len(records)
-	temp := make(map[int64]*types.KeyCodeRecord)
+	temp := make(map[int64]*record.KeyCode)
 	max := big.NewInt(int64(count))
 	for i := 0; i < count; i++ {
 		var bigJ *big.Int
@@ -168,7 +169,7 @@ func shuffleKeyCodeRecords(records []*types.KeyCodeRecord) (shuffled []*types.Ke
 		}
 	}
 	// build shuffled
-	shuffled = make([]*types.KeyCodeRecord, count, count)
+	shuffled = make([]*record.KeyCode, count, count)
 	for k, v := range temp {
 		shuffled[k] = v
 	}

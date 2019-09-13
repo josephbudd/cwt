@@ -3,75 +3,75 @@ package keycodes
 // IDs for valid key codes start at 100.
 // These invalid key codes have an id < 100.
 
-import "github.com/josephbudd/cwt/domain/types"
+import "github.com/josephbudd/cwt/domain/store/record"
 
 // NotKeyed represents
 //  a code that was not keyed.
-var NotKeyed *types.KeyCodeRecord
+var NotKeyed *record.KeyCode
 
 // NotKeyedByApp is when the user copies a key that never happened.
-var NotKeyedByApp *types.KeyCodeRecord
+var NotKeyedByApp *record.KeyCode
 
 // NotKeyedByUser is a char that the user never keyed.
-var NotKeyedByUser *types.KeyCodeRecord
+var NotKeyedByUser *record.KeyCode
 
 // NotCopiedByApp is ?
-var NotCopiedByApp *types.KeyCodeRecord
+var NotCopiedByApp *record.KeyCode
 
 // NotCopiedByUser is a key that the user missed.
-var NotCopiedByUser *types.KeyCodeRecord
+var NotCopiedByUser *record.KeyCode
 
 // NotCopied represents
 //  or a key that was not copied.
-var NotCopied *types.KeyCodeRecord
+var NotCopied *record.KeyCode
 
 // NotInText represents non-existant text that the user keyed.
-var NotInText *types.KeyCodeRecord
+var NotInText *record.KeyCode
 
 // UnknownKeyFromUser represents non-existant key that the user keyed.
-var UnknownKeyFromUser *types.KeyCodeRecord
+var UnknownKeyFromUser *record.KeyCode
 
 const nbsp = " "
 
 func init() {
-	NotCopied = types.NewKeyCodeRecord()
-	NotCopied = &types.KeyCodeRecord{
+	NotCopied = record.NewKeyCode()
+	NotCopied = &record.KeyCode{
 		ID:        1,
 		Character: "{NotCopied}",
 		DitDah:    "{NotCopied}",
 	}
-	NotKeyed = types.NewKeyCodeRecord()
-	NotKeyed = &types.KeyCodeRecord{
+	NotKeyed = record.NewKeyCode()
+	NotKeyed = &record.KeyCode{
 		ID:        2,
 		Character: "{NotKeyed}",
 		DitDah:    "{NotKeyed}",
 	}
-	NotKeyedByApp = types.NewKeyCodeRecord()
+	NotKeyedByApp = record.NewKeyCode()
 	NotKeyedByApp.ID = 3
 	NotKeyedByApp.Character = "{Not Keyed BA}"
 	NotKeyedByApp.DitDah = "{Not Keyed BA}"
 
-	NotCopiedByUser = types.NewKeyCodeRecord()
+	NotCopiedByUser = record.NewKeyCode()
 	NotCopiedByUser.ID = 4
 	NotCopiedByUser.Character = "{Not Copied BU}"
 	NotCopiedByUser.DitDah = "{Not Copied BU}"
 
-	NotCopiedByApp = types.NewKeyCodeRecord()
+	NotCopiedByApp = record.NewKeyCode()
 	NotCopiedByApp.ID = 5
 	NotCopiedByApp.Character = "{Not Copied BA}"
 	NotCopiedByApp.DitDah = "{Not Copied BA}"
 
-	NotKeyedByUser = types.NewKeyCodeRecord()
+	NotKeyedByUser = record.NewKeyCode()
 	NotKeyedByUser.ID = 6
 	NotKeyedByUser.Character = "{ }"
 	NotKeyedByUser.DitDah = "{ }"
 
-	NotInText = types.NewKeyCodeRecord()
+	NotInText = record.NewKeyCode()
 	NotInText.ID = 7
 	NotInText.Character = "{No Text}"
 	NotInText.DitDah = "{No Text}"
 
-	UnknownKeyFromUser = types.NewKeyCodeRecord()
+	UnknownKeyFromUser = record.NewKeyCode()
 	UnknownKeyFromUser.ID = 8
 	UnknownKeyFromUser.Character = "{Unknown Key}"
 	UnknownKeyFromUser.DitDah = "{Unknown Key}"

@@ -2,11 +2,13 @@ package widgets
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"syscall/js"
 	"time"
 
-	"github.com/josephbudd/cwt/domain/types"
+	"github.com/josephbudd/cwt/domain/data"
+	"github.com/josephbudd/cwt/domain/store/record"
 	"github.com/josephbudd/cwt/renderer/notjs"
 	"github.com/josephbudd/cwt/renderer/viewtools"
 )
@@ -21,24 +23,26 @@ const (
 
 // KeyWidget is a widget of buttons and key areas which record keying.
 type KeyWidget struct {
-	heading     js.Value
-	startButton js.Value
-	stopButton  js.Value
-	keyDiv      js.Value
-	copyDiv     js.Value
+	heading           js.Value
+	startButton       js.Value
+	stopButton        js.Value
+	metronomeCheckBox js.Value
+	keyDiv            js.Value
+	copyDiv           js.Value
 
 	userKeyChecker UserKeyChecker
 	metronomer     Metronomer
 
 	userIsKeying bool
+	metronomeOn  bool
 	keyTime      time.Time
 	durations    []time.Duration
 
 	tools *viewtools.Tools // see /renderer/viewtools
 	notJS *notjs.NotJS
 
-	keyCodes [][]*types.KeyCodeRecord
-	help     [][]types.HowTo
+	keyCodes [][]*record.KeyCode
+	help     [][]data.HowTo
 	wpm      uint64
 	times    []time.Time
 }
@@ -46,7 +50,7 @@ type KeyWidget struct {
 // UserKeyChecker processes keying millisecons.
 type UserKeyChecker interface {
 	GetKeyCodesWPM()
-	CheckUserKey(milliSeconds []int64, solution [][]*types.KeyCodeRecord, wpm uint64)
+	CheckUserKey(milliSeconds []int64, solution [][]*record.KeyCode, wpm uint64)
 }
 
 // Metronomer starts and stops a metronome.
@@ -68,18 +72,19 @@ type Metronomer interface {
 // * the text is displayed that the user reads when keying.
 // * the copy of the user's keying is displayed.
 func NewKeyWidget(heading js.Value,
-	startButton, stopButton js.Value,
+	startButton, stopButton, metronomeCheckBox js.Value,
 	keyDiv, copyDiv js.Value,
 	userKeyChecker UserKeyChecker,
 	metronomer Metronomer,
 	tools *viewtools.Tools,
 	notJS *notjs.NotJS) (keyWidget *KeyWidget) {
 	keyWidget = &KeyWidget{
-		heading:     heading,
-		startButton: startButton,
-		stopButton:  stopButton,
-		keyDiv:      keyDiv,
-		copyDiv:     copyDiv,
+		heading:           heading,
+		startButton:       startButton,
+		stopButton:        stopButton,
+		metronomeCheckBox: metronomeCheckBox,
+		keyDiv:            keyDiv,
+		copyDiv:           copyDiv,
 
 		tools: tools,
 		notJS: notJS,
@@ -91,9 +96,17 @@ func NewKeyWidget(heading js.Value,
 		durations: make([]time.Duration, 0, 1024),
 	}
 
+	var cb js.Func
+
+	if metronomeCheckBox != js.Null() {
+		keyWidget.metronomeOn = notJS.GetChecked(metronomeCheckBox)
+		cb = tools.RegisterEventCallBack(keyWidget.handleMetronomeCheck, true, true, true)
+		notJS.SetOnChange(keyWidget.metronomeCheckBox, cb)
+	}
+
 	notJS.SetInnerText(heading, initialInstructions)
 
-	cb := tools.RegisterEventCallBack(keyWidget.handleStart, true, true, true)
+	cb = tools.RegisterEventCallBack(keyWidget.handleStart, true, true, true)
 	notJS.SetOnClick(keyWidget.startButton, cb)
 
 	cb = tools.RegisterEventCallBack(keyWidget.handleStop, true, true, true)
@@ -115,7 +128,7 @@ func NewKeyWidget(heading js.Value,
 }
 
 // SetKeyCodesHelpWPM sets the key codes, ( the solution ) that the user must key.
-func (keyWidget *KeyWidget) SetKeyCodesHelpWPM(records [][]*types.KeyCodeRecord, help [][]types.HowTo, wpm uint64) {
+func (keyWidget *KeyWidget) SetKeyCodesHelpWPM(records [][]*record.KeyCode, help [][]data.HowTo, wpm uint64) {
 	keyWidget.keyCodes = records
 	keyWidget.help = help
 	keyWidget.wpm = wpm
@@ -123,7 +136,7 @@ func (keyWidget *KeyWidget) SetKeyCodesHelpWPM(records [][]*types.KeyCodeRecord,
 }
 
 // SetKeyCodesWPM sets the key codes, ( the solution ) that the user must key.
-func (keyWidget *KeyWidget) SetKeyCodesWPM(records [][]*types.KeyCodeRecord, wpm uint64) {
+func (keyWidget *KeyWidget) SetKeyCodesWPM(records [][]*record.KeyCode, wpm uint64) {
 	keyWidget.keyCodes = records
 	keyWidget.help = nil
 	keyWidget.wpm = wpm
@@ -131,7 +144,7 @@ func (keyWidget *KeyWidget) SetKeyCodesWPM(records [][]*types.KeyCodeRecord, wpm
 }
 
 // ShowResults Processes and displays the checked results of what the user keyed.
-func (keyWidget *KeyWidget) ShowResults(correctCount, incorrectCount, keyedCount uint64, testResults [][]types.TestResult) {
+func (keyWidget *KeyWidget) ShowResults(correctCount, incorrectCount, keyedCount uint64, testResults [][]data.TestResult) {
 	copyDiv := keyWidget.copyDiv
 	notJS := keyWidget.notJS
 	// clear the div
@@ -224,7 +237,15 @@ func (keyWidget *KeyWidget) addTable(controlWord, ditDahWord, copiedWord string)
 
 // handlers
 
-func (keyWidget *KeyWidget) handleStart(event js.Value) interface{} {
+func (keyWidget *KeyWidget) handleMetronomeCheck(event js.Value) (nilInterface interface{}) {
+	if keyWidget.metronomeOn = keyWidget.notJS.GetChecked(keyWidget.metronomeCheckBox); !keyWidget.metronomeOn {
+		keyWidget.metronomer.StopMetronome()
+	}
+	log.Printf("keyWidget.metronomeOn is %#v", keyWidget.metronomeOn)
+	return
+}
+
+func (keyWidget *KeyWidget) handleStart(event js.Value) (nilInterface interface{}) {
 	tools := keyWidget.tools
 	notJS := keyWidget.notJS
 	keyWidget.userKeyChecker.GetKeyCodesWPM()
@@ -234,7 +255,7 @@ func (keyWidget *KeyWidget) handleStart(event js.Value) interface{} {
 	keyWidget.keyTime = time.Now()
 	keyWidget.times = make([]time.Time, 1, 200)
 	keyWidget.times[0] = time.Now()
-	return nil
+	return
 }
 
 func (keyWidget *KeyWidget) handleStop(event js.Value) interface{} {
@@ -261,7 +282,7 @@ func (keyWidget *KeyWidget) handleMouseEnter(event js.Value) interface{} {
 		notJS := keyWidget.notJS
 		notJS.ClassListReplaceClass(keyWidget.keyDiv, "user-not-key-over", "user-key-over")
 		keyWidget.notJS.SetInnerText(keyWidget.heading, mouseOverInstructions)
-		if keyWidget.metronomer != nil {
+		if keyWidget.metronomeOn {
 			keyWidget.metronomer.StartMetronome(keyWidget.wpm)
 		}
 	}

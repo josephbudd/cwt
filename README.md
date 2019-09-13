@@ -2,21 +2,16 @@
 
 ## A linux Continuous Wave ( Morse Code ) Trainer
 
-May 1, 2019
+Sept 10, 2019
 
-I'll be adding another level of practice keying that will allow the user to parctice keying sentences. I just need a little time.
-
-April 1, 2019
-
-Fixed the key and copy service checks.
-
-March 31, 2019
-
-The copy-test panel and the key-test panels had not been upgraded. They are upgraded now.
+* Rebuilt with [kickwasm](https://github.com/josephbudd/kickwasm) version 8.2.2.
+* Added metronome on or off during keying practice.
 
 ### Credit where credit is due
 
-Thanks to **cocoonlife**. I downloaded the goalsa package at https://github.com/cocoonlife/goalsa into the **cwt/mainprocess/goalsa/** folder. I wish I would have taken the same approach with my own alsa code which I've given up on. Take a look at it if you are interested in CGO. Anyway, I slightly modified the code in the package's file **alsa.go**. My mods allowed that package to compile and made playing sound a little friendlier.
+Thanks to **cocoonlife**. I downloaded the [goalsa](https://github.com/cocoonlife/goalsa) package into the **cwt/mainprocess/goalsa/** folder.
+
+If you are interested in CGO, take a look at **cwt/mainprocess/goalsa/**. I only slightly modified the cocoonlife code in the package's file **alsa.go**. My mods allowed that package to compile and made playing sound a little friendlier.
 
 ## The application services
 
@@ -33,6 +28,10 @@ The **Copy** service of the application allows the user to practice or test copy
 ### Key
 
 The **Key** service of the application allows the user to practice or test keying morse code at the selected key speed. One difference between practice and test is that test involves more words and saves results.
+
+#### Key practice
+
+Key practice offers a very advanced feature. **The keying metronome.** The optional metronome during keying practice, allows the user who is keying, to hear the wpm rythem. Keying to the correct wpm rythem is required for keying that others will understand.
 
 The **Key** service is designed to help me and you learn to key properly.
 
@@ -54,7 +53,7 @@ My intention is that when I key with cwt, those priciples become a part of my co
 #### The current cwt implementation for keying practice
 
 1. One randomly created 5 character word at a time. The word is created from the characters that the user has the worst test scores for.
-1. A metronome to keep the beat.
+1. An optional metronome to keep the beat.
 1. A morse code cheat sheet with per beat keying instructions.
 1. Tolerances.
 
@@ -66,7 +65,7 @@ My morse code key is a straight key. It is wired to the contacts of the left but
 
 The executable **cwt/cwt** is compiled for 64 bit ubuntu 18.04 on an amd64. Just download it and try it. If it does not run try adding libasound2-dev but I think its already in the executable.
 
-``` text
+``` shell
 
 $ sudo apt install libasound2-dev
 
@@ -79,7 +78,7 @@ $ sudo apt install libasound2-dev
 
 So install those with
 
-``` text
+``` shell
 
 $ sudo apt install gcc
 $ sudo apt install libasound2-dev
@@ -88,7 +87,7 @@ $ sudo apt install libasound2-dev
 
 Then get cwt with
 
-``` text
+``` shell
 
 $ go get -u github.com/josephbudd/cwt
 
@@ -104,14 +103,14 @@ Doing so will also import the following packages for cwt
 
 The new renderer build script which is **renderer/build.sh** uses kickpack. So you will need to download, build and install kickpack.
 
-``` text
+``` shell
 
 $ go get -u https://github.com/josephbudd/kickpack
 $ cd ~/go/src/github.com/josephbudd/kickpack
 $ go install
 
 ```
-
+ 
 ### The application code is physically and logically organized into 4 areas
 
 1. The **cwt/domain/** folder contains domain ( shared ) logic.
@@ -128,12 +127,12 @@ $ go install
 
 So when you build the application, you build both the renderer process and the main process.
 
-``` text
+``` shell
 
 $ cd $GOPATH
 $ cd src/github.com/josephbudd/cwt
 $ cd renderer
-$ ./build.sh 
+$ ./buildPack.sh
 Building your wasm into ../site/app.wasm
 
 Great! Your wasm has been compiled.

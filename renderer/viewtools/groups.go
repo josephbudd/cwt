@@ -39,10 +39,10 @@ func (tools *Tools) ShowPanelInTabGroup(panel js.Value) {
 // 1. if param target has an ancestor which is the slider collections. ( panels shown with the back button on the left side. )
 // 2. if the param target becomes visible.
 func (tools *Tools) ShowInGroup(target js.Value, showClass, hideClass string) (isSliderSub, isVisible bool) {
-	notJS := tools.notJS
+	notJS := tools.NotJS
 	isSliderSub = notJS.ParentNode(target) == tools.tabsMasterviewHomeSliderCollection
 	// tab sibling panels are in sliders but they are special.
-	isTabSibling := notJS.ClassListContains(target, "slider-panel-inner-sibling")
+	isTabSibling := notJS.ClassListContains(target, SliderPanelInnerSiblingClassName)
 	if !(isSliderSub || isTabSibling) {
 		// not in the slider collection
 		isSliderSub = (isSliderSub || isTabSibling)
@@ -80,8 +80,23 @@ func (tools *Tools) ShowInGroup(target js.Value, showClass, hideClass string) (i
 	// only really visible if slider is visible
 	isVisible = notJS.ClassListContains(tools.tabsMasterviewHomeSlider, SeenClassName) && isVisible
 	if isVisible {
-		// target is the new here
-		tools.here = target
+		// set tools.here
+		if isTabSibling {
+			// tools.here is never a tab panel sibling.
+			// tools.here must be a slider panel.
+			// Find the correct ancestor.
+			sliderPanel := notJS.ParentNode(target)
+			for {
+				if notJS.ClassListContains(sliderPanel, SliderPanelClassName) {
+					break
+				}
+				sliderPanel = notJS.ParentNode(sliderPanel)
+			}
+			tools.here = sliderPanel
+		} else {
+			// target is the new here.
+			tools.here = target
+		}
 		// here is now this slider sub panel.
 		// here is never a tab panel sibling.
 		if showClass == ToBeSeenClassName {
@@ -98,7 +113,7 @@ func (tools *Tools) ShowInGroup(target js.Value, showClass, hideClass string) (i
 // both panels must have the parentNode == SliderPresenter.sliderCollection.
 func (tools *Tools) HideShow(hideDiv, showDiv js.Value) {
 	// hide the hide div
-	notJS := tools.notJS
+	notJS := tools.NotJS
 	isSliderH := tools.hideInGroup(hideDiv, SeenClassName, UnSeenClassName)
 	// show the show div
 	isSliderS, isVisibleS := tools.ShowInGroup(showDiv, SeenClassName, UnSeenClassName)
@@ -151,7 +166,7 @@ func (tools *Tools) toBeHiddenInGroup(target js.Value) bool {
 // It sets target's to setClass and removes unSetClass.
 // It sets the other panel's to unSetClass and removes setClass.
 func (tools *Tools) setInGroup(group []js.Value, target js.Value, setClass, unSetClass string) {
-	notJS := tools.notJS
+	notJS := tools.NotJS
 	for _, panel := range group {
 		if panel != target {
 			notJS.ClassListReplaceClass(panel, setClass, unSetClass)
@@ -163,7 +178,7 @@ func (tools *Tools) setInGroup(group []js.Value, target js.Value, setClass, unSe
 // hideInGroup hides target in a group.
 // Returns is the target is a slider sub panel, a child of the slider collection div.
 func (tools *Tools) hideInGroup(target js.Value, showClass, hideClass string) (isSliderSub bool) {
-	notJS := tools.notJS
+	notJS := tools.NotJS
 	parentNode := notJS.ParentNode(target)
 	isSliderSub = parentNode == tools.tabsMasterviewHomeSliderCollection
 	if !isSliderSub {
@@ -181,46 +196,46 @@ func (tools *Tools) initializeGroups() {
 	// Copy CopyButton button.
 	buttonid = "tabsMasterView-home-pad-CopyButton"
 	tools.buttonPanelsMap[buttonid] = make([]js.Value, 0, 5)
-	panel = tools.notJS.GetElementByID("tabsMasterView-home-pad-CopyButton-CopyNotReadyPanel")
+	panel = tools.NotJS.GetElementByID("tabsMasterView-home-pad-CopyButton-CopyNotReadyPanel")
 	if panel == js.Undefined() {
 		message := "viewtools.initializeGroups: Cant find #tabsMasterView-home-pad-CopyButton-CopyNotReadyPanel"
 		tools.alert.Invoke(message)
 		return
 	}
 	tools.buttonPanelsMap[buttonid] = append(tools.buttonPanelsMap[buttonid], panel)
-	panel = tools.notJS.GetElementByID("tabsMasterView-home-pad-CopyButton-CopyReadyPanel")
+	panel = tools.NotJS.GetElementByID("tabsMasterView-home-pad-CopyButton-CopyReadyPanel")
 	if panel == js.Undefined() {
 		message := "viewtools.initializeGroups: Cant find #tabsMasterView-home-pad-CopyButton-CopyReadyPanel"
 		tools.alert.Invoke(message)
 		return
 	}
 	tools.buttonPanelsMap[buttonid] = append(tools.buttonPanelsMap[buttonid], panel)
-	// Copy WPMTab button.
-	buttonid = "tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar-WPMTab"
+	// Copy CopyWPMTab button.
+	buttonid = "tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar-CopyWPMTab"
 	tools.buttonPanelsMap[buttonid] = make([]js.Value, 0, 5)
-	panel = tools.notJS.GetElementByID("tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar-WPMTabPanel-inner-CopyWPMPanel")
+	panel = tools.NotJS.GetElementByID("tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar-CopyWPMTabPanel-inner-CopyWPMPanel")
 	if panel == js.Undefined() {
-		message := "viewtools.initializeGroups: Cant find #tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar-WPMTabPanel-inner-CopyWPMPanel"
+		message := "viewtools.initializeGroups: Cant find #tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar-CopyWPMTabPanel-inner-CopyWPMPanel"
 		tools.alert.Invoke(message)
 		return
 	}
 	tools.buttonPanelsMap[buttonid] = append(tools.buttonPanelsMap[buttonid], panel)
-	// Copy PracticeTab button.
-	buttonid = "tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar-PracticeTab"
+	// Copy CopyPracticeTab button.
+	buttonid = "tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar-CopyPracticeTab"
 	tools.buttonPanelsMap[buttonid] = make([]js.Value, 0, 5)
-	panel = tools.notJS.GetElementByID("tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar-PracticeTabPanel-inner-CopyPracticePanel")
+	panel = tools.NotJS.GetElementByID("tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar-CopyPracticeTabPanel-inner-CopyPracticePanel")
 	if panel == js.Undefined() {
-		message := "viewtools.initializeGroups: Cant find #tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar-PracticeTabPanel-inner-CopyPracticePanel"
+		message := "viewtools.initializeGroups: Cant find #tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar-CopyPracticeTabPanel-inner-CopyPracticePanel"
 		tools.alert.Invoke(message)
 		return
 	}
 	tools.buttonPanelsMap[buttonid] = append(tools.buttonPanelsMap[buttonid], panel)
-	// Copy TestTab button.
-	buttonid = "tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar-TestTab"
+	// Copy CopyTestTab button.
+	buttonid = "tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar-CopyTestTab"
 	tools.buttonPanelsMap[buttonid] = make([]js.Value, 0, 5)
-	panel = tools.notJS.GetElementByID("tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar-TestTabPanel-inner-CopyTestPanel")
+	panel = tools.NotJS.GetElementByID("tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar-CopyTestTabPanel-inner-CopyTestPanel")
 	if panel == js.Undefined() {
-		message := "viewtools.initializeGroups: Cant find #tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar-TestTabPanel-inner-CopyTestPanel"
+		message := "viewtools.initializeGroups: Cant find #tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar-CopyTestTabPanel-inner-CopyTestPanel"
 		tools.alert.Invoke(message)
 		return
 	}
@@ -228,46 +243,46 @@ func (tools *Tools) initializeGroups() {
 	// Key KeyButton button.
 	buttonid = "tabsMasterView-home-pad-KeyButton"
 	tools.buttonPanelsMap[buttonid] = make([]js.Value, 0, 5)
-	panel = tools.notJS.GetElementByID("tabsMasterView-home-pad-KeyButton-KeyNotReadyPanel")
+	panel = tools.NotJS.GetElementByID("tabsMasterView-home-pad-KeyButton-KeyNotReadyPanel")
 	if panel == js.Undefined() {
 		message := "viewtools.initializeGroups: Cant find #tabsMasterView-home-pad-KeyButton-KeyNotReadyPanel"
 		tools.alert.Invoke(message)
 		return
 	}
 	tools.buttonPanelsMap[buttonid] = append(tools.buttonPanelsMap[buttonid], panel)
-	panel = tools.notJS.GetElementByID("tabsMasterView-home-pad-KeyButton-KeyReadyPanel")
+	panel = tools.NotJS.GetElementByID("tabsMasterView-home-pad-KeyButton-KeyReadyPanel")
 	if panel == js.Undefined() {
 		message := "viewtools.initializeGroups: Cant find #tabsMasterView-home-pad-KeyButton-KeyReadyPanel"
 		tools.alert.Invoke(message)
 		return
 	}
 	tools.buttonPanelsMap[buttonid] = append(tools.buttonPanelsMap[buttonid], panel)
-	// Key WPMTab button.
-	buttonid = "tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar-WPMTab"
+	// Key KeyWPMTab button.
+	buttonid = "tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar-KeyWPMTab"
 	tools.buttonPanelsMap[buttonid] = make([]js.Value, 0, 5)
-	panel = tools.notJS.GetElementByID("tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar-WPMTabPanel-inner-KeyWPMPanel")
+	panel = tools.NotJS.GetElementByID("tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar-KeyWPMTabPanel-inner-KeyWPMPanel")
 	if panel == js.Undefined() {
-		message := "viewtools.initializeGroups: Cant find #tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar-WPMTabPanel-inner-KeyWPMPanel"
+		message := "viewtools.initializeGroups: Cant find #tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar-KeyWPMTabPanel-inner-KeyWPMPanel"
 		tools.alert.Invoke(message)
 		return
 	}
 	tools.buttonPanelsMap[buttonid] = append(tools.buttonPanelsMap[buttonid], panel)
-	// Key PracticeTab button.
-	buttonid = "tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar-PracticeTab"
+	// Key KeyPracticeTab button.
+	buttonid = "tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar-KeyPracticeTab"
 	tools.buttonPanelsMap[buttonid] = make([]js.Value, 0, 5)
-	panel = tools.notJS.GetElementByID("tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar-PracticeTabPanel-inner-KeyPracticePanel")
+	panel = tools.NotJS.GetElementByID("tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar-KeyPracticeTabPanel-inner-KeyPracticePanel")
 	if panel == js.Undefined() {
-		message := "viewtools.initializeGroups: Cant find #tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar-PracticeTabPanel-inner-KeyPracticePanel"
+		message := "viewtools.initializeGroups: Cant find #tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar-KeyPracticeTabPanel-inner-KeyPracticePanel"
 		tools.alert.Invoke(message)
 		return
 	}
 	tools.buttonPanelsMap[buttonid] = append(tools.buttonPanelsMap[buttonid], panel)
-	// Key TestTab button.
-	buttonid = "tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar-TestTab"
+	// Key KeyTestTab button.
+	buttonid = "tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar-KeyTestTab"
 	tools.buttonPanelsMap[buttonid] = make([]js.Value, 0, 5)
-	panel = tools.notJS.GetElementByID("tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar-TestTabPanel-inner-KeyTestPanel")
+	panel = tools.NotJS.GetElementByID("tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar-KeyTestTabPanel-inner-KeyTestPanel")
 	if panel == js.Undefined() {
-		message := "viewtools.initializeGroups: Cant find #tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar-TestTabPanel-inner-KeyTestPanel"
+		message := "viewtools.initializeGroups: Cant find #tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar-KeyTestTabPanel-inner-KeyTestPanel"
 		tools.alert.Invoke(message)
 		return
 	}
@@ -275,7 +290,7 @@ func (tools *Tools) initializeGroups() {
 	// Reference ReferenceButton button.
 	buttonid = "tabsMasterView-home-pad-ReferenceButton"
 	tools.buttonPanelsMap[buttonid] = make([]js.Value, 0, 5)
-	panel = tools.notJS.GetElementByID("tabsMasterView-home-pad-ReferenceButton-SelectCodesPanel")
+	panel = tools.NotJS.GetElementByID("tabsMasterView-home-pad-ReferenceButton-SelectCodesPanel")
 	if panel == js.Undefined() {
 		message := "viewtools.initializeGroups: Cant find #tabsMasterView-home-pad-ReferenceButton-SelectCodesPanel"
 		tools.alert.Invoke(message)
@@ -285,7 +300,7 @@ func (tools *Tools) initializeGroups() {
 	// Reference LettersTab button.
 	buttonid = "tabsMasterView_home_pad_ReferenceButton_SelectCodesPanel_tab_bar-LettersTab"
 	tools.buttonPanelsMap[buttonid] = make([]js.Value, 0, 5)
-	panel = tools.notJS.GetElementByID("tabsMasterView_home_pad_ReferenceButton_SelectCodesPanel_tab_bar-LettersTabPanel-inner-LettersPanel")
+	panel = tools.NotJS.GetElementByID("tabsMasterView_home_pad_ReferenceButton_SelectCodesPanel_tab_bar-LettersTabPanel-inner-LettersPanel")
 	if panel == js.Undefined() {
 		message := "viewtools.initializeGroups: Cant find #tabsMasterView_home_pad_ReferenceButton_SelectCodesPanel_tab_bar-LettersTabPanel-inner-LettersPanel"
 		tools.alert.Invoke(message)
@@ -295,7 +310,7 @@ func (tools *Tools) initializeGroups() {
 	// Reference NumbersTab button.
 	buttonid = "tabsMasterView_home_pad_ReferenceButton_SelectCodesPanel_tab_bar-NumbersTab"
 	tools.buttonPanelsMap[buttonid] = make([]js.Value, 0, 5)
-	panel = tools.notJS.GetElementByID("tabsMasterView_home_pad_ReferenceButton_SelectCodesPanel_tab_bar-NumbersTabPanel-inner-NumbersPanel")
+	panel = tools.NotJS.GetElementByID("tabsMasterView_home_pad_ReferenceButton_SelectCodesPanel_tab_bar-NumbersTabPanel-inner-NumbersPanel")
 	if panel == js.Undefined() {
 		message := "viewtools.initializeGroups: Cant find #tabsMasterView_home_pad_ReferenceButton_SelectCodesPanel_tab_bar-NumbersTabPanel-inner-NumbersPanel"
 		tools.alert.Invoke(message)
@@ -305,7 +320,7 @@ func (tools *Tools) initializeGroups() {
 	// Reference PunctuationTab button.
 	buttonid = "tabsMasterView_home_pad_ReferenceButton_SelectCodesPanel_tab_bar-PunctuationTab"
 	tools.buttonPanelsMap[buttonid] = make([]js.Value, 0, 5)
-	panel = tools.notJS.GetElementByID("tabsMasterView_home_pad_ReferenceButton_SelectCodesPanel_tab_bar-PunctuationTabPanel-inner-PunctuationPanel")
+	panel = tools.NotJS.GetElementByID("tabsMasterView_home_pad_ReferenceButton_SelectCodesPanel_tab_bar-PunctuationTabPanel-inner-PunctuationPanel")
 	if panel == js.Undefined() {
 		message := "viewtools.initializeGroups: Cant find #tabsMasterView_home_pad_ReferenceButton_SelectCodesPanel_tab_bar-PunctuationTabPanel-inner-PunctuationPanel"
 		tools.alert.Invoke(message)
@@ -315,7 +330,7 @@ func (tools *Tools) initializeGroups() {
 	// Reference SpecialTab button.
 	buttonid = "tabsMasterView_home_pad_ReferenceButton_SelectCodesPanel_tab_bar-SpecialTab"
 	tools.buttonPanelsMap[buttonid] = make([]js.Value, 0, 5)
-	panel = tools.notJS.GetElementByID("tabsMasterView_home_pad_ReferenceButton_SelectCodesPanel_tab_bar-SpecialTabPanel-inner-SpecialPanel")
+	panel = tools.NotJS.GetElementByID("tabsMasterView_home_pad_ReferenceButton_SelectCodesPanel_tab_bar-SpecialTabPanel-inner-SpecialPanel")
 	if panel == js.Undefined() {
 		message := "viewtools.initializeGroups: Cant find #tabsMasterView_home_pad_ReferenceButton_SelectCodesPanel_tab_bar-SpecialTabPanel-inner-SpecialPanel"
 		tools.alert.Invoke(message)

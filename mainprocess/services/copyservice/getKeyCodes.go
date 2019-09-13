@@ -5,9 +5,9 @@ import (
 	"errors"
 	"math/big"
 
-	"github.com/josephbudd/cwt/domain/data/keyCodeTypes"
-	"github.com/josephbudd/cwt/domain/interfaces/storer"
-	"github.com/josephbudd/cwt/domain/types"
+	"github.com/josephbudd/cwt/domain/data"
+	"github.com/josephbudd/cwt/domain/store/record"
+	"github.com/josephbudd/cwt/domain/store/storer"
 )
 
 // GetKeyCodes builds key codes for keying to the user.
@@ -15,19 +15,19 @@ import (
 // Returns a slice of key code words.
 // A keycode word is a slice of key code records.
 // Each word has a length of 5 key codes.
-func GetKeyCodes(keyCodeStorer storer.KeyCodeStorer) (keyCodeWords [][]*types.KeyCodeRecord, err error) {
+func GetKeyCodes(keyCodeStorer storer.KeyCodeStorer) (keyCodeWords [][]*record.KeyCode, err error) {
 	rmap, err := getKeyCodeRecordsMap(keyCodeStorer)
 	if err != nil {
 		err = errors.New("GetKeyCodes getKeyCodeRecordsMap(keyCodeStorer) error is " + err.Error())
 		return
 	}
 	// build the character/number list.
-	var records []*types.KeyCodeRecord
+	var records []*record.KeyCode
 	var ok bool
-	if records, ok = rmap[keyCodeTypes.KeyCodeTypeLetter]; !ok {
-		records = make([]*types.KeyCodeRecord, 0, 5)
+	if records, ok = rmap[data.KeyCodeTypeLetter]; !ok {
+		records = make([]*record.KeyCode, 0, 5)
 	}
-	if rr, ok := rmap[keyCodeTypes.KeyCodeTypeNumber]; ok {
+	if rr, ok := rmap[data.KeyCodeTypeNumber]; ok {
 		for _, r := range rr {
 			records = append(records, r)
 		}
@@ -38,8 +38,8 @@ func GetKeyCodes(keyCodeStorer storer.KeyCodeStorer) (keyCodeWords [][]*types.Ke
 
 // buildKeyCodeWords builds a slice of key code words.
 // A keycode word is a slice of key code records.
-func buildKeyCodeWords(rr []*types.KeyCodeRecord, wordSize, maxLines int) (keyCodeWords [][]*types.KeyCodeRecord) {
-	keyCodeWords = make([][]*types.KeyCodeRecord, 0, maxLines)
+func buildKeyCodeWords(rr []*record.KeyCode, wordSize, maxLines int) (keyCodeWords [][]*record.KeyCode) {
+	keyCodeWords = make([][]*record.KeyCode, 0, maxLines)
 	recordCount := len(rr)
 	if recordCount < wordSize {
 		wordSize = recordCount
@@ -51,9 +51,9 @@ func buildKeyCodeWords(rr []*types.KeyCodeRecord, wordSize, maxLines int) (keyCo
 	return
 }
 
-func shuffleKeyCodeRecords(records []*types.KeyCodeRecord) (shuffled []*types.KeyCodeRecord) {
+func shuffleKeyCodeRecords(records []*record.KeyCode) (shuffled []*record.KeyCode) {
 	count := len(records)
-	shuffled = make([]*types.KeyCodeRecord, count, count)
+	shuffled = make([]*record.KeyCode, count, count)
 	max := big.NewInt(int64(count))
 	for i := 0; i < count; i++ {
 		var bigJ *big.Int
@@ -70,18 +70,18 @@ func shuffleKeyCodeRecords(records []*types.KeyCodeRecord) (shuffled []*types.Ke
 	return
 }
 
-func getKeyCodeRecordsMap(keyCodeStorer storer.KeyCodeStorer) (map[uint64][]*types.KeyCodeRecord, error) {
-	rmap := make(map[uint64][]*types.KeyCodeRecord)
-	records, err := keyCodeStorer.GetKeyCodes()
+func getKeyCodeRecordsMap(keyCodeStorer storer.KeyCodeStorer) (map[uint64][]*record.KeyCode, error) {
+	rmap := make(map[uint64][]*record.KeyCode)
+	rr, err := keyCodeStorer.GetAll()
 	if err != nil {
 		return nil, err
 	}
-	for _, record := range records {
-		if record.Selected {
-			if _, ok := rmap[record.Type]; !ok {
-				rmap[record.Type] = make([]*types.KeyCodeRecord, 0, 50)
+	for _, r := range rr {
+		if r.Selected {
+			if _, ok := rmap[r.Type]; !ok {
+				rmap[r.Type] = make([]*record.KeyCode, 0, 50)
 			}
-			rmap[record.Type] = append(rmap[record.Type], record)
+			rmap[r.Type] = append(rmap[r.Type], r)
 		}
 	}
 	return rmap, nil

@@ -97,7 +97,7 @@ div.tab-bar > button.selected-tab
 
 ******************************************************************************/
 
-#tabsMasterView-home-slider-collection > .slider-panel > .slider-panel-inner
+#tabsMasterView-home-slider-collection > .slider-panel > .slider-panel-pad
 {
   color:white;
 }
@@ -363,5 +363,3 @@ button.pad-button-color-level-Key:hover
   background: white;
   color:black;
 }
-
-.

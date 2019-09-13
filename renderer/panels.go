@@ -1,22 +1,23 @@
 package main
 
 import (
-	"github.com/josephbudd/cwt/domain/interfaces/caller"
-	"github.com/josephbudd/cwt/domain/types"
-	"github.com/josephbudd/cwt/renderer/interfaces/panelHelper"
+	"github.com/pkg/errors"
+
+	"github.com/josephbudd/cwt/renderer/lpc"
 	"github.com/josephbudd/cwt/renderer/notjs"
-	"github.com/josephbudd/cwt/renderer/panels/CopyButton/CopyNotReadyPanel"
-	"github.com/josephbudd/cwt/renderer/panels/CopyButton/CopyReadyPanel/PracticeTab/CopyPracticePanel"
-	"github.com/josephbudd/cwt/renderer/panels/CopyButton/CopyReadyPanel/TestTab/CopyTestPanel"
-	"github.com/josephbudd/cwt/renderer/panels/CopyButton/CopyReadyPanel/WPMTab/CopyWPMPanel"
-	"github.com/josephbudd/cwt/renderer/panels/KeyButton/KeyNotReadyPanel"
-	"github.com/josephbudd/cwt/renderer/panels/KeyButton/KeyReadyPanel/PracticeTab/KeyPracticePanel"
-	"github.com/josephbudd/cwt/renderer/panels/KeyButton/KeyReadyPanel/TestTab/KeyTestPanel"
-	"github.com/josephbudd/cwt/renderer/panels/KeyButton/KeyReadyPanel/WPMTab/KeyWPMPanel"
-	"github.com/josephbudd/cwt/renderer/panels/ReferenceButton/SelectCodesPanel/LettersTab/LettersPanel"
-	"github.com/josephbudd/cwt/renderer/panels/ReferenceButton/SelectCodesPanel/NumbersTab/NumbersPanel"
-	"github.com/josephbudd/cwt/renderer/panels/ReferenceButton/SelectCodesPanel/PunctuationTab/PunctuationPanel"
-	"github.com/josephbudd/cwt/renderer/panels/ReferenceButton/SelectCodesPanel/SpecialTab/SpecialPanel"
+	"github.com/josephbudd/cwt/renderer/paneling"
+	copynotreadypanel "github.com/josephbudd/cwt/renderer/panels/CopyButton/CopyNotReadyPanel"
+	copypracticepanel "github.com/josephbudd/cwt/renderer/panels/CopyButton/CopyReadyPanel/CopyPracticeTab/CopyPracticePanel"
+	copytestpanel "github.com/josephbudd/cwt/renderer/panels/CopyButton/CopyReadyPanel/CopyTestTab/CopyTestPanel"
+	copywpmpanel "github.com/josephbudd/cwt/renderer/panels/CopyButton/CopyReadyPanel/CopyWPMTab/CopyWPMPanel"
+	keynotreadypanel "github.com/josephbudd/cwt/renderer/panels/KeyButton/KeyNotReadyPanel"
+	keypracticepanel "github.com/josephbudd/cwt/renderer/panels/KeyButton/KeyReadyPanel/KeyPracticeTab/KeyPracticePanel"
+	keytestpanel "github.com/josephbudd/cwt/renderer/panels/KeyButton/KeyReadyPanel/KeyTestTab/KeyTestPanel"
+	keywpmpanel "github.com/josephbudd/cwt/renderer/panels/KeyButton/KeyReadyPanel/KeyWPMTab/KeyWPMPanel"
+	letterspanel "github.com/josephbudd/cwt/renderer/panels/ReferenceButton/SelectCodesPanel/LettersTab/LettersPanel"
+	numberspanel "github.com/josephbudd/cwt/renderer/panels/ReferenceButton/SelectCodesPanel/NumbersTab/NumbersPanel"
+	punctuationpanel "github.com/josephbudd/cwt/renderer/panels/ReferenceButton/SelectCodesPanel/PunctuationTab/PunctuationPanel"
+	specialpanel "github.com/josephbudd/cwt/renderer/panels/ReferenceButton/SelectCodesPanel/SpecialTab/SpecialPanel"
 	"github.com/josephbudd/cwt/renderer/viewtools"
 )
 
@@ -28,61 +29,86 @@ import (
 
 */
 
-func doPanels(quitCh chan struct{}, tools *viewtools.Tools, callMap map[types.CallID]caller.Renderer, notJS *notjs.NotJS, helper panelHelper.Helper) (err error) {
-	// 1. Construct the panel code.
+func doPanels(quitChan, eojChan chan struct{}, receiveChan lpc.Receiving, sendChan lpc.Sending,
+	tools *viewtools.Tools, notJS *notjs.NotJS, help *paneling.Help) (err error) {
+	
+	defer func() {
+		if err != nil {
+			err = errors.WithMessage(err, "doPanels")
+			tools.ConsoleLog("Error: " + err.Error())
+		}
+	}()
+
+	// 1. Prepare the spawn panels.
+
+	// 2. Construct the panel code.
 	var copyNotReadyPanel *copynotreadypanel.Panel
-	if copyNotReadyPanel, err = copynotreadypanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	if copyNotReadyPanel, err = copynotreadypanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, tools, notJS, help); err != nil {
 		return
 	}
 	var copyPracticePanel *copypracticepanel.Panel
-	if copyPracticePanel, err = copypracticepanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	if copyPracticePanel, err = copypracticepanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, tools, notJS, help); err != nil {
 		return
 	}
 	var copyTestPanel *copytestpanel.Panel
-	if copyTestPanel, err = copytestpanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	if copyTestPanel, err = copytestpanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, tools, notJS, help); err != nil {
 		return
 	}
 	var copyWPMPanel *copywpmpanel.Panel
-	if copyWPMPanel, err = copywpmpanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	if copyWPMPanel, err = copywpmpanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, tools, notJS, help); err != nil {
 		return
 	}
 	var keyNotReadyPanel *keynotreadypanel.Panel
-	if keyNotReadyPanel, err = keynotreadypanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	if keyNotReadyPanel, err = keynotreadypanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, tools, notJS, help); err != nil {
 		return
 	}
 	var keyPracticePanel *keypracticepanel.Panel
-	if keyPracticePanel, err = keypracticepanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	if keyPracticePanel, err = keypracticepanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, tools, notJS, help); err != nil {
 		return
 	}
 	var keyTestPanel *keytestpanel.Panel
-	if keyTestPanel, err = keytestpanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	if keyTestPanel, err = keytestpanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, tools, notJS, help); err != nil {
 		return
 	}
 	var keyWPMPanel *keywpmpanel.Panel
-	if keyWPMPanel, err = keywpmpanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	if keyWPMPanel, err = keywpmpanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, tools, notJS, help); err != nil {
 		return
 	}
 	var lettersPanel *letterspanel.Panel
-	if lettersPanel, err = letterspanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	if lettersPanel, err = letterspanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, tools, notJS, help); err != nil {
 		return
 	}
 	var numbersPanel *numberspanel.Panel
-	if numbersPanel, err = numberspanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	if numbersPanel, err = numberspanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, tools, notJS, help); err != nil {
 		return
 	}
 	var punctuationPanel *punctuationpanel.Panel
-	if punctuationPanel, err = punctuationpanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	if punctuationPanel, err = punctuationpanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, tools, notJS, help); err != nil {
 		return
 	}
 	var specialPanel *specialpanel.Panel
-	if specialPanel, err = specialpanel.NewPanel(quitCh, tools, notJS, callMap, helper); err != nil {
+	if specialPanel, err = specialpanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, tools, notJS, help); err != nil {
 		return
 	}
 
-	// 2. Size the app.
+	// 3. Size the app.
 	tools.SizeApp()
 
-	// 3. Start each panel's initial calls.
+	// 4. Start each panel's message and event dispatchers.
+	copyNotReadyPanel.StartDispatchers()
+	copyPracticePanel.StartDispatchers()
+	copyTestPanel.StartDispatchers()
+	copyWPMPanel.StartDispatchers()
+	keyNotReadyPanel.StartDispatchers()
+	keyPracticePanel.StartDispatchers()
+	keyTestPanel.StartDispatchers()
+	keyWPMPanel.StartDispatchers()
+	lettersPanel.StartDispatchers()
+	numbersPanel.StartDispatchers()
+	punctuationPanel.StartDispatchers()
+	specialPanel.StartDispatchers()
+
+	// 5. Start each panel's initial calls.
 	copyNotReadyPanel.InitialCalls()
 	copyPracticePanel.InitialCalls()
 	copyTestPanel.InitialCalls()

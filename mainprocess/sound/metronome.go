@@ -10,14 +10,15 @@ import (
 
 // Metronome clicks an element beat.
 func Metronome(wpm uint64, quitCh chan struct{}, errCh chan error) {
+
 	var err error
 	defer func() {
 		if err != nil {
 			err = errors.WithMessage(err, "Metronome(wpm uint64, quitCh chan struct{}, errCh chan error)")
-			errCh <- err
-		} else {
-			errCh <- nil
 		}
+		// Always send err through the error channel even if its nil
+		//   so that the go routine handling the error will stop.
+		errCh <- err
 	}()
 
 	var device *alsa.PlaybackDevice

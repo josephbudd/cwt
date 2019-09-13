@@ -99,7 +99,7 @@ services:
           markup: <p>You haven't selected any codes that you want to copy yet.</p>
         - name: CopyReadyPanel
           tabs:
-            - name: WPMTab
+            - name: CopyWPMTab
               label: WPM
               panels:
                 - name: CopyWPMPanel
@@ -117,7 +117,7 @@ services:
                         <option value="35">35</options>
                       </select>
                     </p>
-            - name: PracticeTab
+            - name: CopyPracticeTab
               label: Practice
               panels:
                 - name: CopyPracticePanel
@@ -129,7 +129,7 @@ services:
                     </p>
                     <div id="copyPracticeCopy"></div>
                     <div id="copyPracticeText"></div>
-            - name: TestTab
+            - name: CopyTestTab
               label: Test
               panels:
                 - name: CopyTestPanel
@@ -153,7 +153,7 @@ services:
           markup: <p>You haven't selected any codes that you want to Key yet.</p>
         - name: KeyReadyPanel
           tabs:
-            - name: WPMTab
+            - name: KeyWPMTab
               label: WPM
               panels:
                 - name: KeyWPMPanel
@@ -171,7 +171,7 @@ services:
                         <option value="35">35</options>
                       </select>
                     </p>
-            - name: PracticeTab
+            - name: KeyPracticeTab
               label: Practice
               panels:
                 - name: KeyPracticePanel
@@ -184,7 +184,7 @@ services:
                     <div id="keyPracticeText"></div>
                     <div id="keyPracticeCopy"></div>
 
-            - name: TestTab
+            - name: KeyTestTab
               label: Test
               panels:
                 - name: KeyTestPanel

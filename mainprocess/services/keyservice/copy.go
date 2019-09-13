@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/josephbudd/cwt/domain/data/keycodes"
-	"github.com/josephbudd/cwt/domain/interfaces/storer"
-	"github.com/josephbudd/cwt/domain/types"
+	"github.com/josephbudd/cwt/domain/store/record"
+	"github.com/josephbudd/cwt/domain/store/storer"
 )
 
 // Copy converts what the user keyed to text and ditdahs.
@@ -17,15 +17,15 @@ import (
 // Params wpm is the words per minute that the user is attempting to key at.
 // Param wPMStorer is the wpm repository.Copy
 // Param keyCodeStorer is the keycode test results repository.
-func Copy(milliSeconds []int64, wpm uint64, keyCodeStorer storer.KeyCodeStorer) (solution [][]*types.KeyCodeRecord, err error) {
+func Copy(milliSeconds []int64, wpm uint64, keyCodeStorer storer.KeyCodeStorer) (solution [][]*record.KeyCode, err error) {
 	// the pause multiplier adjusts the pause times.
 	pauseMultiplier := 1.5
 	// the key multiplier adjusts the key times.
 	keyMultiplier := 1.5
 	// get data from the store.
-	keyCodeRecords, err := keyCodeStorer.GetKeyCodes()
-	if err != nil {
-		err = errors.New("Copy keyCodeStorer.GetKeyCodes() error is " + err.Error())
+	var keyCodeRecords []*record.KeyCode
+	if keyCodeRecords, err = keyCodeStorer.GetAll(); err != nil {
+		err = errors.New("Copy keyCodeStorer.GetAll() error is " + err.Error())
 		return
 	}
 	// 1. define the true milleseconds of a single element.
@@ -41,7 +41,7 @@ func Copy(milliSeconds []int64, wpm uint64, keyCodeStorer storer.KeyCodeStorer) 
 	betweenCharPauseMaxMS := int64(pauseMultiplier * float64(3*elementMS))
 	// wordPauseMaxMS := int64(pauseMultiplier * float64(7*elementMS))
 	// process stack ( pauseTime, keydownTime, ...)
-	solution = make([][]*types.KeyCodeRecord, 0, 100)
+	solution = make([][]*record.KeyCode, 0, 100)
 	ditdahCharStack := make([]string, 0, 5)
 	ditdahs := make([]string, 0, 5)
 	for i, ms := range milliSeconds {
@@ -99,9 +99,9 @@ func Copy(milliSeconds []int64, wpm uint64, keyCodeStorer storer.KeyCodeStorer) 
 	return
 }
 
-func ditdahCharStackToText(ditdahChars []string, records []*types.KeyCodeRecord) (text []*types.KeyCodeRecord) {
+func ditdahCharStackToText(ditdahChars []string, records []*record.KeyCode) (text []*record.KeyCode) {
 	l := len(ditdahChars)
-	text = make([]*types.KeyCodeRecord, l, l)
+	text = make([]*record.KeyCode, l, l)
 	for i, d := range ditdahChars {
 		r := ditDahToRecord(d, records)
 		text[i] = r
@@ -109,7 +109,7 @@ func ditdahCharStackToText(ditdahChars []string, records []*types.KeyCodeRecord)
 	return
 }
 
-func ditDahToRecord(ditdah string, records []*types.KeyCodeRecord) (record *types.KeyCodeRecord) {
+func ditDahToRecord(ditdah string, records []*record.KeyCode) (record *record.KeyCode) {
 	for _, record = range records {
 		if ditdah == record.DitDah {
 			return

@@ -17,27 +17,12 @@ func (notjs *NotJS) SetOnChange(element js.Value, cb js.Func) {
 	element.Set("onchange", cb)
 }
 
+// SetOnCheck sets an element's oncheck.
+func (notjs *NotJS) SetOnCheck(element js.Value, cb js.Func) {
+	element.Set("oncheck", cb)
+}
+
 // SetOnScroll sets an element's onscroll.
 func (notjs *NotJS) SetOnScroll(element js.Value, cb js.Func) {
 	element.Set("onscroll", cb)
-}
-
-// SetOnMouseEnter sets an element's onmouseenter.
-func (notjs *NotJS) SetOnMouseEnter(element js.Value, cb js.Func) {
-	element.Set("onmouseenter", cb)
-}
-
-// SetOnMouseLeave sets an element's onmouseleave.
-func (notjs *NotJS) SetOnMouseLeave(element js.Value, cb js.Func) {
-	element.Set("onmouseleave", cb)
-}
-
-// SetOnMouseDown sets an element's onmousedown.
-func (notjs *NotJS) SetOnMouseDown(element js.Value, cb js.Func) {
-	element.Set("onmousedown", cb)
-}
-
-// SetOnMouseUp sets an element's onmouseup.
-func (notjs *NotJS) SetOnMouseUp(element js.Value, cb js.Func) {
-	element.Set("onmouseup", cb)
 }

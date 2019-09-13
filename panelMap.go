@@ -22,11 +22,11 @@ import (
 
 const (
 	mainTemplate = "main.tmpl"
-	headTemplate = "head.tmpl"
+	headTemplate = "Head.tmpl"
 )
 
 // serviceEmptyInsidePanelNamePathMap maps each markup panel template name to it's file path.
-var serviceEmptyInsidePanelNamePathMap = map[string]map[string][]string{"Copy": map[string][]string{"CopyNotReadyPanel": []string{"CopyButton"}, "CopyPracticePanel": []string{"CopyButton", "CopyReadyPanel", "PracticeTab"}, "CopyTestPanel": []string{"CopyButton", "CopyReadyPanel", "TestTab"}, "CopyWPMPanel": []string{"CopyButton", "CopyReadyPanel", "WPMTab"}}, "Key": map[string][]string{"KeyNotReadyPanel": []string{"KeyButton"}, "KeyPracticePanel": []string{"KeyButton", "KeyReadyPanel", "PracticeTab"}, "KeyTestPanel": []string{"KeyButton", "KeyReadyPanel", "TestTab"}, "KeyWPMPanel": []string{"KeyButton", "KeyReadyPanel", "WPMTab"}}, "Reference": map[string][]string{"LettersPanel": []string{"ReferenceButton", "SelectCodesPanel", "LettersTab"}, "NumbersPanel": []string{"ReferenceButton", "SelectCodesPanel", "NumbersTab"}, "PunctuationPanel": []string{"ReferenceButton", "SelectCodesPanel", "PunctuationTab"}, "SpecialPanel": []string{"ReferenceButton", "SelectCodesPanel", "SpecialTab"}}}
+var serviceEmptyInsidePanelNamePathMap = map[string]map[string][]string{"Copy": map[string][]string{"CopyNotReadyPanel": []string{"CopyButton"}, "CopyPracticePanel": []string{"CopyButton", "CopyReadyPanel", "CopyPracticeTab"}, "CopyTestPanel": []string{"CopyButton", "CopyReadyPanel", "CopyTestTab"}, "CopyWPMPanel": []string{"CopyButton", "CopyReadyPanel", "CopyWPMTab"}}, "Key": map[string][]string{"KeyNotReadyPanel": []string{"KeyButton"}, "KeyPracticePanel": []string{"KeyButton", "KeyReadyPanel", "KeyPracticeTab"}, "KeyTestPanel": []string{"KeyButton", "KeyReadyPanel", "KeyTestTab"}, "KeyWPMPanel": []string{"KeyButton", "KeyReadyPanel", "KeyWPMTab"}}, "Reference": map[string][]string{"LettersPanel": []string{"ReferenceButton", "SelectCodesPanel", "LettersTab"}, "NumbersPanel": []string{"ReferenceButton", "SelectCodesPanel", "NumbersTab"}, "PunctuationPanel": []string{"ReferenceButton", "SelectCodesPanel", "PunctuationTab"}, "SpecialPanel": []string{"ReferenceButton", "SelectCodesPanel", "SpecialTab"}}}
 
 // serveMainHTML only serves up main.tmpl with all of the templates for your markup panels.
 func serveMainHTML(w http.ResponseWriter) {
@@ -61,7 +61,7 @@ func serveMainHTML(w http.ResponseWriter) {
 		// add a head.tmpl template
 		// it's ok if the template is not there
 		// but if it's there use it.
-		bb = []byte(fmt.Sprintf("%[1]s%[1]s define %[3]q %[2]s%[2]s<!-- You do not have a %[3]s file to import your css files. Feel free to add one in the render/template folder. -->%[1]s%[1]s end %[2]s%[2]s", "{", "}", headTemplate))
+		bb = []byte(fmt.Sprintf("%[1]s%[1]s define %[3]q %[2]s%[2]s<!-- You do not have a %[3]s file to import any files you added in the site/ folder. Feel free to add a %[3]s file in the site/template folder. -->%[1]s%[1]s end %[2]s%[2]s", "{", "}", headTemplate))
 	}
 	tmpl = masterT.New(headTemplate)
 	l += len(bb)

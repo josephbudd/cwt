@@ -18,13 +18,16 @@ func (tools *Tools) ForceTabButtonClick(button js.Value) {
 }
 
 func (tools *Tools) initializeTabBar() {
-	notJS := tools.notJS
+	notJS := tools.NotJS
 	tools.tabberLastPanelID = ""
-	tools.tabberLastPanelLevels = make(map[string]string)
+	tools.tabberTabBarLastPanel = make(map[string]string, 20)
 
-	tools.tabberLastPanelLevels["tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar"] = "tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar-WPMTabPanel"
-	tools.tabberLastPanelLevels["tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar"] = "tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar-WPMTabPanel"
-	tools.tabberLastPanelLevels["tabsMasterView_home_pad_ReferenceButton_SelectCodesPanel_tab_bar"] = "tabsMasterView_home_pad_ReferenceButton_SelectCodesPanel_tab_bar-LettersTabPanel"
+	// the level is the tab bar id.
+	tools.tabberTabBarLastPanel["tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar"] = "tabsMasterView_home_pad_CopyButton_CopyReadyPanel_tab_bar-CopyWPMTabPanel"
+	// the level is the tab bar id.
+	tools.tabberTabBarLastPanel["tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar"] = "tabsMasterView_home_pad_KeyButton_KeyReadyPanel_tab_bar-KeyWPMTabPanel"
+	// the level is the tab bar id.
+	tools.tabberTabBarLastPanel["tabsMasterView_home_pad_ReferenceButton_SelectCodesPanel_tab_bar"] = "tabsMasterView_home_pad_ReferenceButton_SelectCodesPanel_tab_bar-LettersTabPanel"
 	cb := tools.RegisterEventCallBack(
 		func(event js.Value) interface{} {
 			target := notJS.GetEventTarget(event)
@@ -33,14 +36,16 @@ func (tools *Tools) initializeTabBar() {
 		},
 		true, true, true,
 	)
-	for id := range tools.tabberLastPanelLevels {
-		tabbar := notJS.GetElementByID(id)
-		tools.setTabBarOnClicks(tabbar, cb)
+	for id := range tools.tabberTabBarLastPanel {
+		if len(id) > 0 {
+			tabbar := notJS.GetElementByID(id)
+			tools.setTabBarOnClicks(tabbar, cb)
+		}
 	}
 }
 
 func (tools *Tools) setTabBarOnClicks(tabbar js.Value, cb js.Func) {
-	notJS := tools.notJS
+	notJS := tools.NotJS
 	children := notJS.ChildrenSlice(tabbar)
 	for _, ch := range children {
 		if notJS.TagName(ch) == "BUTTON" {
@@ -54,24 +59,24 @@ func (tools *Tools) handleTabButtonOnClick(button js.Value) {
 		return
 	}
 	tools.setTabButtonFocus(button)
-	nextpanelid := tools.notJS.ID(button) + "Panel"
+	nextpanelid := tools.NotJS.ID(button) + "Panel"
 	if nextpanelid != tools.tabberLastPanelID {
 		// clear this level
 		parts := strings.Split(nextpanelid, "-")
 		nextpanellevel := parts[0]
-		tools.IDHide(tools.tabberLastPanelLevels[nextpanellevel])
+		tools.IDHide(tools.tabberTabBarLastPanel[nextpanellevel])
 		// show the next panel
 		tools.IDShow(nextpanelid)
 		// remember next panel. it is now the last panel.
 		tools.tabberLastPanelID = nextpanelid
-		tools.tabberLastPanelLevels[nextpanellevel] = nextpanelid
+		tools.tabberTabBarLastPanel[nextpanellevel] = nextpanelid
 	}
 	tools.SizeApp()
 }
 
 func (tools *Tools) setTabButtonFocus(tabinfocus js.Value) {
 	// focus the tab now in focus
-	notJS := tools.notJS
+	notJS := tools.NotJS
 	notJS.ClassListReplaceClass(tabinfocus, UnSelectedTabClassName, SelectedTabClassName)
 	p := notJS.ParentNode(tabinfocus)
 	children := notJS.ChildrenSlice(p)

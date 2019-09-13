@@ -8,23 +8,28 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/josephbudd/cwt/domain/data/filepaths"
-	"github.com/josephbudd/cwt/domain/types"
 	"github.com/josephbudd/cwtsitepack"
 )
 
+// ApplicationSettings are the settings for this application.
+type ApplicationSettings struct {
+	Host string `yaml:"host"`
+	Port uint64 `yaml:"port"`
+}
+
 // NewApplicationSettings makes a new ApplicationSettings.
-func NewApplicationSettings() (settings *types.ApplicationSettings, err error) {
+// Returns a pointer to the ApplicationSettings and the error.
+func NewApplicationSettings() (settings *ApplicationSettings, err error) {
 	var fpath string
 	var contents []byte
 	var found bool
 	fpath = filepaths.GetShortSettingsPath()
 	if contents, found = cwtsitepack.Contents(fpath); !found {
-		err = errors.New(fmt.Sprintf("can't find %q", fpath))
+		emsg := fmt.Sprintf("can't find %q", fpath)
+		err = errors.New(emsg)
 		return
 	}
-	settings = &types.ApplicationSettings{}
-	if err = yaml.Unmarshal(contents, settings); err != nil {
-		return
-	}
+	settings = &ApplicationSettings{}
+	err = yaml.Unmarshal(contents, settings)
 	return
 }
