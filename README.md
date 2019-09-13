@@ -234,4 +234,6 @@ This application has an MIT License. You are free to take this source code and u
 
 ## The cwt video
 
+This video is of an earlier version of cwt. I still have to make the new video for this current version of cwt.
+
 [![Learning Morse Code with CWT.](https://i.vimeocdn.com/video/772644525.jpg)](https://vimeo.com/328175343)
