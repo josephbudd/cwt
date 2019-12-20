@@ -2,199 +2,186 @@ title: Linux CW Trainer
 
 importPath: github.com/josephbudd/cwt
 
-stores:
-  - WPM
-  - KeyCode
-
-services:
-  - name: Reference
-    button:
-      name: ReferenceButton
-      label: Selections
-      heading: Select the codes that you want to both copy and key.
+buttons:
+- name: ReferenceButton
+  label: Selections
+  heading: Select the codes that you want to both copy and key.
+  panels:
+  - name: SelectCodesPanel
+    tabs:
+    - name: LettersTab
+      label: Letters
       panels:
-        - name: SelectCodesPanel
-          tabs:
-            - name: LettersTab
-              label: Letters
-              panels:
-                - name: LettersPanel
-                  note: |
-                    This panel is displayed when the "Letters" tab button is clicked.
-                    This panel is the only panel in it's panel group.
-                  markup: |
-                    <table class="keycode-table">
-                        <tbody id="lettersTableBody">
-                            <tr>
-                                <th>Name</th>
-                                <th>Code</th>
-                                <th>Keying % Correct</th>
-                                <th>Copying % Correct</th>
-                            </tr>
-                        </tbody>
-                    </table>
-            - name: NumbersTab
-              label: Numbers
-              panels:
-                - name: NumbersPanel
-                  note: |
-                    This panel is displayed when the "Numbers" tab button is clicked.
-                    This panel is the only panel in it's panel group.
-                  markup: |
-                    <table class="keycode-table">
-                        <tbody id="numbersTableBody">
-                            <tr>
-                                <th>Name</th>
-                                <th>Code</th>
-                                <th>Keying % Correct</th>
-                                <th>Copying % Correct</th>
-                            </tr>
-                        </tbody>
-                    </table>
-            - name: PunctuationTab
-              label: Punctuation
-              panels:
-                - name: PunctuationPanel
-                  note: |
-                    This panel is displayed when the "Punctuation" tab button is clicked.
-                    This panel is the only panel in it's panel group.
-                  markup: |
-                    <table class="keycode-table">
-                        <tbody id="punctuationsTableBody">
-                            <tr>
-                                <th>Name</th>
-                                <th>Code</th>
-                                <th>Keying % Correct</th>
-                                <th>Copying % Correct</th>
-                            </tr>
-                        </tbody>
-                    </table>
-            - name: SpecialTab
-              label: Special
-              panels:
-                - name: SpecialPanel
-                  note: |
-                    This panel is displayed when the "Special" tab button is clicked.
-                    This panel is the only panel in it's panel group.
-                  markup: |
-                    <table class="keycode-table">
-                        <tbody id="specialsTableBody">
-                            <tr>
-                                <th>Name</th>
-                                <th>Code</th>
-                                <th>Keying % Correct</th>
-                                <th>Copying % Correct</th>
-                            </tr>
-                        </tbody>
-                    </table>
-  - name: Copy
-    button:
-      name: CopyButton
-      label: Copy
+      - name: LettersPanel
+        note: |
+          This panel is displayed when the "Letters" tab button is clicked.
+          This panel is the only panel in it's panel group.
+        markup: |
+          <table class="keycode-table">
+              <tbody id="lettersTableBody">
+                  <tr>
+                      <th>Name</th>
+                      <th>Code</th>
+                      <th>Keying % Correct</th>
+                      <th>Copying % Correct</th>
+                  </tr>
+              </tbody>
+          </table>
+    - name: NumbersTab
+      label: Numbers
       panels:
-        - name: CopyNotReadyPanel
-          note: |
-            Shown when no codes are selected in references.
-            Display a message telling the user that no codes are selected.
-          markup: <p>You haven't selected any codes that you want to copy yet.</p>
-        - name: CopyReadyPanel
-          tabs:
-            - name: CopyWPMTab
-              label: WPM
-              panels:
-                - name: CopyWPMPanel
-                  note: Let the user select the words per miniute for copying.
-                  markup: |
-                    <p>
-                      <label for="copyWPM">WPM</label>
-                      <select id="copyWPM">
-                        <option value="5">5</options>
-                        <option value="10">10</options>
-                        <option value="15">15</options>
-                        <option value="20">20</options>
-                        <option value="25">25</options>
-                        <option value="30">30</options>
-                        <option value="35">35</options>
-                      </select>
-                    </p>
-            - name: CopyPracticeTab
-              label: Practice
-              panels:
-                - name: CopyPracticePanel
-                  note: A page to let the user copy without recording the results to the repo.
-                  markup: |
-                    <p>
-                        <button id="copyPracticeStart">Start</button>
-                        <button id="copyPracticeStop" class="unseen">Stop</button>
-                    </p>
-                    <div id="copyPracticeCopy"></div>
-                    <div id="copyPracticeText"></div>
-            - name: CopyTestTab
-              label: Test
-              panels:
-                - name: CopyTestPanel
-                  note: A page to let the user copy and record the results to the repo.
-                  markup: |
-                    <p>
-                        <button id="copyTestStart">Start</button>
-                        <button id="copyTestStop" class="unseen">Stop</button>
-                    </p>
-                    <div id="copyTestCopy"></div>
-                    <div id="copyTestText"></div>
-  - name: Key
-    button:
-      name: KeyButton
-      label: Key
+      - name: NumbersPanel
+        note: |
+          This panel is displayed when the "Numbers" tab button is clicked.
+          This panel is the only panel in it's panel group.
+        markup: |
+          <table class="keycode-table">
+              <tbody id="numbersTableBody">
+                  <tr>
+                      <th>Name</th>
+                      <th>Code</th>
+                      <th>Keying % Correct</th>
+                      <th>Copying % Correct</th>
+                  </tr>
+              </tbody>
+          </table>
+    - name: PunctuationTab
+      label: Punctuation
       panels:
-        - name: KeyNotReadyPanel
-          note: |
-            Shown when no codes are selected in references.
-            Display a message telling the user that no codes are selected.
-          markup: <p>You haven't selected any codes that you want to Key yet.</p>
-        - name: KeyReadyPanel
-          tabs:
-            - name: KeyWPMTab
-              label: WPM
-              panels:
-                - name: KeyWPMPanel
-                  note: Let the user select the words per miniute for Keying.
-                  markup: |
-                    <p>
-                      <label for="keyWPM">WPM</label>
-                      <select id="keyWPM">
-                        <option value="5">5</options>
-                        <option value="10">10</options>
-                        <option value="15">15</options>
-                        <option value="20">20</options>
-                        <option value="25">25</options>
-                        <option value="30">30</options>
-                        <option value="35">35</options>
-                      </select>
-                    </p>
-            - name: KeyPracticeTab
-              label: Practice
-              panels:
-                - name: KeyPracticePanel
-                  note: A page to let the user Key without recording the results to the repo.
-                  markup: |
-                    <p>
-                        <button id="keyPracticeStart">Start</button>
-                        <button id="keyPracticeStop" class="unseen">Stop</button>
-                    </p>
-                    <div id="keyPracticeText"></div>
-                    <div id="keyPracticeCopy"></div>
-
-            - name: KeyTestTab
-              label: Test
-              panels:
-                - name: KeyTestPanel
-                  note: A page to let the user Key and record the results to the repo.
-                  markup: |
-                    <p>
-                        <button id="keyTestStart">Start</button>
-                        <button id="keyTestStop" class="unseen">Stop</button>
-                    </p>
-                    <div id="keyTestText"></div>
-                    <div id="keyTestCopy"></div>
-
-
+      - name: PunctuationPanel
+        note: |
+          This panel is displayed when the "Punctuation" tab button is clicked.
+          This panel is the only panel in it's panel group.
+        markup: |
+          <table class="keycode-table">
+              <tbody id="punctuationsTableBody">
+                  <tr>
+                      <th>Name</th>
+                      <th>Code</th>
+                      <th>Keying % Correct</th>
+                      <th>Copying % Correct</th>
+                  </tr>
+              </tbody>
+          </table>
+    - name: SpecialTab
+      label: Special
+      panels:
+      - name: SpecialPanel
+        note: |
+          This panel is displayed when the "Special" tab button is clicked.
+          This panel is the only panel in it's panel group.
+        markup: |
+          <table class="keycode-table">
+              <tbody id="specialsTableBody">
+                  <tr>
+                      <th>Name</th>
+                      <th>Code</th>
+                      <th>Keying % Correct</th>
+                      <th>Copying % Correct</th>
+                  </tr>
+              </tbody>
+          </table>
+- name: CopyButton
+  label: Copy
+  panels:
+  - name: CopyNotReadyPanel
+    note: |
+      Shown when no codes are selected in references.
+      Display a message telling the user that no codes are selected.
+    markup: <p>You haven't selected any codes that you want to copy yet.</p>
+  - name: CopyReadyPanel
+    tabs:
+    - name: CopyWPMTab
+      label: WPM
+      panels:
+      - name: CopyWPMPanel
+        note: Let the user select the words per miniute for copying.
+        markup: |
+          <p>
+            <label for="copyWPM">WPM</label>
+            <select id="copyWPM">
+              <option value="5">5</options>
+              <option value="10">10</options>
+              <option value="15">15</options>
+              <option value="20">20</options>
+              <option value="25">25</options>
+              <option value="30">30</options>
+              <option value="35">35</options>
+            </select>
+          </p>
+    - name: CopyPracticeTab
+      label: Practice
+      panels:
+      - name: CopyPracticePanel
+        note: A page to let the user copy without recording the results to the repo.
+        markup: |
+          <p>
+              <button id="copyPracticeStart">Start</button>
+              <button id="copyPracticeStop" class="unseen">Stop</button>
+          </p>
+          <div id="copyPracticeCopy"></div>
+          <div id="copyPracticeText"></div>
+    - name: CopyTestTab
+      label: Test
+      panels:
+      - name: CopyTestPanel
+        note: A page to let the user copy and record the results to the repo.
+        markup: |
+          <p>
+              <button id="copyTestStart">Start</button>
+              <button id="copyTestStop" class="unseen">Stop</button>
+          </p>
+          <div id="copyTestCopy"></div>
+          <div id="copyTestText"></div>
+- name: KeyButton
+  label: Key
+  panels:
+  - name: KeyNotReadyPanel
+    note: |
+      Shown when no codes are selected in references.
+      Display a message telling the user that no codes are selected.
+    markup: <p>You haven't selected any codes that you want to Key yet.</p>
+  - name: KeyReadyPanel
+    tabs:
+    - name: KeyWPMTab
+      label: WPM
+      panels:
+      - name: KeyWPMPanel
+        note: Let the user select the words per miniute for Keying.
+        markup: |
+          <p>
+            <label for="keyWPM">WPM</label>
+            <select id="keyWPM">
+              <option value="5">5</options>
+              <option value="10">10</options>
+              <option value="15">15</options>
+              <option value="20">20</options>
+              <option value="25">25</options>
+              <option value="30">30</options>
+              <option value="35">35</options>
+            </select>
+          </p>
+    - name: KeyPracticeTab
+      label: Practice
+      panels:
+      - name: KeyPracticePanel
+        note: A page to let the user Key without recording the results to the repo.
+        markup: |
+          <p>
+              <button id="keyPracticeStart">Start</button>
+              <button id="keyPracticeStop" class="unseen">Stop</button>
+          </p>
+          <div id="keyPracticeText"></div>
+          <div id="keyPracticeCopy"></div>
+    - name: KeyTestTab
+      label: Test
+      panels:
+      - name: KeyTestPanel
+        note: A page to let the user Key and record the results to the repo.
+        markup: |
+          <p>
+              <button id="keyTestStart">Start</button>
+              <button id="keyTestStop" class="unseen">Stop</button>
+          </p>
+          <div id="keyTestText"></div>
+          <div id="keyTestCopy"></div>

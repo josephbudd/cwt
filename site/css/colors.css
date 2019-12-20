@@ -31,18 +31,6 @@ body {
   border-color:rgb(88, 65, 1);
 }
 
-#closerMasterView
-{
-  background: hsla(44, 100%, 19%, 0.8);
-  border-color:black;
-}
-
-#closerMasterView-center
-{
-  background-color:hsla(44, 100%, 40%, 0.8);
-  border-color:rgb(88, 65, 1);
-}
-
 /******************************************************************************
 
     panels
@@ -86,7 +74,7 @@ div.tab-bar > button.selected-tab
 
 ******************************************************************************/
 
-#tabsMasterView-home-pad
+#mainMasterView-home-pad
 {
   border-color:black;
 }
@@ -97,7 +85,7 @@ div.tab-bar > button.selected-tab
 
 ******************************************************************************/
 
-#tabsMasterView-home-slider-collection > .slider-panel > .slider-panel-pad
+#mainMasterView-home-slider-collection > .slider-panel > .slider-panel-pad
 {
   color:white;
 }
@@ -110,7 +98,7 @@ div.tab-bar > button.selected-tab
 
 /* color level 0 if for the home button pad */
 
-#tabsMasterView > h1.heading-of-panel
+#mainMasterView > h1.heading-of-panel
 {
   color: black;
 }
@@ -134,45 +122,45 @@ div.pad-color-level-0
 
 
 
-/* color level Reference */
+/* color level ReferenceButton */
 
-#tabsMasterView-home-slider-collection > .slider-panel > div.heading-of-panel > h2.cookie-crumb-level-Reference
+#mainMasterView-home-slider-collection > .slider-panel > div.heading-of-panel > h2.cookie-crumb-level-ReferenceButton
 {
   background-color:hsl(50, 23%, 27%);
   color:white;
   padding:5px;
 }
 
-#tabsMasterView-home-slider-collection > .slider-panel > h2.heading-of-panel-level-Reference
+#mainMasterView-home-slider-collection > .slider-panel > h2.heading-of-panel-level-ReferenceButton
 {
   color: hsl(50, 23%, 27%);
 }
 
-button.back-color-level-Reference
+button.back-color-level-ReferenceButton
 {
   background-color:hsl(50, 23%, 27%);
   color:hsl(40, 37%, 57%);
   border-color:white;
 }
-button.back-color-level-Reference:hover
+button.back-color-level-ReferenceButton:hover
 {
   color:white;
   border-color:hsl(40, 37%, 57%);
 }
 
-div.pad-color-level-Reference
+div.pad-color-level-ReferenceButton
 {
   background-color: hsl(50, 23%, 27%);
 }
 
-button.pad-button-color-level-Reference
+button.pad-button-color-level-ReferenceButton
 {
   background-color: hsl(40, 37%, 57%);
   color:black;
   border-color:black;
 }
 
-button.pad-button-color-level-Reference:hover
+button.pad-button-color-level-ReferenceButton:hover
 {
   background-color: hsl(40, 37%, 37%);
   color:white;
@@ -180,45 +168,45 @@ button.pad-button-color-level-Reference:hover
 }
 
 
-/* color level Copy */
+/* color level CopyButton */
 
-#tabsMasterView-home-slider-collection > .slider-panel > h2.heading-of-panel-level-Copy
+#mainMasterView-home-slider-collection > .slider-panel > h2.heading-of-panel-level-CopyButton
 {
   color: hsl(70, 23%, 27%);
 }
 
-#tabsMasterView-home-slider-collection > .slider-panel > div.heading-of-panel > h2.cookie-crumb-level-Copy
+#mainMasterView-home-slider-collection > .slider-panel > div.heading-of-panel > h2.cookie-crumb-level-CopyButton
 {
   background-color: hsl(70, 23%, 27%);
   color:white;
   padding:5px;
 }
 
-button.back-color-level-Copy
+button.back-color-level-CopyButton
 {
   background-color:hsl(70, 23%, 27%);
   color:hsl(60, 37%, 57%);
   border-color:white;
 }
-button.back-color-level-Copy:hover
+button.back-color-level-CopyButton:hover
 {
   color:white;
   border-color:hsl(60, 37%, 57%);
 }
 
-div.pad-color-level-Copy
+div.pad-color-level-CopyButton
 {
   background-color: hsl(70, 23%, 27%);
 }
 
-button.pad-button-color-level-Copy
+button.pad-button-color-level-CopyButton
 {
   background-color: hsl(60, 37%, 57%);
   color:black;
   border-color:black;
 }
 
-button.pad-button-color-level-Copy:hover
+button.pad-button-color-level-CopyButton:hover
 {
   background-color: hsl(60, 37%, 37%);
   color:white;
@@ -227,45 +215,45 @@ button.pad-button-color-level-Copy:hover
 
 
 
-/* color level Key */
+/* color level KeyButton */
 
-#tabsMasterView-home-slider-collection > .slider-panel > h2.heading-of-panel-level-Key
+#mainMasterView-home-slider-collection > .slider-panel > h2.heading-of-panel-level-KeyButton
 {
   color: hsl(150, 23%, 27%);
 }
 
-#tabsMasterView-home-slider-collection > .slider-panel > div.heading-of-panel > h2.cookie-crumb-level-Key
+#mainMasterView-home-slider-collection > .slider-panel > div.heading-of-panel > h2.cookie-crumb-level-KeyButton
 {
   background-color: hsl(150, 23%, 27%);
   color:white;
   padding:5px;
 }
 
-button.back-color-level-Key
+button.back-color-level-KeyButton
 {
   background-color:hsl(150, 23%, 27%);
   color:hsl(140, 37%, 57%);
   border-color:white;
 }
-button.back-color-level-Key:hover
+button.back-color-level-KeyButton:hover
 {
   color:white;
   border-color:hsl(140, 37%, 57%);
 }
 
-div.pad-color-level-Key
+div.pad-color-level-KeyButton
 {
   background-color: hsl(150, 23%, 27%);
 }
 
-button.pad-button-color-level-Key
+button.pad-button-color-level-KeyButton
 {
   background-color: hsl(140, 37%, 57%);
   color:black;
   border-color:black;
 }
 
-button.pad-button-color-level-Key:hover
+button.pad-button-color-level-KeyButton:hover
 {
   background-color: hsl(140, 37%, 37%);
   color:white;
@@ -329,36 +317,6 @@ button.pad-button-color-level-Key:hover
 .modal-user-content,
 .modal-user-content th,
 .modal-user-content td
-{
-  background: white;
-  color:black;
-}
-
-/******************************************************************************
-
-  closer user content
-
-******************************************************************************/
-
-.closer-user-content a {color:black;}
-.closer-user-content a:hover{color:black;}
-.closer-user-content a:visited{color:black;}
-
-.closer-user-content button
-{
-  border-color:black;
-  color:black;
-  background: white;
-}
-.closer-user-content button:hover
-{
-  background: white;
-  color:black;
-}
-
-.closer-user-content,
-.closer-user-content th,
-.closer-user-content td
 {
   background: white;
   color:black;

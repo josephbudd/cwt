@@ -1,6 +1,7 @@
 package sound
 
 import (
+	"context"
 	"math"
 	"time"
 
@@ -9,7 +10,7 @@ import (
 )
 
 // Metronome clicks an element beat.
-func Metronome(wpm uint64, quitCh chan struct{}, errCh chan error) {
+func Metronome(ctx context.Context, wpm uint64, errCh chan error) {
 
 	var err error
 	defer func() {
@@ -33,10 +34,10 @@ func Metronome(wpm uint64, quitCh chan struct{}, errCh chan error) {
 		return
 	}
 	defer device.Close()
-	err = metronome(device, wpm, quitCh)
+	err = metronome(ctx, device, wpm)
 }
 
-func metronome(device *alsa.PlaybackDevice, wpm uint64, quitCh chan struct{}) (err error) {
+func metronome(ctx context.Context, device *alsa.PlaybackDevice, wpm uint64) (err error) {
 	// word == "paris" == 50 elements.
 	nElementsPerMinute := 50.0 * float64(wpm)
 	nElementsPerSecond := math.Floor(nElementsPerMinute / 60.0)
@@ -54,7 +55,7 @@ func metronome(device *alsa.PlaybackDevice, wpm uint64, quitCh chan struct{}) (e
 		select {
 		case <-timer.C:
 			timer = time.NewTimer(duration)
-		case <-quitCh:
+		case <-ctx.Done():
 			return
 		}
 	}

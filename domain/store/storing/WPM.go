@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/boltdb/bolt"
-	"github.com/pkg/errors"
 
 	"github.com/josephbudd/cwt/domain/store/record"
 )
@@ -42,12 +41,12 @@ func (store *WPMLocalBoltStore) Open() (err error) {
 
 	defer func() {
 		if err != nil {
-			err = errors.WithMessage(err, "WPMLocalBoltStore.Open")
+			err = fmt.Errorf("WPMLocalBoltStore.Open: %w", err)
 		}
 	}()
 
 	if store.DB, err = bolt.Open(store.path, store.perms, nil); err != nil {
-		err = errors.WithMessage(err, "bolt.Open(path, filepaths.GetFmode(), nil)")
+		err = fmt.Errorf("bolt.Open(path, filepaths.GetFmode(), nil): %w", err)
 	}
 	return
 }
@@ -58,7 +57,7 @@ func (store *WPMLocalBoltStore) Close() (err error) {
 
 	defer func() {
 		if err != nil {
-			err = errors.WithMessage(err, "WPMLocalBoltStore.Close")
+			err = fmt.Errorf("WPMLocalBoltStore.Close: %w", err)
 		}
 	}()
 

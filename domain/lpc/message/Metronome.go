@@ -11,6 +11,7 @@ type MetronomeRendererToMainProcess struct {
 type MetronomeMainProcessToRenderer struct {
 	Error        bool
 	ErrorMessage string
+	Fatal        bool
 
 	Run   bool
 	State uint64

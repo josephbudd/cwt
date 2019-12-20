@@ -11,6 +11,7 @@ type GetTextToCopyRendererToMainProcess struct {
 type GetTextToCopyMainProcessToRenderer struct {
 	Error        bool
 	ErrorMessage string
+	Fatal        bool
 
 	Solution [][]*record.KeyCode
 	WPM      uint64

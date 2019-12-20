@@ -10,6 +10,7 @@ type GetCopyWPMRendererToMainProcess struct {
 type GetCopyWPMMainProcessToRenderer struct {
 	Error        bool
 	ErrorMessage string
+	Fatal        bool
 
 	Record *record.WPM
 }

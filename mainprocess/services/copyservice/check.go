@@ -12,8 +12,9 @@ import (
 )
 
 // Check checks the user's copy agains the solutionChars and returns results.
-func Check(copy [][]*record.KeyCode, solution [][]*record.KeyCode, keyCodeStorer storer.KeyCodeStorer, wpm uint64, recordResults bool) (nCorrect, nIncorrect, nKeyed uint64, testResults [][]data.TestResult, err error) {
+func Check(copy [][]*record.KeyCode, solution [][]*record.KeyCode, keyCodeStorer storer.KeyCodeStorer, wpm uint64, recordResults bool) (nCorrect, nIncorrect, nPossible uint64, testResults [][]data.TestResult, err error) {
 
+	var total int
 	defer func() {
 		if err != nil {
 			return
@@ -21,7 +22,44 @@ func Check(copy [][]*record.KeyCode, solution [][]*record.KeyCode, keyCodeStorer
 		if recordResults {
 			err = recordCheckResults(keyCodeStorer, testResults, wpm)
 		}
+		if err == nil {
+			nIncorrect = uint64(total) - nCorrect
+			nPossible = uint64(total)
+		}
 	}()
+
+	// calc total
+	if len(copy) > len(solution) {
+		var i int
+		var line []*record.KeyCode
+		for i, line = range solution {
+			ls := len(line)
+			lc := len(copy[i])
+			if ls > lc {
+				total += ls
+			} else {
+				total += lc
+			}
+		}
+		for i++; i < len(copy); i++ {
+			total += len(copy[i])
+		}
+	} else {
+		var i int
+		var line []*record.KeyCode
+		for i, line = range copy {
+			lc := len(line)
+			ls := len(solution[i])
+			if ls > lc {
+				total += ls
+			} else {
+				total += lc
+			}
+		}
+		for i++; i < len(solution); i++ {
+			total += len(solution[i])
+		}
+	}
 
 	// get a list of record pointers
 	var rr []*record.KeyCode
@@ -32,8 +70,6 @@ func Check(copy [][]*record.KeyCode, solution [][]*record.KeyCode, keyCodeStorer
 	for _, r := range rr {
 		controlIDRecord[r.ID] = r
 	}
-	// now copy is a slice of strings and solutionChars is a slice of strings.
-	// the 2 should match is the user copied correctly.
 	testResults = make([][]data.TestResult, 0, 100)
 	lc := len(copy)
 	ls := len(solution)
@@ -55,7 +91,6 @@ func Check(copy [][]*record.KeyCode, solution [][]*record.KeyCode, keyCodeStorer
 			}
 			lcl := len(copyLine)
 			lsl := len(solutionLine)
-			nKeyed += uint64(lsl)
 			if lcl > lsl {
 				var j int
 				var sRecord *record.KeyCode
@@ -63,8 +98,6 @@ func Check(copy [][]*record.KeyCode, solution [][]*record.KeyCode, keyCodeStorer
 					cRecord := copyLine[j]
 					if cRecord.ID == sRecord.ID {
 						nCorrect++
-					} else {
-						nIncorrect++
 					}
 					m := data.TestResult{
 						Input:   cRecord,
@@ -72,7 +105,6 @@ func Check(copy [][]*record.KeyCode, solution [][]*record.KeyCode, keyCodeStorer
 					}
 					testResultsLine = append(testResultsLine, m)
 				}
-				nIncorrect += uint64(lcl - lsl)
 				for j = lsl; j < lcl; j++ {
 					cRecord := copyLine[j]
 					m := data.TestResult{
@@ -90,8 +122,6 @@ func Check(copy [][]*record.KeyCode, solution [][]*record.KeyCode, keyCodeStorer
 					sRecord := solutionLine[j]
 					if cRecord.ID == sRecord.ID {
 						nCorrect++
-					} else {
-						nIncorrect++
 					}
 					m := data.TestResult{
 						Input:   cRecord,
@@ -99,7 +129,6 @@ func Check(copy [][]*record.KeyCode, solution [][]*record.KeyCode, keyCodeStorer
 					}
 					testResultsLine = append(testResultsLine, m)
 				}
-				nIncorrect += uint64(lsl - lcl)
 				for j = lcl; j < lsl; j++ {
 					// missing copy
 					sRecord := solutionLine[j]
@@ -124,7 +153,6 @@ func Check(copy [][]*record.KeyCode, solution [][]*record.KeyCode, keyCodeStorer
 				r := tempSolutionLine[i]
 				solutionLine[i] = controlIDRecord[r.ID]
 			}
-			nIncorrect += uint64(l)
 			for _, sRecord := range solutionLine {
 				// not copied
 				m := data.TestResult{
@@ -155,7 +183,6 @@ func Check(copy [][]*record.KeyCode, solution [][]*record.KeyCode, keyCodeStorer
 			copyLine := copy[i]
 			lcl := len(copyLine)
 			lsl := len(solutionLine)
-			nKeyed += uint64(lsl)
 			if lcl > lsl {
 				var j int
 				var sRecord *record.KeyCode
@@ -164,8 +191,6 @@ func Check(copy [][]*record.KeyCode, solution [][]*record.KeyCode, keyCodeStorer
 					cRecord := copyLine[j]
 					if cRecord.ID == sRecord.ID {
 						nCorrect++
-					} else {
-						nIncorrect++
 					}
 					m := data.TestResult{
 						Input:   cRecord,
@@ -173,7 +198,6 @@ func Check(copy [][]*record.KeyCode, solution [][]*record.KeyCode, keyCodeStorer
 					}
 					testResultsLine = append(testResultsLine, m)
 				}
-				nIncorrect += uint64(lcl - lsl)
 				for j = lsl; j < lcl; j++ {
 					// copied but nothing keyed
 					cRecord := copyLine[j]
@@ -192,8 +216,6 @@ func Check(copy [][]*record.KeyCode, solution [][]*record.KeyCode, keyCodeStorer
 					sRecord := solutionLine[j]
 					if cRecord.Character == sRecord.Character {
 						nCorrect++
-					} else {
-						nIncorrect++
 					}
 					m := data.TestResult{
 						Input:   cRecord,
@@ -201,7 +223,6 @@ func Check(copy [][]*record.KeyCode, solution [][]*record.KeyCode, keyCodeStorer
 					}
 					testResultsLine = append(testResultsLine, m)
 				}
-				nIncorrect += uint64(lsl - lcl)
 				for j = lcl; j < lsl; j++ {
 					// keyed but never copied
 					sRecord := solutionLine[j]
@@ -220,7 +241,6 @@ func Check(copy [][]*record.KeyCode, solution [][]*record.KeyCode, keyCodeStorer
 			return
 		}
 		// more copy and the rest of the copy is mistakes.
-		nIncorrect += uint64(lc - ls)
 		for i = ls; i < lc; i++ {
 			copyLine := copy[i]
 			for _, cRecord := range copyLine {

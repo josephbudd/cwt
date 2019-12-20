@@ -32,7 +32,26 @@ table.keycode-table > tbody > tr > td.code
 
 table.keycode-table > tbody > tr > td.name
 {
-  width:300px;
   padding:0 5px;
   text-align:left;
+}
+
+#lettersTableBody > tr > td.name
+{
+  width:100px;
+}
+
+#numbersTableBody > tr > td.name
+{
+  width:100px;
+}
+
+#punctuationsTableBody > tr > td.name
+{
+  width:150px;
+}
+
+#specialsTableBody > tr > td.name
+{
+  width:150px;
 }

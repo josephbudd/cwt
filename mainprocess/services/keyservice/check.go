@@ -9,8 +9,9 @@ import (
 )
 
 // Check checks the user's keyed against the solutionChars and returns results.
-func Check(keyed, solution [][]*record.KeyCode, keyCodeStorer storer.KeyCodeStorer, wpm uint64, recordResults bool) (nCorrect, nIncorrect, nRead uint64, testResults [][]data.TestResult, err error) {
+func Check(keyed, solution [][]*record.KeyCode, keyCodeStorer storer.KeyCodeStorer, wpm uint64, recordResults bool) (nCorrect, nIncorrect, nPossible uint64, testResults [][]data.TestResult, err error) {
 
+	var total int
 	defer func() {
 		if err != nil {
 			return
@@ -18,7 +19,44 @@ func Check(keyed, solution [][]*record.KeyCode, keyCodeStorer storer.KeyCodeStor
 		if recordResults {
 			err = recordCheckResults(keyCodeStorer, testResults, wpm)
 		}
+		if err == nil {
+			nIncorrect = uint64(total) - nCorrect
+			nPossible = uint64(total)
+		}
 	}()
+
+	// calc total
+	if len(keyed) > len(solution) {
+		var i int
+		var line []*record.KeyCode
+		for i, line = range solution {
+			ls := len(line)
+			lc := len(keyed[i])
+			if ls > lc {
+				total += ls
+			} else {
+				total += lc
+			}
+		}
+		for i++; i < len(keyed); i++ {
+			total += len(keyed[i])
+		}
+	} else {
+		var i int
+		var line []*record.KeyCode
+		for i, line = range keyed {
+			lc := len(line)
+			ls := len(solution[i])
+			if ls > lc {
+				total += ls
+			} else {
+				total += lc
+			}
+		}
+		for i++; i < len(solution); i++ {
+			total += len(solution[i])
+		}
+	}
 
 	var kRecord *record.KeyCode
 	var sRecord *record.KeyCode
@@ -58,14 +96,11 @@ func Check(keyed, solution [][]*record.KeyCode, keyCodeStorer storer.KeyCodeStor
 			lenKeyedLine := len(keyedLine)
 			lenSolutionLine := len(solutionLine)
 			if lenKeyedLine > lenSolutionLine {
-				nRead += uint64(lenKeyedLine)
 				// the user added extra keys in this line.
 				for j, sRecord = range solutionLine {
 					kRecord = keyedLine[j]
 					if kRecord.ID == sRecord.ID {
 						nCorrect++
-					} else {
-						nIncorrect++
 					}
 					m = data.TestResult{
 						Input:   kRecord,
@@ -73,18 +108,16 @@ func Check(keyed, solution [][]*record.KeyCode, keyCodeStorer storer.KeyCodeStor
 					}
 					testResultsLine = append(testResultsLine, m)
 				}
-				nIncorrect += uint64(lenKeyedLine - lenSolutionLine)
 				for j = lenSolutionLine; j < lenKeyedLine; j++ {
 					// extra keys in this line.
 					cRecord = controlIDRecord[keyedLine[j].ID]
 					m = data.TestResult{
 						Input:   cRecord,
-						Control: keycodes.NotInText,
+						Control: keycodes.NoCopyToKey,
 					}
 					testResultsLine = append(testResultsLine, m)
 				}
 			} else {
-				nRead += uint64(lenSolutionLine)
 				// the user did not add extra keys in this line.
 				// there may not be enough keys.
 				// lenKeyedLine <= lenSolutionLine
@@ -93,8 +126,6 @@ func Check(keyed, solution [][]*record.KeyCode, keyCodeStorer storer.KeyCodeStor
 					sRecord = solutionLine[j]
 					if kRecord.ID == sRecord.ID {
 						nCorrect++
-					} else {
-						nIncorrect++
 					}
 					m = data.TestResult{
 						Input:   kRecord,
@@ -102,7 +133,6 @@ func Check(keyed, solution [][]*record.KeyCode, keyCodeStorer storer.KeyCodeStor
 					}
 					testResultsLine = append(testResultsLine, m)
 				}
-				nIncorrect += uint64(lenSolutionLine - lenKeyedLine)
 				for j = lenKeyedLine; j < lenSolutionLine; j++ {
 					// missing keys in this line.
 					sRecord = solutionLine[j]
@@ -120,9 +150,6 @@ func Check(keyed, solution [][]*record.KeyCode, keyCodeStorer storer.KeyCodeStor
 		// each remaining solution represents a mis matched line.
 		for i = lenKeyed; i < lenSolution; i++ {
 			solutionLine = solution[i]
-			lenSolutionLine := len(solutionLine)
-			nRead += uint64(lenSolutionLine)
-			nIncorrect += uint64(lenSolutionLine)
 			for _, sRecord = range solutionLine {
 				// not keyed by the user.
 				m = data.TestResult{
@@ -145,15 +172,12 @@ func Check(keyed, solution [][]*record.KeyCode, keyCodeStorer storer.KeyCodeStor
 			lenKeyedLine := len(keyedLine)
 			lenSolutionLine := len(solutionLine)
 			if lenKeyedLine > lenSolutionLine {
-				nRead += uint64(lenKeyedLine)
 				// the user keyed extra chars in this line.
 				for j, sRecord = range solutionLine {
 					// text and keys.
 					kRecord := keyedLine[j]
 					if kRecord.ID == sRecord.ID {
 						nCorrect++
-					} else {
-						nIncorrect++
 					}
 					m = data.TestResult{
 						Input:   kRecord,
@@ -161,27 +185,23 @@ func Check(keyed, solution [][]*record.KeyCode, keyCodeStorer storer.KeyCodeStor
 					}
 					testResultsLine = append(testResultsLine, m)
 				}
-				nIncorrect += uint64(lenKeyedLine - lenSolutionLine)
 				for j = lenSolutionLine; j < lenKeyedLine; j++ {
 					// keyed but there was no text to key in this line.
 					kRecord = keyedLine[j]
 					m = data.TestResult{
 						Input:   kRecord,
-						Control: keycodes.NotInText,
+						Control: keycodes.NoCopyToKey,
 					}
 					testResultsLine = append(testResultsLine, m)
 				}
 			} else {
 				// lenKeyedLine <= lenSolutionLine
 				// the user keyed the correct number or too few this line.
-				nRead += uint64(lenSolutionLine)
 				for j, kRecord = range keyedLine {
 					// text and keys.
 					sRecord = solutionLine[j]
 					if kRecord.ID == sRecord.ID {
 						nCorrect++
-					} else {
-						nIncorrect++
 					}
 					m = data.TestResult{
 						Input:   kRecord,
@@ -189,7 +209,6 @@ func Check(keyed, solution [][]*record.KeyCode, keyCodeStorer storer.KeyCodeStor
 					}
 					testResultsLine = append(testResultsLine, m)
 				}
-				nIncorrect += uint64(lenSolutionLine - lenKeyedLine)
 				for j = lenKeyedLine; j < lenSolutionLine; j++ {
 					// text but the user missed keys for this line.
 					sRecord = solutionLine[j]
@@ -211,11 +230,10 @@ func Check(keyed, solution [][]*record.KeyCode, keyCodeStorer storer.KeyCodeStor
 		// extra keyed lines are mistakes.
 		for ; i < lenKeyed; i++ {
 			keyedLine := keyed[i]
-			nIncorrect += uint64(len(keyedLine))
 			for _, kRecord = range keyedLine {
 				m = data.TestResult{
 					Input:   kRecord,
-					Control: keycodes.NotInText,
+					Control: keycodes.NoCopyToKey,
 				}
 				testResultsLine = append(testResultsLine, m)
 			}

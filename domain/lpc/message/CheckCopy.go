@@ -18,10 +18,11 @@ type CheckCopyRendererToMainProcess struct {
 type CheckCopyMainProcessToRenderer struct {
 	Error        bool
 	ErrorMessage string
+	Fatal        bool
 
 	CorrectCount   uint64
 	IncorrectCount uint64
-	KeyedCount     uint64
+	MaxCount       uint64
 	TestResults    [][]data.TestResult
 	State          uint64
 }

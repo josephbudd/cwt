@@ -12,6 +12,7 @@ type UpdateKeyCodeRendererToMainProcess struct {
 type UpdateKeyCodeMainProcessToRenderer struct {
 	Error        bool
 	ErrorMessage string
+	Fatal        bool
 
 	Record *record.KeyCode
 	State  uint64

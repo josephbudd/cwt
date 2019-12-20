@@ -15,6 +15,7 @@ type KeyRendererToMainProcess struct {
 type KeyMainProcessToRenderer struct {
 	Error        bool
 	ErrorMessage string
+	Fatal        bool
 
 	Run   bool
 	State uint64

@@ -5,8 +5,6 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 
-	"github.com/pkg/errors"
-
 	"github.com/josephbudd/cwt/domain/data/filepaths"
 	"github.com/josephbudd/cwtsitepack"
 )
@@ -25,8 +23,7 @@ func NewApplicationSettings() (settings *ApplicationSettings, err error) {
 	var found bool
 	fpath = filepaths.GetShortSettingsPath()
 	if contents, found = cwtsitepack.Contents(fpath); !found {
-		emsg := fmt.Sprintf("can't find %q", fpath)
-		err = errors.New(emsg)
+		err = fmt.Errorf("can't find %q", fpath)
 		return
 	}
 	settings = &ApplicationSettings{}

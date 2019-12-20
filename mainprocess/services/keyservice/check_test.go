@@ -191,7 +191,7 @@ func makeResultsLine(solution, keyed []*types.KeyCodeRecord) (results []types.Te
 		for i := lenSolution; i < lenKeyed; i++ {
 			results[i] = types.TestResult{
 				Input:   keyed[i],
-				Control: keycodes.NotInText,
+				Control: keycodes.NoCopyToKey,
 			}
 		}
 	}

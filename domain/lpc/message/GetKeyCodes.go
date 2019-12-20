@@ -11,6 +11,7 @@ type GetKeyCodesRendererToMainProcess struct {
 type GetKeyCodesMainProcessToRenderer struct {
 	Error        bool
 	ErrorMessage string
+	Fatal        bool
 
 	Records []*record.KeyCode
 	State   uint64

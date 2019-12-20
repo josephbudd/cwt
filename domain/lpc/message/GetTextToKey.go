@@ -15,6 +15,7 @@ type GetTextToKeyRendererToMainProcess struct {
 type GetTextToKeyMainProcessToRenderer struct {
 	Error        bool
 	ErrorMessage string
+	Fatal        bool
 
 	Solution [][]*record.KeyCode
 	Help     [][]data.HowTo

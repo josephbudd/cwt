@@ -33,11 +33,26 @@
     margin-top:20px;
 }
 
+#copyTestText > table > tbody,
+#copyPracticeText > table > tbody
+{
+    margin-top:20px;
+}
+
+#copyTestText > table > tbody > tr > th,
+#copyPracticeText > table > tbody > tr > th
+{
+    text-align:right;
+    vertical-align: middle;
+    column-width: 200px;
+}
+
 #copyTestText > table > tbody > tr > td,
 #copyPracticeText > table > tbody > tr > td
 {
     text-align:center;
     vertical-align: middle;
+    column-width: 100px;
 }
 
 #copyTestText > table > tbody > tr > td.ditdah,
@@ -48,11 +63,32 @@
 }
 
 #copyTestText > table > tbody > tr > td.keyed,
+#copyPracticeText > table > tbody > tr > td.keyed
+{
+    font-size:100%;
+}
+
+#copyTestText > table > tbody > tr > td.keyed,
 #copyPracticeText > table > tbody > tr > td.keyed,
+#copyTestText > table > tbody > tr > th.keyed,
+#copyPracticeText > table > tbody > tr > th.keyed
+{
+    padding-top: 30px;
+}
+
 #copyTestText > table > tbody > tr > td.copied,
 #copyPracticeText > table > tbody > tr > td.copied
 {
     font-size:100%;
+}
+
+#copyTestText > table > tbody > tr > td.copied,
+#copyPracticeText > table > tbody > tr > td.copied,
+#copyTestText > table > tbody > tr > th.copied,
+#copyPracticeText > table > tbody > tr > th.copied
+{
+    padding-bottom: 10px;
+    border-bottom: white 1px solid;
 }
 
 #copyTestText > table > tbody > tr > td.match,
