@@ -101,14 +101,12 @@ $ sudo apt install libasound2-dev
 ~/go/src/github.com/josephbudd/kickwasm$ make proofs
 ```
 
-### Build and run the CRUD
+### Build and run the CWT
 
 ``` shell
-$ cd ~/go/src/github.com/josephbudd/crud
+$ cd ~/go/src/github.com/josephbudd/cwt
 $ kickbuild -rp -mp -run
 ```
-
-[![building and running this crud](https://i.vimeocdn.com/video/803693464.webp?mw=550&amp;mh=310&amp;q=70)](https://vimeo.com/351949802)
 
 ### How to uninstall
 
