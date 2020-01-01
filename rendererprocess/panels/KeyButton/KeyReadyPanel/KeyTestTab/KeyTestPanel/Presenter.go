@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/josephbudd/cwt/rendererprocess/api/markup"
-
 )
 
 /*

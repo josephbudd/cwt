@@ -2,9 +2,12 @@
 
 ## A linux Continuous Wave ( Morse Code ) Trainer
 
-December 20, 2019
+January 1, 2020
 
-* Rebuilt with [kickwasm](https://github.com/josephbudd/kickwasm) version 14.0.3.
+* Rebuilt with [kickwasm](https://github.com/josephbudd/kickwasm) version 15.0.0. Fixed a few issues from the crappy rebuild a week or so ago.
+
+
+* I have not tested with a input of keying's timing because internet is 1.5 hours from home and it's not here with me. I'm assuming that there are no issues as I have not touched that code. I've been keying with the mouse and that works so the keying with the key should work.
 
 ### Credit where credit is due
 

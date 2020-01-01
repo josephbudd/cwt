@@ -3,6 +3,7 @@
 package numberspanel
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/josephbudd/cwt/rendererprocess/api/dom"
@@ -25,7 +26,7 @@ type Panel struct {
 }
 
 // NewPanel constructs a new panel.
-func NewPanel(quitChan, eojChan chan struct{}, receiveChan lpc.Receiving, sendChan lpc.Sending, help *paneling.Help) (panel *Panel, err error) {
+func NewPanel(ctx context.Context, ctxCancel context.CancelFunc, receiveChan lpc.Receiving, sendChan lpc.Sending, help *paneling.Help) (panel *Panel, err error) {
 
 	defer func() {
 		if err != nil {
@@ -33,12 +34,11 @@ func NewPanel(quitChan, eojChan chan struct{}, receiveChan lpc.Receiving, sendCh
 		}
 	}()
 
-	quitCh = quitChan
-	eojCh = eojChan
+	rendererProcessCtx = ctx
+	rendererProcessCtxCancel = ctxCancel
 	receiveCh = receiveChan
 	sendCh = sendChan
 	document = dom.NewDOM(0)
-	state = help.StateNumber()
 
 	group := &panelGroup{}
 	controller := &panelController{
@@ -70,6 +70,7 @@ func NewPanel(quitChan, eojChan chan struct{}, receiveChan lpc.Receiving, sendCh
 	presenter.messenger = messenger
 	messenger.controller = controller
 	messenger.presenter = presenter
+	state = help.StateNumber()
 
 	// completions
 	if err = group.defineMembers(); err != nil {

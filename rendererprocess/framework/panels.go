@@ -3,6 +3,7 @@
 package framework
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -32,13 +33,12 @@ import (
 
 */
 
-// DoPanels builds and runs the panels.
-func DoPanels(quitChan, eojChan chan struct{}, receiveChan lpc.Receiving, sendChan lpc.Sending,
-	help *paneling.Help) (err error) {
+// DoMarkupPanels builds and runs the markup panels.
+func DoMarkupPanels(ctx context.Context, ctxCancel context.CancelFunc, receiveChan lpc.Receiving, sendChan lpc.Sending, help *paneling.Help) (err error) {
 	
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("DoPanels: %w", err)
+			err = fmt.Errorf("DoMarkupPanels: %w", err)
 			log.Println("Error: " + err.Error())
 		}
 	}()
@@ -47,51 +47,51 @@ func DoPanels(quitChan, eojChan chan struct{}, receiveChan lpc.Receiving, sendCh
 
 	// 2. Construct the panel code.
 	var copyNotReadyPanel *copynotreadypanel.Panel
-	if copyNotReadyPanel, err = copynotreadypanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, help); err != nil {
+	if copyNotReadyPanel, err = copynotreadypanel.NewPanel(ctx, ctxCancel, receiveChan, sendChan, help); err != nil {
 		return
 	}
 	var copyPracticePanel *copypracticepanel.Panel
-	if copyPracticePanel, err = copypracticepanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, help); err != nil {
+	if copyPracticePanel, err = copypracticepanel.NewPanel(ctx, ctxCancel, receiveChan, sendChan, help); err != nil {
 		return
 	}
 	var copyTestPanel *copytestpanel.Panel
-	if copyTestPanel, err = copytestpanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, help); err != nil {
+	if copyTestPanel, err = copytestpanel.NewPanel(ctx, ctxCancel, receiveChan, sendChan, help); err != nil {
 		return
 	}
 	var copyWPMPanel *copywpmpanel.Panel
-	if copyWPMPanel, err = copywpmpanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, help); err != nil {
+	if copyWPMPanel, err = copywpmpanel.NewPanel(ctx, ctxCancel, receiveChan, sendChan, help); err != nil {
 		return
 	}
 	var keyNotReadyPanel *keynotreadypanel.Panel
-	if keyNotReadyPanel, err = keynotreadypanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, help); err != nil {
+	if keyNotReadyPanel, err = keynotreadypanel.NewPanel(ctx, ctxCancel, receiveChan, sendChan, help); err != nil {
 		return
 	}
 	var keyPracticePanel *keypracticepanel.Panel
-	if keyPracticePanel, err = keypracticepanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, help); err != nil {
+	if keyPracticePanel, err = keypracticepanel.NewPanel(ctx, ctxCancel, receiveChan, sendChan, help); err != nil {
 		return
 	}
 	var keyTestPanel *keytestpanel.Panel
-	if keyTestPanel, err = keytestpanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, help); err != nil {
+	if keyTestPanel, err = keytestpanel.NewPanel(ctx, ctxCancel, receiveChan, sendChan, help); err != nil {
 		return
 	}
 	var keyWPMPanel *keywpmpanel.Panel
-	if keyWPMPanel, err = keywpmpanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, help); err != nil {
+	if keyWPMPanel, err = keywpmpanel.NewPanel(ctx, ctxCancel, receiveChan, sendChan, help); err != nil {
 		return
 	}
 	var lettersPanel *letterspanel.Panel
-	if lettersPanel, err = letterspanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, help); err != nil {
+	if lettersPanel, err = letterspanel.NewPanel(ctx, ctxCancel, receiveChan, sendChan, help); err != nil {
 		return
 	}
 	var numbersPanel *numberspanel.Panel
-	if numbersPanel, err = numberspanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, help); err != nil {
+	if numbersPanel, err = numberspanel.NewPanel(ctx, ctxCancel, receiveChan, sendChan, help); err != nil {
 		return
 	}
 	var punctuationPanel *punctuationpanel.Panel
-	if punctuationPanel, err = punctuationpanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, help); err != nil {
+	if punctuationPanel, err = punctuationpanel.NewPanel(ctx, ctxCancel, receiveChan, sendChan, help); err != nil {
 		return
 	}
 	var specialPanel *specialpanel.Panel
-	if specialPanel, err = specialpanel.NewPanel(quitChan, eojChan, receiveChan, sendChan, help); err != nil {
+	if specialPanel, err = specialpanel.NewPanel(ctx, ctxCancel, receiveChan, sendChan, help); err != nil {
 		return
 	}
 

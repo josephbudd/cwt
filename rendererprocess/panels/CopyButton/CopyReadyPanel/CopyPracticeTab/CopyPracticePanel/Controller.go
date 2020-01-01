@@ -45,11 +45,7 @@ type panelController struct {
 	solution      [][]*record.KeyCode
 	userIsCopying bool
 	codeIsKeying  bool
-	delaySeconds  uint64
 	wpm           uint64
-
-	lockMessageTitle string
-	lockMessage      string
 }
 
 // defineControlsHandlers defines the GUI's controllers and their event handlers.
@@ -107,10 +103,6 @@ func (controller *panelController) defineControlsHandlers() (err error) {
 	// Receive the submit button's onclick event.
 	controller.copyPracticeCheck.SetEventHandler(controller.handleCheck, "click", false)
 
-	controller.delaySeconds = 5
-	controller.lockMessageTitle = "Oops!"
-	controller.lockMessage = "You are still copying."
-
 	return
 }
 
@@ -125,7 +117,7 @@ import "github.com/josephbudd/cwt/rendererprocess/api/event"
 import "github.com/josephbudd/cwt/rendererprocess/api/display"
 
 func (controller *panelController) handleSubmit(e event.Event) (nilReturn interface{}) {
-	// See renderer/event/event.go.
+	// See rendererprocess/api/event/event.go.
 	// The event.Event funcs.
 	//   e.PreventDefaultBehavior()
 	//   e.StopCurrentPhasePropagation()
@@ -158,7 +150,7 @@ func (controller *panelController) handleStart(e event.Event) (nilReturn interfa
 	controller.userIsCopying = true
 	controller.presenter.started()
 	controller.messenger.getTextToCopy()
-	display.BlockButtonsWithMessage(controller.lockMessage, controller.lockMessageTitle)
+	display.BlockButtonsWithMessage(lockMessage, lockMessageTitle)
 	return
 }
 
@@ -193,12 +185,12 @@ func (controller *panelController) processTextToCopy(solution [][]*record.KeyCod
 	controller.solution = solution
 	controller.presenter.ready1()
 	display.Inform(
-		fmt.Sprintf("The CW will begin %d seconds after you click close. Enter your copy into the red square.", controller.delaySeconds),
+		fmt.Sprintf("The CW will begin %d seconds after you click close. Enter your copy into the red square.", delaySeconds),
 		"Copy Practice",
 		func() {
 			controller.presenter.ready2()
 			controller.codeIsKeying = true
-			controller.messenger.key(controller.solution, controller.wpm, controller.delaySeconds)
+			controller.messenger.key(controller.solution, controller.wpm, delaySeconds)
 		},
 	)
 }

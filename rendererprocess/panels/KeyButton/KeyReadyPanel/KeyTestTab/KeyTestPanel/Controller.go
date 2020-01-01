@@ -3,8 +3,10 @@
 package keytestpanel
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/josephbudd/cwt/rendererprocess/api/markup"
 	"github.com/josephbudd/cwt/rendererprocess/widgets"
 )
 
@@ -69,6 +71,41 @@ func (controller *panelController) defineControlsHandlers() (err error) {
 
 	*/
 
+	var keyTestH, keyTestKey, keyTestCopy, keyTestStart, keyTestCheck *markup.Element
+
+	// Define the heading.
+	if keyTestH = document.ElementByID("keyTestH"); keyTestH == nil {
+		err = errors.New("unable to find #keyTestH")
+		return
+	}
+
+	// Define the key area where the user mouses over with the keyer-mouse when keying.
+	if keyTestKey = document.ElementByID("keyTestKey"); keyTestKey == nil {
+		err = errors.New("unable to find #keyTestKey")
+		return
+	}
+
+	// Define the copy area where the user can read the copy to key.
+	if keyTestCopy = document.ElementByID("keyTestCopy"); keyTestCopy == nil {
+		err = errors.New("unable to find #keyTestCopy")
+		return
+	}
+
+	// Define the start button for the keyWidget.
+	if keyTestStart = document.ElementByID("keyTestStart"); keyTestStart == nil {
+		err = errors.New("unable to find #keyTestStart")
+		return
+	}
+
+	// Define the check button for the keyWidget.
+	if keyTestCheck = document.ElementByID("keyTestCheck"); keyTestCheck == nil {
+		err = errors.New("unable to find #keyTestCheck")
+		return
+	}
+
+	// Define the keyWidget.
+	controller.keyWidget = widgets.NewKeyWidget(document, keyTestH, keyTestStart, keyTestCheck, nil, keyTestKey, keyTestCopy, controller.messenger, nil)
+
 	return
 }
 
@@ -83,7 +120,7 @@ import "github.com/josephbudd/cwt/rendererprocess/api/event"
 import "github.com/josephbudd/cwt/rendererprocess/api/display"
 
 func (controller *panelController) handleSubmit(e event.Event) (nilReturn interface{}) {
-	// See renderer/event/event.go.
+	// See rendererprocess/api/event/event.go.
 	// The event.Event funcs.
 	//   e.PreventDefaultBehavior()
 	//   e.StopCurrentPhasePropagation()

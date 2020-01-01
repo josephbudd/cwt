@@ -74,7 +74,7 @@ func getWorst(rr []*record.KeyCode, wpm uint64, count uint64) (worst []*record.K
 	for k := range percentRecord {
 		sortedPercent = append(sortedPercent, k)
 	}
-	sort.Sort(sort.Reverse(sort.IntSlice(sortedPercent)))
+	sort.Sort(sort.IntSlice(sortedPercent))
 	// collect the worst
 	worst = make([]*record.KeyCode, 0, count)
 	max := int(count)

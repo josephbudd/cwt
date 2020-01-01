@@ -81,7 +81,7 @@ import "github.com/josephbudd/cwt/rendererprocess/api/event"
 import "github.com/josephbudd/cwt/rendererprocess/api/display"
 
 func (controller *panelController) handleSubmit(e event.Event) (nilReturn interface{}) {
-	// See renderer/event/event.go.
+	// See rendererprocess/api/event/event.go.
 	// The event.Event funcs.
 	//   e.PreventDefaultBehavior()
 	//   e.StopCurrentPhasePropagation()

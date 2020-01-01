@@ -3,9 +3,10 @@ package copyservice
 import (
 	"crypto/rand"
 	"errors"
+	"log"
 	"math/big"
+	"sort"
 
-	"github.com/josephbudd/cwt/domain/data"
 	"github.com/josephbudd/cwt/domain/store/record"
 	"github.com/josephbudd/cwt/domain/store/storer"
 )
@@ -16,23 +17,13 @@ import (
 // A keycode word is a slice of key code records.
 // Each word has a length of 5 key codes.
 func GetKeyCodes(keyCodeStorer storer.KeyCodeStorer) (keyCodeWords [][]*record.KeyCode, err error) {
-	rmap, err := getKeyCodeRecordsMap(keyCodeStorer)
+	rr, err := getSelected(keyCodeStorer)
+	log.Printf("GetKeyCodes: %d selected records", len(rr))
 	if err != nil {
-		err = errors.New("GetKeyCodes getKeyCodeRecordsMap(keyCodeStorer) error is " + err.Error())
+		err = errors.New("GetKeyCodes getSelected(keyCodeStorer) error is " + err.Error())
 		return
 	}
-	// build the character/number list.
-	var records []*record.KeyCode
-	var ok bool
-	if records, ok = rmap[data.KeyCodeTypeLetter]; !ok {
-		records = make([]*record.KeyCode, 0, 5)
-	}
-	if rr, ok := rmap[data.KeyCodeTypeNumber]; ok {
-		for _, r := range rr {
-			records = append(records, r)
-		}
-	}
-	keyCodeWords = buildKeyCodeWords(records, 5, 5)
+	keyCodeWords = buildKeyCodeWords(shuffleKeyCodeRecords(rr), 5, 5)
 	return
 }
 
@@ -70,19 +61,62 @@ func shuffleKeyCodeRecords(records []*record.KeyCode) (shuffled []*record.KeyCod
 	return
 }
 
-func getKeyCodeRecordsMap(keyCodeStorer storer.KeyCodeStorer) (map[uint64][]*record.KeyCode, error) {
-	rmap := make(map[uint64][]*record.KeyCode)
+func getSelected(keyCodeStorer storer.KeyCodeStorer) (selected []*record.KeyCode, err error) {
 	rr, err := keyCodeStorer.GetAll()
 	if err != nil {
-		return nil, err
+		return
 	}
+	selected = make([]*record.KeyCode, 0, len(rr))
 	for _, r := range rr {
 		if r.Selected {
-			if _, ok := rmap[r.Type]; !ok {
-				rmap[r.Type] = make([]*record.KeyCode, 0, 50)
-			}
-			rmap[r.Type] = append(rmap[r.Type], r)
+			selected = append(selected, r)
 		}
 	}
-	return rmap, nil
+	return
+}
+
+func getWorst(rr []*record.KeyCode, wpm uint64, count uint64) (worst []*record.KeyCode) {
+	// map records to wpm
+	var percent int
+	percentRecord := make(map[int][]*record.KeyCode)
+	for _, r := range rr {
+		if r.Selected {
+			if result, ok := r.CopyWPMResults[wpm]; ok {
+				if result.Attempts == 0 {
+					percent = 0
+				} else {
+					percent = int((result.Correct * 100) / result.Attempts)
+				}
+				if _, ok = percentRecord[percent]; !ok {
+					percentRecord[percent] = make([]*record.KeyCode, 0, 50)
+				}
+				percentRecord[percent] = append(percentRecord[percent], r)
+			}
+		}
+	}
+	// sort the percent
+	l := len(percentRecord)
+	sortedPercent := make([]int, 0, l)
+	for k := range percentRecord {
+		sortedPercent = append(sortedPercent, k)
+	}
+	sort.Sort(sort.IntSlice(sortedPercent))
+	// collect the worst
+	worst = make([]*record.KeyCode, 0, count)
+	max := int(count)
+	for _, percent = range sortedPercent {
+		for _, r := range percentRecord[percent] {
+			worst = append(worst, r)
+		}
+		if len(worst) >= max {
+			break
+		}
+	}
+	if len(worst) <= max {
+		return
+	}
+	// shuffle worst and resize to max
+	worst = shuffleKeyCodeRecords(worst)
+	worst = worst[:max]
+	return
 }
